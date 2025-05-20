@@ -18,6 +18,7 @@
       "@config/*": ["src/config/*"],
       "@controllers/*": ["src/controllers/*"],
       "@services/*": ["src/services/*"],
+      "@libs/*": ["src/libs/*"],
     },
     "incremental": true,
     "skipLibCheck": true,

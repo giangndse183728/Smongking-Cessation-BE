@@ -1,0 +1,412 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model achievements {
+  id                String              @id @db.Uuid
+  name              String              @db.VarChar
+  description       String
+  image_url         String?             @db.VarChar
+  achievement_type  String              @db.VarChar
+  threshold_value   Decimal             @db.Decimal
+  created_at        DateTime?           @default(now()) @db.Timestamp(6)
+  created_by        String?             @db.Uuid
+  updated_at        DateTime?           @db.Timestamp(6)
+  updated_by        String?             @db.Uuid
+  deleted_at        DateTime?           @db.Timestamp(6)
+  deleted_by        String?             @db.Uuid
+  user_achievements user_achievements[]
+}
+
+model chat_lines {
+  id           String     @id @db.Uuid
+  chat_room_id String     @db.Uuid
+  sender_id    String     @db.Uuid
+  sender_type  String     @db.VarChar
+  message      String
+  sent_at      DateTime?  @default(now()) @db.Timestamp(6)
+  is_read      Boolean?   @default(false)
+  created_at   DateTime?  @default(now()) @db.Timestamp(6)
+  created_by   String?    @db.Uuid
+  updated_at   DateTime?  @db.Timestamp(6)
+  updated_by   String?    @db.Uuid
+  deleted_at   DateTime?  @db.Timestamp(6)
+  deleted_by   String?    @db.Uuid
+  chat_rooms   chat_rooms @relation(fields: [chat_room_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model chat_rooms {
+  id         String       @id @db.Uuid
+  user_id    String       @db.Uuid
+  coach_id   String       @db.Uuid
+  started_at DateTime?    @default(now()) @db.Timestamp(6)
+  ended_at   DateTime?    @db.Timestamp(6)
+  status     String?      @default("active") @db.VarChar(20)
+  created_at DateTime?    @default(now()) @db.Timestamp(6)
+  created_by String?      @db.Uuid
+  updated_at DateTime?    @db.Timestamp(6)
+  updated_by String?      @db.Uuid
+  deleted_at DateTime?    @db.Timestamp(6)
+  deleted_by String?      @db.Uuid
+  chat_lines chat_lines[]
+  coaches    coaches      @relation(fields: [coach_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  users      users        @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model coaches {
+  id               String       @id @db.Uuid
+  user_id          String       @db.Uuid
+  specialization   String?
+  experience_years Int?
+  bio              String?
+  working_hours    String?
+  is_active        Boolean?     @default(true)
+  created_at       DateTime?    @db.Timestamp(6)
+  created_by       String?      @db.Uuid
+  updated_at       DateTime?    @db.Timestamp(6)
+  updated_by       String?      @db.Uuid
+  deleted_at       DateTime?    @db.Timestamp(6)
+  deleted_by       String?      @db.Uuid
+  chat_rooms       chat_rooms[]
+  users            users        @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model comments {
+  id         String    @id @db.Uuid
+  post_id    String    @db.Uuid
+  user_id    String    @db.Uuid
+  content    String
+  created_at DateTime? @default(now()) @db.Timestamp(6)
+  created_by String?   @db.Uuid
+  updated_at DateTime? @db.Timestamp(6)
+  updated_by String?   @db.Uuid
+  deleted_at DateTime? @db.Timestamp(6)
+  deleted_by String?   @db.Uuid
+  posts      posts     @relation(fields: [post_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  users      users     @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model feedbacks {
+  id          String    @id @db.Uuid
+  user_id     String    @db.Uuid
+  ref_type    String    @db.VarChar(20)
+  ref_id      String?   @db.Uuid
+  rating_star Int?
+  comment     String?
+  created_at  DateTime? @default(now()) @db.Timestamp(6)
+  created_by  String?   @db.Uuid
+  updated_at  DateTime? @db.Timestamp(6)
+  updated_by  String?   @db.Uuid
+  deleted_at  DateTime? @db.Timestamp(6)
+  deleted_by  String?   @db.Uuid
+  users       users     @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model leaderboard {
+  id               String    @id @db.Uuid
+  user_id          String    @db.Uuid
+  achievement_type String    @db.VarChar
+  rank             Int?
+  score            Int?
+  created_at       DateTime? @default(now()) @db.Timestamp(6)
+  created_by       String?   @db.Uuid
+  updated_at       DateTime? @db.Timestamp(6)
+  updated_by       String?   @db.Uuid
+  deleted_at       DateTime? @db.Timestamp(6)
+  deleted_by       String?   @db.Uuid
+  users            users     @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model membership_plans {
+  id                 String               @id @db.Uuid
+  name               String               @unique @db.VarChar
+  description        String?
+  features           String[]
+  price              Decimal              @db.Decimal(10, 2)
+  duration_days      Int
+  is_active          Boolean?             @default(true)
+  created_at         DateTime?            @default(now()) @db.Timestamp(6)
+  created_by         String?              @db.Uuid
+  updated_at         DateTime?            @db.Timestamp(6)
+  updated_by         String?              @db.Uuid
+  deleted_at         DateTime?            @db.Timestamp(6)
+  deleted_by         String?              @db.Uuid
+  user_subscriptions user_subscriptions[]
+}
+
+model notification_schedules {
+  id             String    @id @db.Uuid
+  user_id        String    @db.Uuid
+  type           String    @db.VarChar
+  frequency      String?   @default("DAILY") @db.VarChar
+  preferred_time DateTime? @db.Time(6)
+  is_active      Boolean?  @default(true)
+  created_at     DateTime? @default(now()) @db.Timestamp(6)
+  created_by     String?   @db.Uuid
+  updated_at     DateTime? @db.Timestamp(6)
+  updated_by     String?   @db.Uuid
+  deleted_at     DateTime? @db.Timestamp(6)
+  deleted_by     String?   @db.Uuid
+  users          users     @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model notifications {
+  id         String    @id @db.Uuid
+  user_id    String    @db.Uuid
+  title      String
+  content    String
+  type       String    @db.VarChar
+  is_read    Boolean?  @default(false)
+  created_at DateTime? @default(now()) @db.Timestamp(6)
+  created_by String?   @db.Uuid
+  updated_at DateTime? @db.Timestamp(6)
+  updated_by String?   @db.Uuid
+  deleted_at DateTime? @db.Timestamp(6)
+  deleted_by String?   @db.Uuid
+  users      users     @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model posts {
+  id                String             @id @db.Uuid
+  user_id           String             @db.Uuid
+  type              String             @db.VarChar
+  title             String
+  content           String
+  status            String             @default("PENDING") @db.VarChar
+  reason            String?
+  thumbnail         String
+  achievement_id    String?            @db.Uuid
+  created_at        DateTime?          @default(now()) @db.Timestamp(6)
+  created_by        String?            @db.Uuid
+  updated_at        DateTime?          @db.Timestamp(6)
+  updated_by        String?            @db.Uuid
+  deleted_at        DateTime?          @db.Timestamp(6)
+  deleted_by        String?            @db.Uuid
+  comments          comments[]
+  user_achievements user_achievements? @relation(fields: [achievement_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  users             users              @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  reactions         reactions[]
+}
+
+model quit_plan_phases {
+  id                       String              @id @db.Uuid
+  plan_id                  String              @db.Uuid
+  user_id                  String              @db.Uuid
+  phase_number             Int?
+  limit_cigarettes_per_day Int?
+  start_date               DateTime            @db.Date
+  expected_end_date        DateTime?           @db.Date
+  status                   String?             @default("INPROGRESS ") @db.VarChar
+  created_at               DateTime?           @default(now()) @db.Timestamp(6)
+  created_by               String?             @db.Uuid
+  updated_at               DateTime?           @db.Timestamp(6)
+  updated_by               String?             @db.Uuid
+  deleted_at               DateTime?           @db.Timestamp(6)
+  deleted_by               String?             @db.Uuid
+  quit_plans               quit_plans          @relation(fields: [plan_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  users                    users               @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  quit_plan_records        quit_plan_records[]
+}
+
+model quit_plan_records {
+  id               String           @id @db.Uuid
+  user_id          String           @db.Uuid
+  plan_id          String           @db.Uuid
+  phase_id         String           @db.Uuid
+  cigarette_smoke  Int?
+  money_saved      Decimal          @default(0) @db.Decimal(10, 2)
+  craving_level    Int?
+  health_status    String?
+  record_date      DateTime         @db.Date
+  created_at       DateTime?        @default(now()) @db.Timestamp(6)
+  created_by       String?          @db.Uuid
+  updated_at       DateTime?        @db.Timestamp(6)
+  updated_by       String?          @db.Uuid
+  deleted_at       DateTime?        @db.Timestamp(6)
+  deleted_by       String?          @db.Uuid
+  quit_plan_phases quit_plan_phases @relation(fields: [phase_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  quit_plans       quit_plans       @relation(fields: [plan_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  users            users            @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model quit_plans {
+  id                String              @id @db.Uuid
+  user_id           String              @db.Uuid
+  reason            String
+  plan_type         String?             @default("STANDARD") @db.VarChar
+  start_date        DateTime            @db.Date
+  expected_end_date DateTime?           @db.Date
+  totalDays         Int
+  total_phases      Int
+  status            String?             @default("INPROGRESS") @db.VarChar
+  created_at        DateTime?           @db.Timestamp(6)
+  created_by        String?             @db.Uuid
+  updated_at        DateTime?           @db.Timestamp(6)
+  updated_by        String?             @db.Uuid
+  deleted_at        DateTime?           @db.Timestamp(6)
+  deleted_by        String?             @db.Uuid
+  quit_plan_phases  quit_plan_phases[]
+  quit_plan_records quit_plan_records[]
+  users             users               @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model reactions {
+  id         String    @id @db.Uuid
+  ref_id     String    @db.Uuid
+  ref_type   String    @db.VarChar
+  user_id    String    @db.Uuid
+  type       String    @db.VarChar
+  created_at DateTime? @default(now()) @db.Timestamp(6)
+  created_by String?   @db.Uuid
+  updated_at DateTime? @db.Timestamp(6)
+  updated_by String?   @db.Uuid
+  deleted_at DateTime? @db.Timestamp(6)
+  deleted_by String?   @db.Uuid
+  posts      posts     @relation(fields: [ref_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  users      users     @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model reports {
+  id                               String    @id @db.Uuid
+  reporter_id                      String    @db.Uuid
+  ref_type                         String?   @db.VarChar(50)
+  ref_id                           String?   @db.Uuid
+  title                            String
+  description                      String
+  status                           String?   @default("pending") @db.VarChar(20)
+  reviewed_by                      String?   @db.Uuid
+  reviewed_at                      DateTime? @db.Timestamp(6)
+  solution                         String?
+  created_at                       DateTime? @default(now()) @db.Timestamp(6)
+  created_by                       String?   @db.Uuid
+  updated_at                       DateTime? @db.Timestamp(6)
+  updated_by                       String?   @db.Uuid
+  deleted_at                       DateTime? @db.Timestamp(6)
+  deleted_by                       String?   @db.Uuid
+  users_reports_reporter_idTousers users     @relation("reports_reporter_idTousers", fields: [reporter_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  users_reports_reviewed_byTousers users?    @relation("reports_reviewed_byTousers", fields: [reviewed_by], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model smoking_habits {
+  id                  String    @id @db.Uuid
+  user_id             String    @db.Uuid
+  cigarettes_per_pack Int
+  price_per_pack      Decimal   @db.Decimal
+  cigarettes_per_day  Int
+  smoking_years       Int?
+  triggers            String[]
+  created_at          DateTime? @default(now()) @db.Timestamp(6)
+  created_by          String?   @db.Uuid
+  updated_at          DateTime? @db.Timestamp(6)
+  updated_by          String?   @db.Uuid
+  deleted_at          DateTime? @db.Timestamp(6)
+  deleted_by          String?   @db.Uuid
+  users               users     @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model user_achievements {
+  id             String       @id @db.Uuid
+  user_id        String       @db.Uuid
+  achievement_id String       @db.Uuid
+  earned_date    DateTime     @default(now()) @db.Timestamp(6)
+  created_at     DateTime?    @default(now()) @db.Timestamp(6)
+  created_by     String?      @db.Uuid
+  updated_at     DateTime?    @db.Timestamp(6)
+  updated_by     String?      @db.Uuid
+  deleted_at     DateTime?    @db.Timestamp(6)
+  deleted_by     String?      @db.Uuid
+  posts          posts[]
+  achievements   achievements @relation(fields: [achievement_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  users          users        @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model user_subscriptions {
+  id               String           @id @db.Uuid
+  user_id          String           @db.Uuid
+  plan_id          String           @db.Uuid
+  start_date       DateTime         @db.Timestamp(6)
+  end_date         DateTime         @db.Timestamp(6)
+  is_active        Boolean?         @default(true)
+  payment_status   String           @db.VarChar
+  created_at       DateTime?        @default(now()) @db.Timestamp(6)
+  created_by       String?          @db.Uuid
+  updated_at       DateTime?        @db.Timestamp(6)
+  updated_by       String?          @db.Uuid
+  deleted_at       DateTime?        @db.Timestamp(6)
+  deleted_by       String?          @db.Uuid
+  membership_plans membership_plans @relation(fields: [plan_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  users            users            @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model users {
+  id                                 String                   @id @db.Uuid
+  first_name                         String?                  @db.VarChar
+  last_name                          String?                  @db.VarChar
+  username                           String                   @unique @db.VarChar
+  email                              String                   @unique @db.VarChar
+  password                           String                   @db.VarChar
+  phone_number                       String                   @unique @db.VarChar
+  dob                                DateTime?                @db.Date
+  role                               String                   @default("MEMBER") @db.VarChar
+  created_at                         DateTime?                @db.Timestamp(6)
+  created_by                         String?                  @db.Uuid
+  updated_at                         DateTime?                @db.Timestamp(6)
+  updated_by                         String?                  @db.Uuid
+  deleted_at                         DateTime?                @db.Timestamp(6)
+  deleted_by                         String?                  @db.Uuid
+  chat_rooms                         chat_rooms[]
+  coaches                            coaches[]
+  comments                           comments[]
+  feedbacks                          feedbacks[]
+  leaderboard                        leaderboard[]
+  notification_schedules             notification_schedules[]
+  notifications                      notifications[]
+  posts                              posts[]
+  quit_plan_phases                   quit_plan_phases[]
+  quit_plan_records                  quit_plan_records[]
+  quit_plans                         quit_plans[]
+  reactions                          reactions[]
+  reports_reports_reporter_idTousers reports[]                @relation("reports_reporter_idTousers")
+  reports_reports_reviewed_byTousers reports[]                @relation("reports_reviewed_byTousers")
+  smoking_habits                     smoking_habits[]
+  user_achievements                  user_achievements[]
+  user_subscriptions                 user_subscriptions[]
+}
+
+enum AddictedStatus {
+  High
+  Medium
+  Low
+  None
+}
+
+enum PlanStatus {
+  High
+  Medium
+  Low
+  None
+}
+
+enum PlanTypes {
+  standard
+  aggressive
+  slow
+}
+
+enum Status {
+  active
+  inactive
+  banned
+}
+
+enum UserRole {
+  user
+  coach
+  admin
+}

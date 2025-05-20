@@ -1,5 +1,29 @@
 import { z } from 'zod';
 import { UserRole } from '@common/constants/enum';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+
+export class SignupDtoSwagger {
+  @ApiProperty({ example: 'john_doe' })
+  username: string;
+
+  @ApiProperty({ example: 'john@example.com' })
+  email: string;
+
+  @ApiProperty({ example: 'strongpassword123' })
+  password: string;
+
+  @ApiPropertyOptional({ example: 'John Doe' })
+  full_name?: string;
+
+  @ApiPropertyOptional({ example: '1990-01-01', type: 'string', format: 'date' })
+  birth_date?: string;
+
+  @ApiProperty({ example: '0901234567' })
+  phone_number: string;
+
+  @ApiPropertyOptional({ enum: UserRole, default: UserRole.USER })
+  role?: UserRole;
+}
 
 export const signupSchema = z.object({
   username: z.string().min(3).max(50),

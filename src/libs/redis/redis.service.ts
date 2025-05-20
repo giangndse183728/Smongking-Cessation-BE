@@ -37,7 +37,7 @@ export class RedisService implements OnModuleDestroy {
     });
   }
 
-  async setRefreshToken(userId: number, token: string): Promise<void> {
+  async setRefreshToken(userId: string, token: string): Promise<void> {
     await this.redis.set(
       `refresh_token:${userId}`,
       token,
@@ -46,7 +46,7 @@ export class RedisService implements OnModuleDestroy {
     );
   }
 
-  async getRefreshToken(userId: number): Promise<string | null> {
+  async getRefreshToken(userId: string): Promise<string | null> {
     return this.redis.get(`refresh_token:${userId}`);
   }
 

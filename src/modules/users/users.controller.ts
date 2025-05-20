@@ -7,8 +7,10 @@ import { UpdateUserDto } from './dto/update-user.schema';
 import { UserEntity } from './entities/users.entity';
 import { users } from '@prisma/client';
 import { plainToInstance } from 'class-transformer';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'; 
 
 @Controller('users')
+@ApiBearerAuth('access-token') 
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 

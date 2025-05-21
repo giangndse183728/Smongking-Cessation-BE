@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { UserRole, Status } from '@common/constants/enum';
+import { createZodDto } from 'nestjs-zod';
 
 export const createUserSchema = z.object({
   username: z.string().min(3).max(50),
@@ -15,6 +16,6 @@ export const createUserSchema = z.object({
   profile_picture_url: z.string().url().optional(),
   role: z.nativeEnum(UserRole).optional(),
   status: z.nativeEnum(Status).optional(),
-});
+}).strict();
 
 export type CreateUserDto = z.infer<typeof createUserSchema>; 

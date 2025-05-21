@@ -123,4 +123,31 @@ export class AuthService {
 
     return { message: 'Password reset successfully' };
   }
+
+  
+  async googleLogin(user: SignupDto) {
+    if (!user) {
+      throw new UnauthorizedException('No user from google');
+    }
+
+    let dbUser = await this.prisma.users.findUnique({
+      where: { email: user.email },
+    });
+
+    if (!dbUser) {
+      // Create new user if doesn't exist
+      dbUser = await this.prisma.users.create({
+        data: {
+          email: user.email,
+          username: user.username,
+          password: '',
+          role: 'USER',
+          phone_number: '',
+        },
+      });
+    }
+
+    const tokens = await this.tokenService.generateTokens(dbUser.id, dbUser.email, dbUser.role);
+    return tokens;
+  }
 }

@@ -10,6 +10,7 @@ import { TokenService } from 'src/modules/auth/token.service';
 import { AccessTokenStrategy } from './strategies/access-token.strategy';
 import { RefreshTokenStrategy } from './strategies/refresh-token.strategy';
 import { UsersModule } from '@modules/users/users.module';
+import { GoogleStrategy } from './strategies/google.strategy';
 
 @Module({
   imports: [
@@ -27,7 +28,7 @@ import { UsersModule } from '@modules/users/users.module';
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, TokenService, AccessTokenStrategy, RefreshTokenStrategy],
+  providers: [AuthService, TokenService, AccessTokenStrategy, RefreshTokenStrategy, GoogleStrategy],
   exports: [AuthService],
 })
 export class AuthModule {}

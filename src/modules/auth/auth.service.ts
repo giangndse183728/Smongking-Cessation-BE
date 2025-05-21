@@ -2,9 +2,13 @@ import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/
 import { PrismaService } from '@libs/prisma/prisma.service';
 import { LoginDto } from './dto/login.dto';
 import { SignupDto } from './dto/signup.dto';
+import { ForgotPasswordDto } from './dto/forgot-password.dto';
+import { ResetPasswordDto } from './dto/reset-password.dto';
 import { hashPassword, comparePassword } from '@common/utils/bcrypt';
 import { TokenService } from './token.service';
 import { RedisService } from '@libs/redis/redis.service';
+import { MailService } from '@libs/mail/mail.service';
+import { sendPasswordResetEmail } from '@common/utils/mail.utils';
 
 
 @Injectable()
@@ -13,7 +17,9 @@ export class AuthService {
     private prisma: PrismaService,
     private tokenService: TokenService,
     private redisService: RedisService,
-  ) {}
+    private mailService: MailService,
+  ) {
+  }
 
   async signup(signupDto: SignupDto) {
     const { password, ...rest } = signupDto;
@@ -58,7 +64,63 @@ export class AuthService {
     return this.tokenService.generateTokens(user.id, user.email, user.role);
   }
   
-  async logout(userId: number) {
+
+  async logout(userId: string) {
     await this.redisService.deleteRefreshToken(userId);
+  }
+
+
+  async forgotPassword(forgotPasswordDto: ForgotPasswordDto) {
+    const user = await this.prisma.users.findUnique({
+      where: { email: forgotPasswordDto.email },
+    });
+
+    if (!user) {
+      return { message: 'If a user with that email exists, a password reset link has been sent.' };
+    }
+
+    const resetToken = this.tokenService.generateResetToken();
+
+    const redisKey = `reset-password:${resetToken}`;
+    await this.redisService.set(redisKey, user.id, 900);
+
+    await sendPasswordResetEmail(this.mailService, user.email, resetToken);
+
+    return { message: 'If a user with that email exists, a password reset link has been sent.' };
+  }
+
+
+  async resetPassword(resetPasswordDto: ResetPasswordDto) {
+    const redisPassKey = `reset-password:${resetPasswordDto.token}`;
+    console.log('Token received in resetPasswordDto:', resetPasswordDto.token);
+    const userId = await this.redisService.get(redisPassKey);
+
+    if (!userId) {
+      throw new BadRequestException('Invalid or expired reset token');
+    }
+
+    const user = await this.prisma.users.findUnique({ where: { id: userId } });
+    if (!user) {
+      throw new BadRequestException('User not found');
+    }
+
+    if (resetPasswordDto.password !== resetPasswordDto.confirmPassword) {
+        throw new BadRequestException('Passwords do not match');
+    }
+
+    const hashedPassword = await hashPassword(resetPasswordDto.password);
+
+    await this.prisma.users.update({
+      where: { id: user.id },
+      data: {
+        password: hashedPassword,
+      },
+    });
+
+    await this.redisService.del(redisPassKey);
+
+    await this.redisService.deleteRefreshToken(user.id);
+
+    return { message: 'Password reset successfully' };
   }
 }

@@ -19,15 +19,17 @@ import {
 } from '@nestjs/swagger';
 import { ZodValidationPipe } from '@common/pipe/zod-validation.pipe';
 import { AuthService } from './auth.service';
-import { LoginDto, LoginDtoSwagger, loginSchema } from './dto/login.dto';
-import { SignupDto, SignupDtoSwagger, signupSchema } from './dto/signup.dto';
+import { LoginDto, loginSchema } from './dto/login.dto';
+import { SignupDto, signupSchema } from './dto/signup.dto';
+import { ForgotPasswordDto, forgotPasswordSchema } from './dto/forgot-password.dto';
+import { ResetPasswordDto, resetPasswordSchema } from './dto/reset-password.dto';
 import { Response, Request } from 'express';
 import { AccessTokenGuard } from './guards/access-token.guard';
 import { RefreshTokenGuard } from './guards/refresh-token.guard';
 import { GetCurrentUser } from 'src/common/decorators/user.decorator';
 import { setAuthCookies } from 'src/common/utils/cookies';
 
-@ApiTags('Auth') // Nhóm các API này dưới tag "Auth" trong Swagger
+@ApiTags('Auth') 
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
@@ -35,7 +37,7 @@ export class AuthController {
   @Post('signup')
   @ApiOperation({ summary: 'Sign up a new user' })
   @ApiResponse({ status: 201, description: 'User signed up successfully' })
-  @ApiBody({ type: SignupDtoSwagger })
+  @ApiBody({ type: SignupDto })
   async signup(
     @Body(new ZodValidationPipe(signupSchema)) signupDto: SignupDto,
     @Res({ passthrough: true }) res: Response,
@@ -49,7 +51,7 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Log in a user' })
   @ApiResponse({ status: 200, description: 'User logged in successfully' })
-  @ApiBody({ type: LoginDtoSwagger})
+  @ApiBody({ type: LoginDto})
   async login(
     @Body(new ZodValidationPipe(loginSchema)) loginDto: LoginDto,
     @Res({ passthrough: true }) res: Response,
@@ -64,7 +66,7 @@ export class AuthController {
   @UseGuards(RefreshTokenGuard)
   @ApiOperation({ summary: 'Refresh access token using refresh token' })
   @ApiResponse({ status: 200, description: 'Access token refreshed successfully' })
-  @ApiCookieAuth() // Đánh dấu là sử dụng cookie (refreshToken)
+  @ApiCookieAuth()
   async refreshToken(
     @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
@@ -85,13 +87,35 @@ export class AuthController {
   @UseGuards(AccessTokenGuard)
   @ApiOperation({ summary: 'Log out the user' })
   @ApiResponse({ status: 200, description: 'User logged out successfully' })
-  @ApiBearerAuth() // Đánh dấu là sử dụng bearer token (accessToken)
+  @ApiBearerAuth() 
   async logout(
-    @GetCurrentUser('userId') userId: number,
+    @GetCurrentUser('userId') userId: string,
     @Res({ passthrough: true }) res: Response,
   ) {
     await this.authService.logout(userId);
     res.clearCookie('refreshToken');
     return { message: 'Logged out successfully' };
+  }
+
+  @Post('forgot-password')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Request a password reset link' })
+  @ApiResponse({ status: 200, description: 'If a user with that email exists, a password reset link has been sent.' })
+  @ApiBody({ type: ForgotPasswordDto })
+  async forgotPassword(
+    @Body(new ZodValidationPipe(forgotPasswordSchema)) forgotPasswordDto: ForgotPasswordDto,
+  ) {
+    return this.authService.forgotPassword(forgotPasswordDto);
+  }
+
+  @Post('reset-password')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Reset password using a token' })
+  @ApiResponse({ status: 200, description: 'Password reset successfully' })
+  @ApiBody({ type: ResetPasswordDto })
+  async resetPassword(
+    @Body(new ZodValidationPipe(resetPasswordSchema)) resetPasswordDto: ResetPasswordDto,
+  ) {
+    return this.authService.resetPassword(resetPasswordDto);
   }
 }

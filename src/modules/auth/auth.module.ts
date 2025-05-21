@@ -3,6 +3,7 @@ import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { PrismaModule } from '@libs/prisma/prisma.module';
 import { RedisModule } from '@libs/redis/redis.module';
+import { MailModule } from '@libs/mail/mail.module';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TokenService } from 'src/modules/auth/token.service';
@@ -15,6 +16,7 @@ import { UsersModule } from '@modules/users/users.module';
     UsersModule,
     PrismaModule,
     RedisModule,
+    MailModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({

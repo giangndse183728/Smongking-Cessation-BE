@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { RedisService } from '@libs/redis/redis.service';
 import { ConfigService } from '@nestjs/config';
+import { randomBytes } from 'crypto';
 
 @Injectable()
 export class TokenService {
@@ -30,5 +31,9 @@ export class TokenService {
 
     await this.redisService.setRefreshToken(userId, refreshToken);
     return { accessToken, refreshToken };
+  }
+
+  generateResetToken(): string {
+    return randomBytes(32).toString('hex');
   }
 } 

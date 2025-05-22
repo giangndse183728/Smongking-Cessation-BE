@@ -359,6 +359,7 @@ model users {
   updated_by                         String?                  @db.Uuid
   deleted_at                         DateTime?                @db.Timestamp(6)
   deleted_by                         String?                  @db.Uuid
+  avatar                             String?
   chat_rooms                         chat_rooms[]
   coaches                            coaches[]
   comments                           comments[]

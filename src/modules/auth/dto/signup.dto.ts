@@ -37,30 +37,9 @@ export class SignupDto extends createZodDto(signupSchema) {
   password: string;
 
   @ApiProperty({
-    example: 'John Doe',
-    description: 'Full name',
-    required: false,
-  })
-  full_name?: string;
-
-  @ApiProperty({
-    example: '1990-01-01',
-    description: 'Birth date',
-    required: false,
-  })
-  birth_date?: Date;
-
-  @ApiProperty({
     example: '0901234567',
     description: 'Vietnamese phone number',
   })
   phone_number: string;
 
-  @ApiProperty({
-    example: 'USER',
-    description: 'User role',
-    enum: UserRole,
-    required: false,
-  })
-  role?: UserRole;
 } 

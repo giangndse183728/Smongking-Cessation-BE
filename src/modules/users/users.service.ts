@@ -2,7 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '@libs/prisma/prisma.service';
 import { CreateUserDto } from './dto/create-user.schema';
 import { UpdateUserDto } from './dto/update-user.schema';
-import { UserRole, Status } from '@common/constants/enum';
+import { UserRole } from '@common/constants/enum';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class UsersService {
@@ -39,20 +40,31 @@ export class UsersService {
     });
   }
 
+  async getUser(filter: Prisma.usersWhereUniqueInput) {
+    return await this.prisma.users.findUnique({
+      where: filter,
+    });
+  }
+
   async update(id: string, data: UpdateUserDto) {
     return this.prisma.users.update({
       where: { id },
       data: {
         ...data,
         ...(data.role && { role: data.role }),
-        ...(data.status && { status: data.status })
+        ...(data.status && { status: data.status }),
+        updated_at: new Date(),
+        updated_by: id,
       },
     });
   }
 
   async delete(id: string) {
-    return this.prisma.users.delete({
+    return this.prisma.users.update({
       where: { id },
+      data: {
+        deleted_at: new Date(),
+      },
     });
   }
 }

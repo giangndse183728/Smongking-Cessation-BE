@@ -21,11 +21,11 @@ export class RedisService implements OnModuleDestroy {
       port: parseInt(port),
       username,
       password,
-      
+
       retryStrategy: (times) => {
         const delay = Math.min(times * 50, 2000);
         return delay;
-      }
+      },
     });
 
     this.redis.on('error', (err) => {
@@ -73,4 +73,4 @@ export class RedisService implements OnModuleDestroy {
   onModuleDestroy() {
     this.redis.quit();
   }
-} 
+}

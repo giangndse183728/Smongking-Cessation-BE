@@ -36,4 +36,4 @@ export class TokenService {
   generateResetToken(): string {
     return randomBytes(32).toString('hex');
   }
-} 
+}

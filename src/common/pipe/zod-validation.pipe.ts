@@ -1,4 +1,9 @@
-import { PipeTransform, Injectable, ArgumentMetadata, UnprocessableEntityException } from '@nestjs/common';
+import {
+  PipeTransform,
+  Injectable,
+  ArgumentMetadata,
+  UnprocessableEntityException,
+} from '@nestjs/common';
 import { ZodSchema } from 'zod';
 
 @Injectable()
@@ -8,7 +13,7 @@ export class ZodValidationPipe implements PipeTransform {
   transform(value: any, metadata: ArgumentMetadata) {
     const result = this.schema.safeParse(value);
     if (!result.success) {
-      const formattedErrors = result.error.errors.map(err => ({
+      const formattedErrors = result.error.errors.map((err) => ({
         path: err.path.join('.'),
         message: err.message,
       }));

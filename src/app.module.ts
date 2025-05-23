@@ -7,11 +7,12 @@ import { PrismaModule } from '@libs/prisma/prisma.module';
 import { AuthModule } from './modules/auth/auth.module';
 
 @Module({
-  imports: [UsersModule,
-     PrismaModule,
-     AuthModule,
+  imports: [
+    UsersModule,
+    PrismaModule,
+    AuthModule,
     ConfigModule.forRoot({
-      isGlobal: true, 
+      isGlobal: true,
     }),
   ],
   controllers: [AppController],

@@ -4,13 +4,15 @@ import { ExtractJwt, Strategy } from 'passport-jwt';
 import { Request } from 'express';
 import { ConfigService } from '@nestjs/config';
 
-
 export interface JwtPayload {
   sub: number;
 }
 
 @Injectable()
-export class RefreshTokenStrategy extends PassportStrategy(Strategy, 'refresh-token') {
+export class RefreshTokenStrategy extends PassportStrategy(
+  Strategy,
+  'refresh-token',
+) {
   constructor(private configService: ConfigService) {
     super({
       jwtFromRequest: ExtractJwt.fromExtractors([
@@ -30,4 +32,4 @@ export class RefreshTokenStrategy extends PassportStrategy(Strategy, 'refresh-to
       refreshToken,
     };
   }
-} 
+}

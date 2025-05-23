@@ -16,7 +16,7 @@ model achievements {
   threshold_value   Decimal             @db.Decimal
   created_at        DateTime?           @default(now()) @db.Timestamp(6)
   created_by        String?             @db.Uuid
-  updated_at        DateTime?           @db.Timestamp(6)
+  updated_at        DateTime?           @updatedAt @db.Timestamp(6)
   updated_by        String?             @db.Uuid
   deleted_at        DateTime?           @db.Timestamp(6)
   deleted_by        String?             @db.Uuid
@@ -33,7 +33,7 @@ model chat_lines {
   is_read      Boolean?   @default(false)
   created_at   DateTime?  @default(now()) @db.Timestamp(6)
   created_by   String?    @db.Uuid
-  updated_at   DateTime?  @db.Timestamp(6)
+  updated_at   DateTime?  @updatedAt @db.Timestamp(6)
   updated_by   String?    @db.Uuid
   deleted_at   DateTime?  @db.Timestamp(6)
   deleted_by   String?    @db.Uuid
@@ -49,7 +49,7 @@ model chat_rooms {
   status     String?      @default("active") @db.VarChar(20)
   created_at DateTime?    @default(now()) @db.Timestamp(6)
   created_by String?      @db.Uuid
-  updated_at DateTime?    @db.Timestamp(6)
+  updated_at DateTime?    @updatedAt @db.Timestamp(6)
   updated_by String?      @db.Uuid
   deleted_at DateTime?    @db.Timestamp(6)
   deleted_by String?      @db.Uuid
@@ -66,9 +66,9 @@ model coaches {
   bio              String?
   working_hours    String?
   is_active        Boolean?     @default(true)
-  created_at       DateTime?    @db.Timestamp(6)
+  created_at       DateTime?    @default(now()) @db.Timestamp(6)
   created_by       String?      @db.Uuid
-  updated_at       DateTime?    @db.Timestamp(6)
+  updated_at       DateTime?    @updatedAt @db.Timestamp(6)
   updated_by       String?      @db.Uuid
   deleted_at       DateTime?    @db.Timestamp(6)
   deleted_by       String?      @db.Uuid
@@ -83,7 +83,7 @@ model comments {
   content    String
   created_at DateTime? @default(now()) @db.Timestamp(6)
   created_by String?   @db.Uuid
-  updated_at DateTime? @db.Timestamp(6)
+  updated_at DateTime? @updatedAt @db.Timestamp(6)
   updated_by String?   @db.Uuid
   deleted_at DateTime? @db.Timestamp(6)
   deleted_by String?   @db.Uuid
@@ -100,7 +100,7 @@ model feedbacks {
   comment     String?
   created_at  DateTime? @default(now()) @db.Timestamp(6)
   created_by  String?   @db.Uuid
-  updated_at  DateTime? @db.Timestamp(6)
+  updated_at  DateTime? @updatedAt @db.Timestamp(6)
   updated_by  String?   @db.Uuid
   deleted_at  DateTime? @db.Timestamp(6)
   deleted_by  String?   @db.Uuid
@@ -115,7 +115,7 @@ model leaderboard {
   score            Int?
   created_at       DateTime? @default(now()) @db.Timestamp(6)
   created_by       String?   @db.Uuid
-  updated_at       DateTime? @db.Timestamp(6)
+  updated_at       DateTime? @updatedAt @db.Timestamp(6)
   updated_by       String?   @db.Uuid
   deleted_at       DateTime? @db.Timestamp(6)
   deleted_by       String?   @db.Uuid
@@ -132,7 +132,7 @@ model membership_plans {
   is_active          Boolean?             @default(true)
   created_at         DateTime?            @default(now()) @db.Timestamp(6)
   created_by         String?              @db.Uuid
-  updated_at         DateTime?            @db.Timestamp(6)
+  updated_at         DateTime?            @updatedAt @db.Timestamp(6)
   updated_by         String?              @db.Uuid
   deleted_at         DateTime?            @db.Timestamp(6)
   deleted_by         String?              @db.Uuid
@@ -148,7 +148,7 @@ model notification_schedules {
   is_active      Boolean?  @default(true)
   created_at     DateTime? @default(now()) @db.Timestamp(6)
   created_by     String?   @db.Uuid
-  updated_at     DateTime? @db.Timestamp(6)
+  updated_at     DateTime? @updatedAt @db.Timestamp(6)
   updated_by     String?   @db.Uuid
   deleted_at     DateTime? @db.Timestamp(6)
   deleted_by     String?   @db.Uuid
@@ -164,7 +164,7 @@ model notifications {
   is_read    Boolean?  @default(false)
   created_at DateTime? @default(now()) @db.Timestamp(6)
   created_by String?   @db.Uuid
-  updated_at DateTime? @db.Timestamp(6)
+  updated_at DateTime? @updatedAt @db.Timestamp(6)
   updated_by String?   @db.Uuid
   deleted_at DateTime? @db.Timestamp(6)
   deleted_by String?   @db.Uuid
@@ -183,7 +183,7 @@ model posts {
   achievement_id    String?            @db.Uuid
   created_at        DateTime?          @default(now()) @db.Timestamp(6)
   created_by        String?            @db.Uuid
-  updated_at        DateTime?          @db.Timestamp(6)
+  updated_at        DateTime?          @updatedAt @db.Timestamp(6)
   updated_by        String?            @db.Uuid
   deleted_at        DateTime?          @db.Timestamp(6)
   deleted_by        String?            @db.Uuid
@@ -204,7 +204,7 @@ model quit_plan_phases {
   status                   String?             @default("INPROGRESS ") @db.VarChar
   created_at               DateTime?           @default(now()) @db.Timestamp(6)
   created_by               String?             @db.Uuid
-  updated_at               DateTime?           @db.Timestamp(6)
+  updated_at               DateTime?           @updatedAt @db.Timestamp(6)
   updated_by               String?             @db.Uuid
   deleted_at               DateTime?           @db.Timestamp(6)
   deleted_by               String?             @db.Uuid
@@ -225,7 +225,7 @@ model quit_plan_records {
   record_date      DateTime         @db.Date
   created_at       DateTime?        @default(now()) @db.Timestamp(6)
   created_by       String?          @db.Uuid
-  updated_at       DateTime?        @db.Timestamp(6)
+  updated_at       DateTime?        @updatedAt @db.Timestamp(6)
   updated_by       String?          @db.Uuid
   deleted_at       DateTime?        @db.Timestamp(6)
   deleted_by       String?          @db.Uuid
@@ -244,9 +244,9 @@ model quit_plans {
   totalDays         Int
   total_phases      Int
   status            String?             @default("INPROGRESS") @db.VarChar
-  created_at        DateTime?           @db.Timestamp(6)
+  created_at        DateTime?           @default(now()) @db.Timestamp(6)
   created_by        String?             @db.Uuid
-  updated_at        DateTime?           @db.Timestamp(6)
+  updated_at        DateTime?           @updatedAt @db.Timestamp(6)
   updated_by        String?             @db.Uuid
   deleted_at        DateTime?           @db.Timestamp(6)
   deleted_by        String?             @db.Uuid
@@ -263,7 +263,7 @@ model reactions {
   type       String    @db.VarChar
   created_at DateTime? @default(now()) @db.Timestamp(6)
   created_by String?   @db.Uuid
-  updated_at DateTime? @db.Timestamp(6)
+  updated_at DateTime? @updatedAt @db.Timestamp(6)
   updated_by String?   @db.Uuid
   deleted_at DateTime? @db.Timestamp(6)
   deleted_by String?   @db.Uuid
@@ -284,7 +284,7 @@ model reports {
   solution                         String?
   created_at                       DateTime? @default(now()) @db.Timestamp(6)
   created_by                       String?   @db.Uuid
-  updated_at                       DateTime? @db.Timestamp(6)
+  updated_at                       DateTime? @updatedAt @db.Timestamp(6)
   updated_by                       String?   @db.Uuid
   deleted_at                       DateTime? @db.Timestamp(6)
   deleted_by                       String?   @db.Uuid
@@ -302,7 +302,7 @@ model smoking_habits {
   triggers            String[]
   created_at          DateTime? @default(now()) @db.Timestamp(6)
   created_by          String?   @db.Uuid
-  updated_at          DateTime? @db.Timestamp(6)
+  updated_at          DateTime? @updatedAt @db.Timestamp(6)
   updated_by          String?   @db.Uuid
   deleted_at          DateTime? @db.Timestamp(6)
   deleted_by          String?   @db.Uuid
@@ -316,7 +316,7 @@ model user_achievements {
   earned_date    DateTime     @default(now()) @db.Timestamp(6)
   created_at     DateTime?    @default(now()) @db.Timestamp(6)
   created_by     String?      @db.Uuid
-  updated_at     DateTime?    @db.Timestamp(6)
+  updated_at     DateTime?    @updatedAt @db.Timestamp(6)
   updated_by     String?      @db.Uuid
   deleted_at     DateTime?    @db.Timestamp(6)
   deleted_by     String?      @db.Uuid
@@ -335,7 +335,7 @@ model user_subscriptions {
   payment_status   String           @db.VarChar
   created_at       DateTime?        @default(now()) @db.Timestamp(6)
   created_by       String?          @db.Uuid
-  updated_at       DateTime?        @db.Timestamp(6)
+  updated_at       DateTime?        @updatedAt @db.Timestamp(6)
   updated_by       String?          @db.Uuid
   deleted_at       DateTime?        @db.Timestamp(6)
   deleted_by       String?          @db.Uuid
@@ -350,12 +350,14 @@ model users {
   username                           String                   @unique @db.VarChar
   email                              String                   @unique @db.VarChar
   password                           String                   @db.VarChar
+  avatar                             String                   @default("https://mkhub.s3.us-east-1.amazonaws.com/avatar/default_avt.jpg")
   phone_number                       String                   @unique @db.VarChar
   dob                                DateTime?                @db.Date
-  role                               String                   @default("MEMBER") @db.VarChar
-  created_at                         DateTime?                @db.Timestamp(6)
+  role                               String                   @default("user") @db.VarChar
+  isMember                           Boolean?                 @default(false)
+  created_at                         DateTime?                @default(now()) @db.Timestamp(6)
   created_by                         String?                  @db.Uuid
-  updated_at                         DateTime?                @db.Timestamp(6)
+  updated_at                         DateTime?                @updatedAt @db.Timestamp(6)
   updated_by                         String?                  @db.Uuid
   deleted_at                         DateTime?                @db.Timestamp(6)
   deleted_by                         String?                  @db.Uuid

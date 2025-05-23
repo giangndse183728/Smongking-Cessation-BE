@@ -1,8 +1,4 @@
-import {
-  ExceptionFilter,
-  Catch,
-  ArgumentsHost,
-} from '@nestjs/common';
+import { ExceptionFilter, Catch, ArgumentsHost } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { parseException } from '@common/utils/exception-parser';
 
@@ -18,7 +14,6 @@ export class AllExceptionsFilter implements ExceptionFilter {
     }
 
     const { status, message, errors } = parseException(exception);
-
     response.status(status).json({
       statusCode: status,
       timestamp: new Date().toISOString(),

@@ -9,6 +9,7 @@ import {
   UseGuards,
   UnauthorizedException,
   Get,
+  UsePipes,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -22,8 +23,14 @@ import { ZodValidationPipe } from '@common/pipe/zod-validation.pipe';
 import { AuthService } from './auth.service';
 import { LoginDto, loginSchema } from './dto/login.dto';
 import { SignupDto, signupSchema } from './dto/signup.dto';
-import { ForgotPasswordDto, forgotPasswordSchema } from './dto/forgot-password.dto';
-import { ResetPasswordDto, resetPasswordSchema } from './dto/reset-password.dto';
+import {
+  ForgotPasswordDto,
+  forgotPasswordSchema,
+} from './dto/forgot-password.dto';
+import {
+  ResetPasswordDto,
+  resetPasswordSchema,
+} from './dto/reset-password.dto';
 import { Response, Request } from 'express';
 import { AccessTokenGuard } from './guards/access-token.guard';
 import { RefreshTokenGuard } from './guards/refresh-token.guard';
@@ -31,21 +38,28 @@ import { GetCurrentUser } from 'src/common/decorators/user.decorator';
 import { setAuthCookies } from 'src/common/utils/cookies';
 import { AuthGuard } from '@nestjs/passport';
 import { ConfigService } from '@nestjs/config';
+import { UsersService } from '@modules/users/users.service';
+import { SignupValidationPipe } from '@common/pipe/signup-validation.pipe';
 
-@ApiTags('Auth') 
+@ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService, private configService: ConfigService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private configService: ConfigService,
+    private usersService: UsersService,
+  ) {}
 
   @Post('signup')
   @ApiOperation({ summary: 'Sign up a new user' })
+  @UsePipes(SignupValidationPipe)
   @ApiResponse({ status: 201, description: 'User signed up successfully' })
   @ApiBody({ type: SignupDto })
   async signup(
-    @Body(new ZodValidationPipe(signupSchema)) signupDto: SignupDto,
+    @Body() body: SignupDto,
     @Res({ passthrough: true }) res: Response,
   ) {
-    const { accessToken, refreshToken } = await this.authService.signup(signupDto);
+    const { accessToken, refreshToken } = await this.authService.signup(body);
     setAuthCookies(res, refreshToken);
     return { accessToken };
   }
@@ -54,12 +68,13 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Log in a user' })
   @ApiResponse({ status: 200, description: 'User logged in successfully' })
-  @ApiBody({ type: LoginDto})
+  @ApiBody({ type: LoginDto })
   async login(
     @Body(new ZodValidationPipe(loginSchema)) loginDto: LoginDto,
     @Res({ passthrough: true }) res: Response,
   ) {
-    const { accessToken, refreshToken } = await this.authService.login(loginDto);
+    const { accessToken, refreshToken } =
+      await this.authService.login(loginDto);
     setAuthCookies(res, refreshToken);
     return { accessToken };
   }
@@ -68,12 +83,15 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @UseGuards(RefreshTokenGuard)
   @ApiOperation({ summary: 'Refresh access token using refresh token' })
-  @ApiResponse({ status: 200, description: 'Access token refreshed successfully' })
+  @ApiResponse({
+    status: 200,
+    description: 'Access token refreshed successfully',
+  })
   @ApiCookieAuth()
   async refreshToken(
     @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
-    @GetCurrentUser('userId') userId: string,
+    @GetCurrentUser('id') userId: string,
   ) {
     const refreshToken = req.cookies?.refreshToken;
     if (!refreshToken) {
@@ -90,9 +108,9 @@ export class AuthController {
   @UseGuards(AccessTokenGuard)
   @ApiOperation({ summary: 'Log out the user' })
   @ApiResponse({ status: 200, description: 'User logged out successfully' })
-  @ApiBearerAuth() 
+  @ApiBearerAuth()
   async logout(
-    @GetCurrentUser('userId') userId: string,
+    @GetCurrentUser('id') userId: string,
     @Res({ passthrough: true }) res: Response,
   ) {
     await this.authService.logout(userId);
@@ -103,10 +121,15 @@ export class AuthController {
   @Post('forgot-password')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Request a password reset link' })
-  @ApiResponse({ status: 200, description: 'If a user with that email exists, a password reset link has been sent.' })
+  @ApiResponse({
+    status: 200,
+    description:
+      'If a user with that email exists, a password reset link has been sent.',
+  })
   @ApiBody({ type: ForgotPasswordDto })
   async forgotPassword(
-    @Body(new ZodValidationPipe(forgotPasswordSchema)) forgotPasswordDto: ForgotPasswordDto,
+    @Body(new ZodValidationPipe(forgotPasswordSchema))
+    forgotPasswordDto: ForgotPasswordDto,
   ) {
     return this.authService.forgotPassword(forgotPasswordDto);
   }
@@ -117,7 +140,8 @@ export class AuthController {
   @ApiResponse({ status: 200, description: 'Password reset successfully' })
   @ApiBody({ type: ResetPasswordDto })
   async resetPassword(
-    @Body(new ZodValidationPipe(resetPasswordSchema)) resetPasswordDto: ResetPasswordDto,
+    @Body(new ZodValidationPipe(resetPasswordSchema))
+    resetPasswordDto: ResetPasswordDto,
   ) {
     return this.authService.resetPassword(resetPasswordDto);
   }
@@ -139,9 +163,13 @@ export class AuthController {
     @Res({ passthrough: true }) res: Response,
   ) {
     try {
-      const { accessToken, refreshToken } = await this.authService.googleLogin(req.user);
+      const { accessToken, refreshToken } = await this.authService.googleLogin(
+        req.user,
+      );
       setAuthCookies(res, refreshToken);
-      return res.redirect(`${this.configService.get<string>('FRONTEND_URL')}/login/success?access_token=${accessToken}`);
+      return res.redirect(
+        `${this.configService.get<string>('FRONTEND_URL')}/login/success?access_token=${accessToken}`,
+      );
     } catch (error) {
       throw new UnauthorizedException('Google login failed');
     }

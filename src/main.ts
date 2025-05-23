@@ -8,7 +8,6 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  
   app.enableCors({
     origin: process.env.FRONTEND_URL || 'http://localhost:5000',
     credentials: true,
@@ -16,13 +15,12 @@ async function bootstrap() {
   });
 
   app.use(cookieParser());
-
   app.useGlobalInterceptors(
     new LoggingInterceptor(),
     new TransformInterceptor(),
   );
   app.setGlobalPrefix('api/v1');
-  app.useGlobalFilters(new AllExceptionsFilter)
+  app.useGlobalFilters(new AllExceptionsFilter());
 
   // Swagger setup
   const config = new DocumentBuilder()

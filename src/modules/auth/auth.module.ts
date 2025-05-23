@@ -20,15 +20,23 @@ import { GoogleStrategy } from './strategies/google.strategy';
     MailModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
-      useFactory: async (configService: ConfigService) => ({
+      useFactory: (configService: ConfigService) => ({
         secret: configService.get<string>('JWT_SECRET'),
-        signOptions: { expiresIn: '15m' },
+        signOptions: {
+          expiresIn: configService.getOrThrow('ACCESS_TOKEN_EXPIRES_IN'),
+        },
       }),
       inject: [ConfigService],
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, TokenService, AccessTokenStrategy, RefreshTokenStrategy, GoogleStrategy],
+  providers: [
+    AuthService,
+    TokenService,
+    AccessTokenStrategy,
+    RefreshTokenStrategy,
+    GoogleStrategy,
+  ],
   exports: [AuthService],
 })
 export class AuthModule {}

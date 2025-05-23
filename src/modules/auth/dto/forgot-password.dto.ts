@@ -12,4 +12,4 @@ export class ForgotPasswordDto extends createZodDto(forgotPasswordSchema) {
     description: 'Email address for password reset',
   })
   email: string;
-} 
+}

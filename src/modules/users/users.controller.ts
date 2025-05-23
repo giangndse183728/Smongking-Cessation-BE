@@ -1,4 +1,14 @@
-import { Controller, Get, Post, Put, Delete, Body, Param, NotFoundException, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Put,
+  Delete,
+  Body,
+  Param,
+  NotFoundException,
+  UseGuards,
+} from '@nestjs/common';
 import { AccessTokenGuard } from '@modules/auth/guards/access-token.guard';
 import { UsersService } from './users.service';
 import { GetCurrentUser } from '@common/decorators/user.decorator';
@@ -7,10 +17,10 @@ import { UpdateUserDto } from './dto/update-user.schema';
 import { UserEntity } from './entities/users.entity';
 import { users } from '@prisma/client';
 import { plainToInstance } from 'class-transformer';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'; 
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
 @Controller('users')
-@ApiBearerAuth('access-token') 
+@ApiBearerAuth('access-token')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
@@ -36,7 +46,7 @@ export class UsersController {
 
   @Post()
   async create(@Body() createUserDto: CreateUserDto) {
-    return this.usersService.create(createUserDto);
+    return await this.usersService.create(createUserDto);
   }
 
   @UseGuards(AccessTokenGuard)

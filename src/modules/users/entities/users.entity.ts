@@ -17,19 +17,17 @@ export class UserEntity {
   @Expose()
   email: string;
 
-  @Exclude() 
+  @Exclude()
   password: string;
 
   @Expose()
   phone_number: string;
 
   @Expose()
-  @Type(() => Date)  
+  @Type(() => Date)
   dob?: Date;
-
 
   constructor(partial: Partial<UserEntity>) {
     Object.assign(this, partial);
   }
-
 }

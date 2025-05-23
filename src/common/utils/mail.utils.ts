@@ -1,6 +1,10 @@
 import { MailService } from '@libs/mail/mail.service';
 
-export async function sendPasswordResetEmail(mailService: MailService, email: string, resetToken: string): Promise<void> {
+export async function sendPasswordResetEmail(
+  mailService: MailService,
+  email: string,
+  resetToken: string,
+): Promise<void> {
   const resetLink = `https://your-frontend-url/reset-password?token=${resetToken}`;
   const subject = 'Password Reset Request';
   const text = `You are receiving this because you (or someone else) has requested the reset of the password for your account.\n\n
@@ -15,4 +19,4 @@ export async function sendPasswordResetEmail(mailService: MailService, email: st
     console.error('Error sending password reset email:', error);
     throw new Error('Failed to send password reset email');
   }
-} 
+}

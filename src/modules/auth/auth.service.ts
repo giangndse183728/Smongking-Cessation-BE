@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { PrismaService } from '@libs/prisma/prisma.service';
 import { LoginDto } from './dto/login.dto';
 import { SignupDto } from './dto/signup.dto';
@@ -10,7 +14,6 @@ import { RedisService } from '@libs/redis/redis.service';
 import { MailService } from '@libs/mail/mail.service';
 import { sendPasswordResetEmail } from '@common/utils/mail.utils';
 
-
 @Injectable()
 export class AuthService {
   constructor(
@@ -18,21 +21,30 @@ export class AuthService {
     private tokenService: TokenService,
     private redisService: RedisService,
     private mailService: MailService,
-  ) {
-  }
+  ) {}
 
   async signup(signupDto: SignupDto) {
     const { password, ...rest } = signupDto;
+
     const hashedPassword = await hashPassword(password);
-  
+
     const user = await this.prisma.users.create({
       data: {
-        ...rest,
+        first_name: rest.first_name,
+        last_name: rest.last_name,
+        email: rest.email,
+        phone_number: rest.phone_number,
+        username: rest.username,
+        dob: rest.birth_date ? new Date(rest.birth_date) : null,
         password: hashedPassword,
       },
     });
-  
-    const tokens = await this.tokenService.generateTokens(user.id, user.email, user.role);
+
+    const tokens = await this.tokenService.generateTokens(
+      user.id,
+      user.email,
+      user.role,
+    );
     return { ...tokens };
   }
 
@@ -40,13 +52,17 @@ export class AuthService {
     const user = await this.prisma.users.findUnique({
       where: { email: loginDto.email },
     });
-  
+
     if (!user || !(await comparePassword(loginDto.password, user.password))) {
       throw new UnauthorizedException('Invalid email or password');
     }
 
-    const tokens = await this.tokenService.generateTokens(user.id, user.username, user.role);
-    return {  ...tokens };
+    const tokens = await this.tokenService.generateTokens(
+      user.id,
+      user.username,
+      user.role,
+    );
+    return { ...tokens };
   }
 
   async refreshToken(userId: string, refreshToken: string) {
@@ -55,20 +71,18 @@ export class AuthService {
     if (!storedToken || storedToken !== refreshToken) {
       throw new UnauthorizedException('Invalid refresh token');
     }
-  
+
     const user = await this.prisma.users.findUnique({ where: { id: userId } });
     if (!user) {
       throw new UnauthorizedException('User not found');
     }
-  
+
     return this.tokenService.generateTokens(user.id, user.email, user.role);
   }
-  
 
   async logout(userId: string) {
     await this.redisService.deleteRefreshToken(userId);
   }
-
 
   async forgotPassword(forgotPasswordDto: ForgotPasswordDto) {
     const user = await this.prisma.users.findUnique({
@@ -76,7 +90,10 @@ export class AuthService {
     });
 
     if (!user) {
-      return { message: 'If a user with that email exists, a password reset link has been sent.' };
+      return {
+        message:
+          'If a user with that email exists, a password reset link has been sent.',
+      };
     }
 
     const resetToken = this.tokenService.generateResetToken();
@@ -86,9 +103,11 @@ export class AuthService {
 
     await sendPasswordResetEmail(this.mailService, user.email, resetToken);
 
-    return { message: 'If a user with that email exists, a password reset link has been sent.' };
+    return {
+      message:
+        'If a user with that email exists, a password reset link has been sent.',
+    };
   }
-
 
   async resetPassword(resetPasswordDto: ResetPasswordDto) {
     const redisPassKey = `reset-password:${resetPasswordDto.token}`;
@@ -105,7 +124,7 @@ export class AuthService {
     }
 
     if (resetPasswordDto.password !== resetPasswordDto.confirmPassword) {
-        throw new BadRequestException('Passwords do not match');
+      throw new BadRequestException('Passwords do not match');
     }
 
     const hashedPassword = await hashPassword(resetPasswordDto.password);
@@ -124,7 +143,6 @@ export class AuthService {
     return { message: 'Password reset successfully' };
   }
 
-  
   async googleLogin(user: SignupDto) {
     if (!user) {
       throw new UnauthorizedException('No user from google');
@@ -147,7 +165,11 @@ export class AuthService {
       });
     }
 
-    const tokens = await this.tokenService.generateTokens(dbUser.id, dbUser.email, dbUser.role);
+    const tokens = await this.tokenService.generateTokens(
+      dbUser.id,
+      dbUser.email,
+      dbUser.role,
+    );
     return tokens;
   }
 }

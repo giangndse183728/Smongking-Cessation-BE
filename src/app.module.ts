@@ -5,12 +5,14 @@ import { AppService } from './app.service';
 import { UsersModule } from './modules/users/users.module';
 import { PrismaModule } from '@libs/prisma/prisma.module';
 import { AuthModule } from './modules/auth/auth.module';
+import { MotivationModule } from '@modules/motivation/motivation.module';
 
 @Module({
   imports: [
     UsersModule,
     PrismaModule,
     AuthModule,
+    MotivationModule,
     ConfigModule.forRoot({
       isGlobal: true,
     }),

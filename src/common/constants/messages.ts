@@ -23,3 +23,16 @@ export const AUTH_MESSAGES = {
   PHONE_NUMBER_MUST_BE_STRING: 'Phone number must be string.',
   INVALID_PHONE_NUMBER_FORMAT: 'Invalid Vietnamese phone number format.',
 };
+
+export const MOTIVATION_MESSAGES = {
+  MESSAGE_IS_REQUIRED: 'Message is required.',
+  MESSAGE_MUST_BE_STRING: 'Message must be a string.',
+  MESSAGE_CANNOT_BE_EMPTY: 'Message cannot be empty.',
+  MESSAGE_TOO_LONG: 'Message is too long. Maximum length is 500 characters.',
+  FAILED_TO_GENERATE_MESSAGE: 'Failed to generate motivational message.',
+  FAILED_TO_UPDATE_MESSAGE: 'Failed to update motivational message.',
+  FAILED_TO_RETRIEVE_MESSAGE: 'Failed to retrieve motivational message.',
+  NO_MESSAGE_FOUND: 'No motivational message found.',
+  FALLBACK_MESSAGE: 'Stay strong! You can quit smoking.',
+  CHAT_RESPONSE_ERROR: 'I apologize, but I am having trouble responding right now. Please try again later.',
+};

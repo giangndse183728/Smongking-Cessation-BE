@@ -14,11 +14,7 @@ export class MotivationService {
   constructor(
     private readonly redisService: RedisService,
     private readonly aiService: AIService,
-  ) {
-    this.updateMotivationalMessage().catch(error => {
-      this.logger.error(MOTIVATION_MESSAGES.FAILED_TO_GENERATE_MESSAGE, error);
-    });
-  }
+  ) {}
 
   @Cron('0 */2 * * *')
   async updateMotivationalMessage() {
@@ -33,11 +29,14 @@ export class MotivationService {
 
   async getCurrentMotivationalMessage(): Promise<MotivationResponseDto> {
     try {
-      const message = await this.redisService.get(this.redisKey);
+      let message = await this.redisService.get(this.redisKey);
+      
       if (!message) {
-        this.logger.warn(MOTIVATION_MESSAGES.NO_MESSAGE_FOUND);
-        return { message: MOTIVATION_MESSAGES.FALLBACK_MESSAGE };
+        this.logger.log('No message in cache, generating new message');
+        message = await this.aiService.generateMotivationalMessage();
+        await this.redisService.set(this.redisKey, message, 2 * 60 * 60);
       }
+      
       return { message };
     } catch (error) {
       this.logger.error(MOTIVATION_MESSAGES.FAILED_TO_RETRIEVE_MESSAGE, error);

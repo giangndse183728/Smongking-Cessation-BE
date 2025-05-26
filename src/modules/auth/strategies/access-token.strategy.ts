@@ -6,7 +6,7 @@ import { UsersService } from '@modules/users/users.service';
 
 interface JwtPayload {
   sub: string;
-  email: string;
+  username: string;
   role: string;
 }
 

@@ -6,13 +6,15 @@ import { UsersModule } from './modules/users/users.module';
 import { PrismaModule } from '@libs/prisma/prisma.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { MotivationModule } from '@modules/motivation/motivation.module';
+import { SmokingHabitsModule } from '@modules/smoking-habits/smoking-habits.module';
 
 @Module({
   imports: [
-    UsersModule,
     PrismaModule,
+    UsersModule,
     AuthModule,
     MotivationModule,
+    SmokingHabitsModule,
     ConfigModule.forRoot({
       isGlobal: true,
     }),

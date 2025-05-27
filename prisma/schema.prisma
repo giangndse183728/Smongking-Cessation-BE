@@ -59,7 +59,7 @@ model chat_rooms {
 }
 
 model coaches {
-  id               String       @id @db.Uuid
+  id               String       @id @default(uuid()) @db.Uuid
   user_id          String       @db.Uuid
   specialization   String?
   experience_years Int?
@@ -77,7 +77,7 @@ model coaches {
 }
 
 model comments {
-  id         String    @id @db.Uuid
+  id         String    @id @default(uuid()) @db.Uuid
   post_id    String    @db.Uuid
   user_id    String    @db.Uuid
   content    String
@@ -92,7 +92,7 @@ model comments {
 }
 
 model feedbacks {
-  id          String    @id @db.Uuid
+  id          String    @id @default(uuid()) @db.Uuid
   user_id     String    @db.Uuid
   ref_type    String    @db.VarChar(20)
   ref_id      String?   @db.Uuid
@@ -123,7 +123,7 @@ model leaderboard {
 }
 
 model membership_plans {
-  id                 String               @id @db.Uuid
+  id                 String               @id @default(uuid()) @db.Uuid
   name               String               @unique @db.VarChar
   description        String?
   features           String[]
@@ -140,7 +140,7 @@ model membership_plans {
 }
 
 model notification_schedules {
-  id             String    @id @db.Uuid
+  id             String    @id @default(uuid()) @db.Uuid
   user_id        String    @db.Uuid
   type           String    @db.VarChar
   frequency      String?   @default("DAILY") @db.VarChar
@@ -156,7 +156,7 @@ model notification_schedules {
 }
 
 model notifications {
-  id         String    @id @db.Uuid
+  id         String    @id @default(uuid()) @db.Uuid
   user_id    String    @db.Uuid
   title      String
   content    String
@@ -172,7 +172,7 @@ model notifications {
 }
 
 model posts {
-  id                String             @id @db.Uuid
+  id                String             @id @default(uuid()) @db.Uuid
   user_id           String             @db.Uuid
   type              String             @db.VarChar
   title             String
@@ -194,7 +194,7 @@ model posts {
 }
 
 model quit_plan_phases {
-  id                       String              @id @db.Uuid
+  id                       String              @id @default(uuid()) @db.Uuid
   plan_id                  String              @db.Uuid
   user_id                  String              @db.Uuid
   phase_number             Int?
@@ -214,7 +214,7 @@ model quit_plan_phases {
 }
 
 model quit_plan_records {
-  id               String           @id @db.Uuid
+  id               String           @id @default(uuid()) @db.Uuid
   user_id          String           @db.Uuid
   plan_id          String           @db.Uuid
   phase_id         String           @db.Uuid
@@ -235,7 +235,7 @@ model quit_plan_records {
 }
 
 model quit_plans {
-  id                String              @id @db.Uuid
+  id                String              @id @default(uuid()) @db.Uuid
   user_id           String              @db.Uuid
   reason            String
   plan_type         String?             @default("STANDARD") @db.VarChar
@@ -272,7 +272,7 @@ model reactions {
 }
 
 model reports {
-  id                               String    @id @db.Uuid
+  id                               String    @id @default(uuid()) @db.Uuid
   reporter_id                      String    @db.Uuid
   ref_type                         String?   @db.VarChar(50)
   ref_id                           String?   @db.Uuid
@@ -293,13 +293,15 @@ model reports {
 }
 
 model smoking_habits {
-  id                  String    @id @db.Uuid
+  id                  String    @id @default(uuid()) @db.Uuid
   user_id             String    @db.Uuid
   cigarettes_per_pack Int
   price_per_pack      Decimal   @db.Decimal
   cigarettes_per_day  Int
-  smoking_years       Int?
+  smoking_years       Int
   triggers            String[]
+  health_issues       String
+  ai_feedback         String?
   created_at          DateTime? @default(now()) @db.Timestamp(6)
   created_by          String?   @db.Uuid
   updated_at          DateTime? @updatedAt @db.Timestamp(6)
@@ -310,7 +312,7 @@ model smoking_habits {
 }
 
 model user_achievements {
-  id             String       @id @db.Uuid
+  id             String       @id @default(uuid()) @db.Uuid
   user_id        String       @db.Uuid
   achievement_id String       @db.Uuid
   earned_date    DateTime     @default(now()) @db.Timestamp(6)
@@ -326,7 +328,7 @@ model user_achievements {
 }
 
 model user_subscriptions {
-  id               String           @id @db.Uuid
+  id               String           @id @default(uuid()) @db.Uuid
   user_id          String           @db.Uuid
   plan_id          String           @db.Uuid
   start_date       DateTime         @db.Timestamp(6)

@@ -11,6 +11,7 @@ import { AccessTokenStrategy } from './strategies/access-token.strategy';
 import { RefreshTokenStrategy } from './strategies/refresh-token.strategy';
 import { UsersModule } from '@modules/users/users.module';
 import { GoogleStrategy } from './strategies/google.strategy';
+import { AuthRepository } from './auth.repository';
 
 @Module({
   imports: [
@@ -36,6 +37,7 @@ import { GoogleStrategy } from './strategies/google.strategy';
     AccessTokenStrategy,
     RefreshTokenStrategy,
     GoogleStrategy,
+    AuthRepository
   ],
   exports: [AuthService],
 })

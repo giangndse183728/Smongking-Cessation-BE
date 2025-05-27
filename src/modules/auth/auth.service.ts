@@ -3,7 +3,6 @@ import {
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
-import { PrismaService } from '@libs/prisma/prisma.service';
 import { LoginDto } from './dto/login.dto';
 import { SignupDto } from './dto/signup.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
@@ -13,11 +12,12 @@ import { TokenService } from './token.service';
 import { RedisService } from '@libs/redis/redis.service';
 import { MailService } from '@libs/mail/mail.service';
 import { sendPasswordResetEmail } from '@common/utils/mail.utils';
+import { AuthRepository } from './auth.repository';
 
 @Injectable()
 export class AuthService {
   constructor(
-    private prisma: PrismaService,
+    private authRepository: AuthRepository,
     private tokenService: TokenService,
     private redisService: RedisService,
     private mailService: MailService,
@@ -25,14 +25,11 @@ export class AuthService {
 
   async signup(signupDto: SignupDto) {
     const { password, ...rest } = signupDto;
-
     const hashedPassword = await hashPassword(password);
 
-    const user = await this.prisma.users.create({
-      data: {
-        ...rest,
-        password: hashedPassword,
-      },
+    const user = await this.authRepository.createUser({
+      ...rest,
+      password: hashedPassword,
     });
 
     const tokens = await this.tokenService.generateTokens(
@@ -44,9 +41,7 @@ export class AuthService {
   }
 
   async login(loginDto: LoginDto) {
-    const user = await this.prisma.users.findUnique({
-      where: { email: loginDto.email },
-    });
+    const user = await this.authRepository.findUserByEmail(loginDto.email);
 
     if (!user || !(await comparePassword(loginDto.password, user.password))) {
       throw new UnauthorizedException('Invalid email or password');
@@ -67,7 +62,7 @@ export class AuthService {
       throw new UnauthorizedException('Invalid refresh token');
     }
 
-    const user = await this.prisma.users.findUnique({ where: { id: userId } });
+    const user = await this.authRepository.findUserById(userId);
     if (!user) {
       throw new UnauthorizedException('User not found');
     }
@@ -80,9 +75,7 @@ export class AuthService {
   }
 
   async forgotPassword(forgotPasswordDto: ForgotPasswordDto) {
-    const user = await this.prisma.users.findUnique({
-      where: { email: forgotPasswordDto.email },
-    });
+    const user = await this.authRepository.findUserByEmail(forgotPasswordDto.email);
 
     if (!user) {
       return {
@@ -106,14 +99,13 @@ export class AuthService {
 
   async resetPassword(resetPasswordDto: ResetPasswordDto) {
     const redisPassKey = `reset-password:${resetPasswordDto.token}`;
-    console.log('Token received in resetPasswordDto:', resetPasswordDto.token);
     const userId = await this.redisService.get(redisPassKey);
 
     if (!userId) {
       throw new BadRequestException('Invalid or expired reset token');
     }
 
-    const user = await this.prisma.users.findUnique({ where: { id: userId } });
+    const user = await this.authRepository.findUserById(userId);
     if (!user) {
       throw new BadRequestException('User not found');
     }
@@ -124,15 +116,8 @@ export class AuthService {
 
     const hashedPassword = await hashPassword(resetPasswordDto.password);
 
-    await this.prisma.users.update({
-      where: { id: user.id },
-      data: {
-        password: hashedPassword,
-      },
-    });
-
+    await this.authRepository.updateUserPassword(user.id, hashedPassword);
     await this.redisService.del(redisPassKey);
-
     await this.redisService.deleteRefreshToken(user.id);
 
     return { message: 'Password reset successfully' };
@@ -143,20 +128,14 @@ export class AuthService {
       throw new UnauthorizedException('No user from google');
     }
 
-    let dbUser = await this.prisma.users.findUnique({
-      where: { email: user.email },
-    });
+    let dbUser = await this.authRepository.findUserByEmail(user.email);
 
     if (!dbUser) {
-      // Create new user if doesn't exist
-      dbUser = await this.prisma.users.create({
-        data: {
-          email: user.email,
-          username: user.username,
-          password: '',
-          role: 'USER',
-          phone_number: '',
-        },
+      dbUser = await this.authRepository.createUser({
+        email: user.email,
+        username: user.username,
+        password: '',
+        phone_number: '',
       });
     }
 

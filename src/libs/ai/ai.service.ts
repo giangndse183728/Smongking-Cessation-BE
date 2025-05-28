@@ -15,6 +15,8 @@ export interface SmokingHabitsData {
   smoking_years: number;
   triggers: string[];
   health_issues: string;
+  cigarettes_per_pack: number;
+  price_per_pack: number;
 }
 
 @Injectable()
@@ -31,16 +33,21 @@ export class AIService {
   }
 
   async generateQuitPlanPhases(
-    planType: string, 
-    currentCigarettesPerDay: number,
+    planType: string,
+    smokingHabits: SmokingHabitsData,
     startDate: Date,
     targetDays?: number
   ): Promise<QuitPlanPhaseAI[]> {
     try {
-      const systemPrompt = `You are an expert smoking cessation coach. Generate a structured quit smoking plan with multiple phases.
+      const systemPrompt = `You are an expert smoking cessation coach. Generate a structured quit smoking plan with multiple phases based on detailed smoking habits.
 
 Plan Type: ${planType}
-Current cigarettes per day: ${currentCigarettesPerDay}
+Current cigarettes per day: ${smokingHabits.cigarettes_per_day}
+Smoking years: ${smokingHabits.smoking_years}
+Cigarettes per pack: ${smokingHabits.cigarettes_per_pack}
+Price per pack: $${smokingHabits.price_per_pack}
+Triggers: ${smokingHabits.triggers.join(', ')}
+Health issues: ${smokingHabits.health_issues}
 Start date: ${startDate.toISOString().split('T')[0]}
 ${targetDays ? `Target duration: ${targetDays} days` : ''}
 
@@ -50,18 +57,22 @@ Generate a JSON array of phases with the following structure:
     "phase_number": 1,
     "limit_cigarettes_per_day": number,
     "duration_days": number,
-    "description": "Brief description of this phase"
+    "description": "Brief description of this phase focusing on specific triggers and health benefits"
   }
 ]
 
 Rules:
-1. Each phase should gradually reduce cigarettes
-2. Phase 1 should start with slightly less than current amount
-3. Final phase should be 0 cigarettes
-4. Total phases should be 3-6 phases
-5. Each phase duration should be realistic (5-14 days)
-6. Reduction should be gradual and achievable
-7. Return only valid JSON array, no extra text`;
+1. Consider smoking history and triggers when creating phases
+2. For heavy smokers (>20/day) or long-term smokers (>10 years), create more gradual reduction
+3. For aggressive plan: faster reduction with shorter phases
+4. For slow plan: gentler reduction with longer phases  
+5. For standard plan: balanced approach
+6. Phase 1 should start with 10-20% reduction from current amount
+7. Final phase should be 0 cigarettes
+8. Total phases should be 3-7 phases based on smoking intensity
+9. Each phase duration should be realistic (5-21 days based on plan type)
+10. Address specific triggers mentioned in description
+11. Return only valid JSON array, no extra text`;
 
       const response = await axios.post(
         this.openaiApiUrl,
@@ -74,10 +85,10 @@ Rules:
             },
             {
               role: 'user',
-              content: `Create a ${planType} quit smoking plan for someone smoking ${currentCigarettesPerDay} cigarettes per day.`,
+              content: `Create a ${planType} quit smoking plan for someone with these smoking habits: ${smokingHabits.cigarettes_per_day} cigarettes/day for ${smokingHabits.smoking_years} years, triggers: ${smokingHabits.triggers.join(', ')}, health issues: ${smokingHabits.health_issues}`,
             },
           ],
-          max_tokens: 500,
+          max_tokens: 800,
           temperature: 0.3,
         },
         {
@@ -118,24 +129,42 @@ Rules:
       this.logger.error('Failed to generate quit plan phases', error.message);
       
       // Fallback to default phases if AI fails
-      return this.generateDefaultPhases(currentCigarettesPerDay, startDate);
+      return this.generateDefaultPhases(smokingHabits.cigarettes_per_day, startDate, planType);
     }
   }
 
-  private generateDefaultPhases(currentCigarettesPerDay: number, startDate: Date): QuitPlanPhaseAI[] {
+  private generateDefaultPhases(
+    currentCigarettesPerDay: number, 
+    startDate: Date, 
+    planType: string
+  ): QuitPlanPhaseAI[] {
     const phases: QuitPlanPhaseAI[] = [];
     let currentStartDate = new Date(startDate);
     
-    // Generate 4 default phases
-    const reductions = [
-      Math.ceil(currentCigarettesPerDay * 0.7), // 30% reduction
-      Math.ceil(currentCigarettesPerDay * 0.4), // 60% reduction  
-      Math.ceil(currentCigarettesPerDay * 0.2), // 80% reduction
-      0 // Complete quit
-    ];
+    // Adjust phases based on plan type
+    let reductionRates: number[];
+    let phaseDurations: number[];
+    
+    switch (planType.toLowerCase()) {
+      case 'aggressive':
+        reductionRates = [0.6, 0.3, 0.1, 0]; // Faster reduction
+        phaseDurations = [5, 5, 7, 14];
+        break;
+      case 'slow':
+        reductionRates = [0.8, 0.6, 0.4, 0.2, 0.1, 0]; // Gentler reduction
+        phaseDurations = [10, 10, 14, 14, 14, 21];
+        break;
+      default: // standard
+        reductionRates = [0.7, 0.4, 0.2, 0]; // Balanced approach
+        phaseDurations = [7, 7, 10, 14];
+    }
+    
+    const reductions = reductionRates.map(rate => 
+      rate === 0 ? 0 : Math.ceil(currentCigarettesPerDay * rate)
+    );
     
     reductions.forEach((limit, index) => {
-      const duration = index === reductions.length - 1 ? 14 : 7; // Last phase longer
+      const duration = phaseDurations[index];
       const phaseStartDate = new Date(currentStartDate);
       const phaseEndDate = new Date(currentStartDate);
       phaseEndDate.setDate(phaseEndDate.getDate() + duration);
@@ -146,7 +175,7 @@ Rules:
         duration_days: duration,
         start_date: phaseStartDate,
         expected_end_date: phaseEndDate,
-        description: `Phase ${index + 1}: Reduce to ${limit} cigarettes per day`,
+        description: `Phase ${index + 1}: ${limit === 0 ? 'Complete quit - Stay smoke-free' : `Reduce to ${limit} cigarettes per day`}`,
       });
       
       currentStartDate.setDate(currentStartDate.getDate() + duration);
@@ -160,10 +189,12 @@ Rules:
       const prompt = `Based on the following smoking habits:
       - Cigarettes per day: ${smokingHabitsData.cigarettes_per_day}
       - Years of smoking: ${smokingHabitsData.smoking_years}
+      - Cigarettes per pack: ${smokingHabitsData.cigarettes_per_pack}
+      - Price per pack: $${smokingHabitsData.price_per_pack}
       - Triggers: ${smokingHabitsData.triggers.join(', ')}
       - Health issues: ${smokingHabitsData.health_issues}
       
-      Please provide personalized advice and encouragement to help quit smoking.`;
+      Please provide personalized advice and encouragement to help quit smoking, including financial and health benefits.`;
 
       const response = await axios.post(
         this.openaiApiUrl,
@@ -172,7 +203,7 @@ Rules:
           messages: [
             {
               role: 'system',
-              content: 'You are a supportive AI coach helping people quit smoking. Provide empathetic, practical advice and encouragement based on their smoking habits.',
+              content: 'You are a supportive AI coach helping people quit smoking. Provide empathetic, practical advice and encouragement based on their detailed smoking habits.',
             },
             {
               role: 'user',

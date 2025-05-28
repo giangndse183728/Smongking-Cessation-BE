@@ -9,7 +9,6 @@ export const createSmokingHabitSchema = z.object({
   smoking_years: z.number().int().min(0),
   triggers: z.array(z.string()),
   health_issues: z.string(),
-  ai_feedback: z.string().optional(),
 }).strict();
 
 export class CreateSmokingHabitDto extends createZodDto(createSmokingHabitSchema) {
@@ -55,10 +54,4 @@ export class CreateSmokingHabitDto extends createZodDto(createSmokingHabitSchema
   })
   health_issues: string;
 
-  @ApiProperty({
-    description: 'AI-generated feedback about smoking habits',
-    example: 'Consider reducing smoking during stressful situations',
-    required: false
-  })
-  ai_feedback?: string;
 } 

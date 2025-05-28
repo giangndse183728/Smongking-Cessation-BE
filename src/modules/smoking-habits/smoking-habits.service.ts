@@ -15,6 +15,8 @@ export class SmokingHabitsService {
   async create(createSmokingHabitDto: CreateSmokingHabitDto, userId: string): Promise<SmokingHabitResponseDto> {
     const aiFeedback = await this.aiService.generateSmokingHabitsFeedback({
       cigarettes_per_day: createSmokingHabitDto.cigarettes_per_day,
+      cigarettes_per_pack: createSmokingHabitDto.cigarettes_per_pack,
+      price_per_pack: createSmokingHabitDto.price_per_pack,
       smoking_years: createSmokingHabitDto.smoking_years,
       triggers: createSmokingHabitDto.triggers,
       health_issues: createSmokingHabitDto.health_issues,

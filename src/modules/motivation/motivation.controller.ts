@@ -27,7 +27,9 @@ export class MotivationController {
     description: 'Returns the AI response',
     type: ChatResponseDto,
   })
-  async chatWithAI(@Body() sendMessageDto: SendMessageDto): Promise<ChatResponseDto> {
+  async chatWithAI(
+    @Body() sendMessageDto: SendMessageDto,
+  ): Promise<ChatResponseDto> {
     return this.motivationService.chatWithAI(sendMessageDto.message);
   }
-} 
+}

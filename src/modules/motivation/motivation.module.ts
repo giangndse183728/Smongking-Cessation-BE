@@ -11,4 +11,4 @@ import { AIService } from '../../libs/ai/ai.service';
   providers: [MotivationService, RedisService, AIService],
   exports: [MotivationService],
 })
-export class MotivationModule {} 
+export class MotivationModule {}

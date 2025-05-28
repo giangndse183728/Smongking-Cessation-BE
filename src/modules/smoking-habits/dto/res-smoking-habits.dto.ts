@@ -1,14 +1,14 @@
 import { Expose, Exclude, Transform } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
 
-@Exclude() 
+@Exclude()
 export class SmokingHabitResponseDto {
   @Expose()
   cigarettes_per_pack: number;
 
   @Expose()
   price_per_pack: number;
-  
+
   @Expose()
   cigarettes_per_day: number;
 
@@ -28,12 +28,12 @@ export class SmokingHabitResponseDto {
   created_at: string | null;
 
   @Expose()
-  daily_cost: number
-  
+  daily_cost: number;
+
   toJSON() {
     return {
       ...this,
       daily_cost: this.daily_cost,
     };
-}
+  }
 }

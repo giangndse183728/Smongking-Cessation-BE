@@ -11,7 +11,12 @@ import { AIService } from '@libs/ai/ai.service';
 @Module({
   imports: [UsersModule, AuthModule, PrismaModule],
   controllers: [SmokingHabitsController],
-  providers: [SmokingHabitsService, SmokingHabitsRepository, AccessTokenStrategy, AIService],
+  providers: [
+    SmokingHabitsService,
+    SmokingHabitsRepository,
+    AccessTokenStrategy,
+    AIService,
+  ],
   exports: [SmokingHabitsService],
 })
-export class SmokingHabitsModule {} 
+export class SmokingHabitsModule {}

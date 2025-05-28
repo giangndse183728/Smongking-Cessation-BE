@@ -6,4 +6,4 @@ export class MotivationResponseDto {
     example: 'Every day without smoking is a victory! Keep going strong!',
   })
   message: string;
-} 
+}

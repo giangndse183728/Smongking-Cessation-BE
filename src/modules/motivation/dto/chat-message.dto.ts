@@ -32,7 +32,8 @@ export const chatResponseSchema = z
 export class ChatResponseDto extends createZodDto(chatResponseSchema) {
   @ApiProperty({
     description: 'The AI response message',
-    example: 'Remember why you started this journey. Take deep breaths and stay strong!',
+    example:
+      'Remember why you started this journey. Take deep breaths and stay strong!',
   })
   message: string;
-} 
+}

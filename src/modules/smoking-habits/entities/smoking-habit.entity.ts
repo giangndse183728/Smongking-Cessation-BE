@@ -22,7 +22,9 @@ export class SmokingHabitEntity {
   }
 
   get daily_cost(): number {
-    return (this.cigarettes_per_day / this.cigarettes_per_pack) * this.price_per_pack;
+    return (
+      (this.cigarettes_per_day / this.cigarettes_per_pack) * this.price_per_pack
+    );
   }
 
   static toEntity(data: smoking_habits): SmokingHabitEntity {

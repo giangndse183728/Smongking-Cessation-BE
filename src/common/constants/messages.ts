@@ -37,3 +37,9 @@ export const MOTIVATION_MESSAGES = {
   CHAT_RESPONSE_ERROR:
     'I apologize, but I am having trouble responding right now. Please try again later.',
 };
+
+export const MEDIA_MESSAGES = {
+  INVALID_FILE_TYPE: 'Invalid file format.',
+  IMAGES_NOT_EMPTY: 'Images are required.',
+  UPLOAD_IMAGES_SUCCESSFULLY: 'Images uploaded successfully.',
+} as const;

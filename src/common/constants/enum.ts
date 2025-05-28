@@ -9,3 +9,10 @@ export enum Status {
   INACTIVE = 'inactive',
   BANNED = 'banned',
 }
+
+export const MEDIA_TYPE = {
+  IMAGES: 'images',
+  VIDEOS: 'videos',
+};
+
+export const KILOBYTE = 1024;

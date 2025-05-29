@@ -34,5 +34,6 @@ export const MOTIVATION_MESSAGES = {
   FAILED_TO_RETRIEVE_MESSAGE: 'Failed to retrieve motivational message.',
   NO_MESSAGE_FOUND: 'No motivational message found.',
   FALLBACK_MESSAGE: 'Stay strong! You can quit smoking.',
-  CHAT_RESPONSE_ERROR: 'I apologize, but I am having trouble responding right now. Please try again later.',
+  CHAT_RESPONSE_ERROR:
+    'I apologize, but I am having trouble responding right now. Please try again later.',
 };

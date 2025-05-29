@@ -37,7 +37,7 @@ import { AuthRepository } from './auth.repository';
     AccessTokenStrategy,
     RefreshTokenStrategy,
     GoogleStrategy,
-    AuthRepository
+    AuthRepository,
   ],
   exports: [AuthService],
 })

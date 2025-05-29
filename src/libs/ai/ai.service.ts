@@ -29,14 +29,14 @@ export class AIService {
   constructor() {
     this.openaiApiKey = process.env.OPENAI_API_KEY || '';
     this.openaiApiUrl = process.env.OPENAI_API_URL || '';
-    this.modelAi = process.env.OPENAI_MODEL || ''
+    this.modelAi = process.env.OPENAI_MODEL || '';
   }
 
   async generateQuitPlanPhases(
     planType: string,
     smokingHabits: SmokingHabitsData,
     startDate: Date,
-    targetDays?: number
+    targetDays?: number,
   ): Promise<QuitPlanPhaseAI[]> {
     try {
       const systemPrompt = `You are an expert smoking cessation coach. Generate a structured quit smoking plan with multiple phases based on detailed smoking habits.
@@ -96,20 +96,20 @@ Rules:
             Authorization: `Bearer ${this.openaiApiKey}`,
             'Content-Type': 'application/json',
           },
-        }
+        },
       );
 
       const aiResponse = response.data.choices[0].message.content.trim();
       const phases = JSON.parse(aiResponse);
-      
+
       // Convert to proper format with dates
-      let currentStartDate = new Date(startDate);
-      
+      const currentStartDate = new Date(startDate);
+
       return phases.map((phase: any, index: number) => {
         const phaseStartDate = new Date(currentStartDate);
         const phaseEndDate = new Date(currentStartDate);
         phaseEndDate.setDate(phaseEndDate.getDate() + phase.duration_days);
-        
+
         const result: QuitPlanPhaseAI = {
           phase_number: index + 1,
           limit_cigarettes_per_day: phase.limit_cigarettes_per_day,
@@ -118,33 +118,38 @@ Rules:
           expected_end_date: phaseEndDate,
           description: phase.description,
         };
-        
+
         // Move to next phase start date
-        currentStartDate.setDate(currentStartDate.getDate() + phase.duration_days);
-        
+        currentStartDate.setDate(
+          currentStartDate.getDate() + phase.duration_days,
+        );
+
         return result;
       });
-
     } catch (error) {
       this.logger.error('Failed to generate quit plan phases', error.message);
-      
+
       // Fallback to default phases if AI fails
-      return this.generateDefaultPhases(smokingHabits.cigarettes_per_day, startDate, planType);
+      return this.generateDefaultPhases(
+        smokingHabits.cigarettes_per_day,
+        startDate,
+        planType,
+      );
     }
   }
 
   private generateDefaultPhases(
-    currentCigarettesPerDay: number, 
-    startDate: Date, 
-    planType: string
+    currentCigarettesPerDay: number,
+    startDate: Date,
+    planType: string,
   ): QuitPlanPhaseAI[] {
     const phases: QuitPlanPhaseAI[] = [];
-    let currentStartDate = new Date(startDate);
-    
+    const currentStartDate = new Date(startDate);
+
     // Adjust phases based on plan type
     let reductionRates: number[];
     let phaseDurations: number[];
-    
+
     switch (planType.toLowerCase()) {
       case 'aggressive':
         reductionRates = [0.6, 0.3, 0.1, 0]; // Faster reduction
@@ -158,17 +163,17 @@ Rules:
         reductionRates = [0.7, 0.4, 0.2, 0]; // Balanced approach
         phaseDurations = [7, 7, 10, 14];
     }
-    
-    const reductions = reductionRates.map(rate => 
-      rate === 0 ? 0 : Math.ceil(currentCigarettesPerDay * rate)
+
+    const reductions = reductionRates.map((rate) =>
+      rate === 0 ? 0 : Math.ceil(currentCigarettesPerDay * rate),
     );
-    
+
     reductions.forEach((limit, index) => {
       const duration = phaseDurations[index];
       const phaseStartDate = new Date(currentStartDate);
       const phaseEndDate = new Date(currentStartDate);
       phaseEndDate.setDate(phaseEndDate.getDate() + duration);
-      
+
       phases.push({
         phase_number: index + 1,
         limit_cigarettes_per_day: limit,
@@ -177,14 +182,16 @@ Rules:
         expected_end_date: phaseEndDate,
         description: `Phase ${index + 1}: ${limit === 0 ? 'Complete quit - Stay smoke-free' : `Reduce to ${limit} cigarettes per day`}`,
       });
-      
+
       currentStartDate.setDate(currentStartDate.getDate() + duration);
     });
-    
+
     return phases;
   }
 
-  async generateSmokingHabitsFeedback(smokingHabitsData: SmokingHabitsData): Promise<string> {
+  async generateSmokingHabitsFeedback(
+    smokingHabitsData: SmokingHabitsData,
+  ): Promise<string> {
     try {
       const prompt = `Based on the following smoking habits:
       - Cigarettes per day: ${smokingHabitsData.cigarettes_per_day}
@@ -203,7 +210,8 @@ Rules:
           messages: [
             {
               role: 'system',
-              content: 'You are a supportive AI coach helping people quit smoking. Provide empathetic, practical advice and encouragement based on their detailed smoking habits.',
+              content:
+                'You are a supportive AI coach helping people quit smoking. Provide empathetic, practical advice and encouragement based on their detailed smoking habits.',
             },
             {
               role: 'user',
@@ -218,12 +226,15 @@ Rules:
             Authorization: `Bearer ${this.openaiApiKey}`,
             'Content-Type': 'application/json',
           },
-        }
+        },
       );
 
       return response.data.choices[0].message.content.trim();
     } catch (error) {
-      this.logger.error('Failed to generate smoking habits feedback', error.message);
+      this.logger.error(
+        'Failed to generate smoking habits feedback',
+        error.message,
+      );
       throw error;
     }
   }
@@ -237,11 +248,13 @@ Rules:
           messages: [
             {
               role: 'system',
-              content: 'You are a motivational coach helping people quit smoking. Generate a short, encouraging message.',
+              content:
+                'You are a motivational coach helping people quit smoking. Generate a short, encouraging message.',
             },
             {
               role: 'user',
-              content: 'Generate a motivational message for someone trying to quit smoking.',
+              content:
+                'Generate a motivational message for someone trying to quit smoking.',
             },
           ],
           max_tokens: 80,
@@ -252,12 +265,15 @@ Rules:
             Authorization: `Bearer ${this.openaiApiKey}`,
             'Content-Type': 'application/json',
           },
-        }
+        },
       );
 
       return response.data.choices[0].message.content.trim();
     } catch (error) {
-      this.logger.error('Failed to generate message from AI service', error.message);
+      this.logger.error(
+        'Failed to generate message from AI service',
+        error.message,
+      );
       throw error;
     }
   }
@@ -271,7 +287,8 @@ Rules:
           messages: [
             {
               role: 'system',
-              content: 'You are a supportive AI coach helping people quit smoking. Provide empathetic, practical advice and encouragement.',
+              content:
+                'You are a supportive AI coach helping people quit smoking. Provide empathetic, practical advice and encouragement.',
             },
             {
               role: 'user',
@@ -286,7 +303,7 @@ Rules:
             Authorization: `Bearer ${this.openaiApiKey}`,
             'Content-Type': 'application/json',
           },
-        }
+        },
       );
 
       return response.data.choices[0].message.content.trim();

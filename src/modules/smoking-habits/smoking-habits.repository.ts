@@ -3,15 +3,15 @@ import { PrismaService } from '@libs/prisma/prisma.service';
 import { SmokingHabitEntity } from './entities/smoking-habit.entity';
 import { Prisma } from '@prisma/client';
 
-
 @Injectable()
 export class SmokingHabitsRepository {
   constructor(private prisma: PrismaService) {}
 
-  async create(data: Prisma.smoking_habitsUncheckedCreateInput ): Promise<SmokingHabitEntity> {
+  async create(
+    data: Prisma.smoking_habitsUncheckedCreateInput,
+  ): Promise<SmokingHabitEntity> {
     const result = await this.prisma.smoking_habits.create({
       data,
-      
     });
     return SmokingHabitEntity.toEntity(result);
   }
@@ -22,7 +22,7 @@ export class SmokingHabitsRepository {
         deleted_at: null,
       },
     });
-    return results.map(result => SmokingHabitEntity.toEntity(result));
+    return results.map((result) => SmokingHabitEntity.toEntity(result));
   }
 
   async findById(id: string): Promise<SmokingHabitEntity | null> {
@@ -52,7 +52,7 @@ export class SmokingHabitsRepository {
         deleted_at: null,
       },
     });
-    return results.map(result => SmokingHabitEntity.toEntity(result));
+    return results.map((result) => SmokingHabitEntity.toEntity(result));
   }
 
   async softDelete(id: string): Promise<SmokingHabitEntity> {
@@ -65,7 +65,10 @@ export class SmokingHabitsRepository {
     return SmokingHabitEntity.toEntity(result);
   }
 
-  async update(id: string, data: Partial<SmokingHabitEntity>): Promise<SmokingHabitEntity> {
+  async update(
+    id: string,
+    data: Partial<SmokingHabitEntity>,
+  ): Promise<SmokingHabitEntity> {
     const result = await this.prisma.smoking_habits.update({
       where: { id },
       data: {
@@ -75,4 +78,4 @@ export class SmokingHabitsRepository {
     });
     return SmokingHabitEntity.toEntity(result);
   }
-} 
+}

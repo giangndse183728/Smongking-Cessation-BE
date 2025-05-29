@@ -12,7 +12,10 @@ export class SmokingHabitsService {
     private aiService: AIService,
   ) {}
 
-  async create(createSmokingHabitDto: CreateSmokingHabitDto, userId: string): Promise<SmokingHabitResponseDto> {
+  async create(
+    createSmokingHabitDto: CreateSmokingHabitDto,
+    userId: string,
+  ): Promise<SmokingHabitResponseDto> {
     const aiFeedback = await this.aiService.generateSmokingHabitsFeedback({
       cigarettes_per_day: createSmokingHabitDto.cigarettes_per_day,
       cigarettes_per_pack: createSmokingHabitDto.cigarettes_per_pack,
@@ -25,10 +28,12 @@ export class SmokingHabitsService {
     const result = await this.smokingHabitsRepository.create({
       ...createSmokingHabitDto,
       user_id: userId,
-      ai_feedback: aiFeedback
+      ai_feedback: aiFeedback,
     });
-    
-    return plainToInstance(SmokingHabitResponseDto, result, { excludeExtraneousValues: true });
+
+    return plainToInstance(SmokingHabitResponseDto, result, {
+      excludeExtraneousValues: true,
+    });
   }
 
   async findOne(id: string): Promise<SmokingHabitResponseDto> {
@@ -38,27 +43,37 @@ export class SmokingHabitsService {
       throw new NotFoundException(`Smoking habit with ID ${id} not found`);
     }
 
-    return plainToInstance(SmokingHabitResponseDto, smokingHabit, { excludeExtraneousValues: true });
+    return plainToInstance(SmokingHabitResponseDto, smokingHabit, {
+      excludeExtraneousValues: true,
+    });
   }
 
   async findByUserId(userId: string): Promise<SmokingHabitResponseDto> {
-    const smokingHabit = await this.smokingHabitsRepository.findByUserId(userId);
+    const smokingHabit =
+      await this.smokingHabitsRepository.findByUserId(userId);
 
     if (!smokingHabit) {
       throw new NotFoundException(`Smoking habit for user ${userId} not found`);
     }
 
-    return plainToInstance(SmokingHabitResponseDto, smokingHabit, { excludeExtraneousValues: true });
+    return plainToInstance(SmokingHabitResponseDto, smokingHabit, {
+      excludeExtraneousValues: true,
+    });
   }
 
   async remove(id: string): Promise<SmokingHabitResponseDto> {
     await this.findOne(id);
     const result = await this.smokingHabitsRepository.softDelete(id);
-    return plainToInstance(SmokingHabitResponseDto, result, { excludeExtraneousValues: true });
+    return plainToInstance(SmokingHabitResponseDto, result, {
+      excludeExtraneousValues: true,
+    });
   }
 
   async findAllByUserId(userId: string): Promise<SmokingHabitResponseDto[]> {
-    const smokingHabits = await this.smokingHabitsRepository.findAllByUserId(userId);
-    return plainToInstance(SmokingHabitResponseDto, smokingHabits, { excludeExtraneousValues: true });
+    const smokingHabits =
+      await this.smokingHabitsRepository.findAllByUserId(userId);
+    return plainToInstance(SmokingHabitResponseDto, smokingHabits, {
+      excludeExtraneousValues: true,
+    });
   }
 }

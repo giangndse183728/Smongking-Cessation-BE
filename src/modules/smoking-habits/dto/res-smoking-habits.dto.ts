@@ -1,4 +1,6 @@
-import { Expose, Exclude } from 'class-transformer';
+import { Expose, Exclude, Transform } from 'class-transformer';
+import { ApiProperty } from '@nestjs/swagger';
+
 @Exclude()
 export class SmokingHabitResponseDto {
   @Expose()

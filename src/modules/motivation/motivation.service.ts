@@ -22,12 +22,11 @@ export class MotivationService {
       const message = await this.aiService.generateMotivationalMessage();
       await this.redisService.set(this.redisKey, message, 2 * 60 * 60);
       this.logger.log('Successfully updated motivational message');
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        this.logger.error(MOTIVATION_MESSAGES.FAILED_TO_UPDATE_MESSAGE, error.message);
-      } else {
-        this.logger.error(MOTIVATION_MESSAGES.FAILED_TO_UPDATE_MESSAGE, String(error));
-      }
+    } catch (error) {
+      this.logger.error(
+        MOTIVATION_MESSAGES.FAILED_TO_UPDATE_MESSAGE,
+        error.message,
+      );
     }
   }
 

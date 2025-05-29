@@ -89,11 +89,11 @@ export class AuthController {
   })
   @ApiCookieAuth()
   async refreshToken(
-    @Req() req: Request,
+    @Req() req: Request & { cookies: { refreshToken?: string } },
     @Res({ passthrough: true }) res: Response,
-    @GetCurrentUser('id') userId: string,
+    @GetCurrentUser('userId') userId: string,
   ) {
-    const refreshToken = req.cookies?.refreshToken;
+    const refreshToken: string | undefined = req.cookies?.refreshToken;
     if (!refreshToken) {
       throw new UnauthorizedException('No refresh token provided');
     }

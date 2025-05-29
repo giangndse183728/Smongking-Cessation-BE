@@ -7,6 +7,7 @@ import { PrismaModule } from '@libs/prisma/prisma.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { MotivationModule } from '@modules/motivation/motivation.module';
 import { SmokingHabitsModule } from '@modules/smoking-habits/smoking-habits.module';
+import { MediaModule } from './modules/media/media.module';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { SmokingHabitsModule } from '@modules/smoking-habits/smoking-habits.modu
     AuthModule,
     MotivationModule,
     SmokingHabitsModule,
+    MediaModule,
     ConfigModule.forRoot({
       isGlobal: true,
     }),

@@ -229,6 +229,7 @@ model quit_plan_records {
   updated_by       String?          @db.Uuid
   deleted_at       DateTime?        @db.Timestamp(6)
   deleted_by       String?          @db.Uuid
+  is_pass          Boolean          @default(false)
   quit_plan_phases quit_plan_phases @relation(fields: [phase_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   quit_plans       quit_plans       @relation(fields: [plan_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   users            users            @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)

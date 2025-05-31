@@ -1,6 +1,7 @@
-import { smoking_habits } from '@prisma/client';
+import { Decimal } from '@prisma/client/runtime/library';
+import { SmokingHabitType } from '../schemas/smoking-habit.schema';
 
-export class SmokingHabitEntity {
+export class SmokingHabitEntity implements SmokingHabitType  {
   id: string;
   user_id: string;
   cigarettes_per_pack: number;
@@ -17,7 +18,10 @@ export class SmokingHabitEntity {
   deleted_at: string | null;
   deleted_by: string | null;
 
-  constructor(partial: Partial<SmokingHabitEntity>) {
+  constructor(partial: any) {
+    if (partial.price_per_pack instanceof Decimal) {
+      partial.price_per_pack = partial.price_per_pack.toNumber();
+    }
     Object.assign(this, partial);
   }
 
@@ -27,13 +31,5 @@ export class SmokingHabitEntity {
     );
   }
 
-  static toEntity(data: smoking_habits): SmokingHabitEntity {
-    return new SmokingHabitEntity({
-      ...data,
-      price_per_pack: Number(data.price_per_pack),
-      created_at: data.created_at?.toISOString() || '',
-      updated_at: data.updated_at?.toISOString() || '',
-      deleted_at: data.deleted_at?.toISOString() || null,
-    });
-  }
+  
 }

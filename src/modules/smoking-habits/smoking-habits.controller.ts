@@ -8,10 +8,8 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { SmokingHabitsService } from './smoking-habits.service';
-import {
-  CreateSmokingHabitDto,
-  createSmokingHabitSchema,
-} from './dto/create-smoking-habit.dto';
+import {CreateSmokingHabitDto} from './dto/create-smoking-habit.dto';
+import { SmokingHabitResponseDto } from './dto/res-smoking-habits.dto';
 import { AccessTokenGuard } from '@modules/auth/guards/access-token.guard';
 import {
   ApiTags,
@@ -20,7 +18,7 @@ import {
   ApiBearerAuth,
 } from '@nestjs/swagger';
 import { GetCurrentUser } from '@common/decorators/user.decorator';
-import { SmokingHabitResponseDto } from './dto/res-smoking-habits.dto';
+import { createSmokingHabitSchema } from './schemas/create-smoking-habit.schema';
 import { ZodValidationPipe } from '@common/pipe/zod-validation.pipe';
 
 @ApiTags('Smoking Habits')

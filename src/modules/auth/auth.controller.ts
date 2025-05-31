@@ -40,6 +40,7 @@ import { AuthGuard } from '@nestjs/passport';
 import { ConfigService } from '@nestjs/config';
 import { UsersService } from '@modules/users/users.service';
 import { SignupValidationPipe } from '@common/pipe/signup-validation.pipe';
+import { users } from '@prisma/client';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -170,6 +171,7 @@ export class AuthController {
       return res.redirect(
         `${this.configService.get<string>('FRONTEND_URL')}/login/success?access_token=${accessToken}`,
       );
+      return true;
     } catch (error) {
       throw new UnauthorizedException('Google login failed');
     }

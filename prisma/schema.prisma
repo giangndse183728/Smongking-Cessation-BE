@@ -300,14 +300,14 @@ model smoking_habits {
   cigarettes_per_day  Int
   smoking_years       Int
   triggers            String[]
-  health_issues       String
-  ai_feedback         String?
   created_at          DateTime? @default(now()) @db.Timestamp(6)
   created_by          String?   @db.Uuid
   updated_at          DateTime? @updatedAt @db.Timestamp(6)
   updated_by          String?   @db.Uuid
   deleted_at          DateTime? @db.Timestamp(6)
   deleted_by          String?   @db.Uuid
+  ai_feedback         String?
+  health_issues       String
   users               users     @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
 
@@ -352,17 +352,17 @@ model users {
   username                           String                   @unique @db.VarChar
   email                              String                   @unique @db.VarChar
   password                           String                   @db.VarChar
-  avatar                             String                   @default("https://mkhub.s3.us-east-1.amazonaws.com/avatar/default_avt.jpg")
   phone_number                       String                   @unique @db.VarChar
   dob                                DateTime?                @db.Date
   role                               String                   @default("user") @db.VarChar
-  isMember                           Boolean?                 @default(false)
   created_at                         DateTime?                @default(now()) @db.Timestamp(6)
   created_by                         String?                  @db.Uuid
   updated_at                         DateTime?                @updatedAt @db.Timestamp(6)
   updated_by                         String?                  @db.Uuid
   deleted_at                         DateTime?                @db.Timestamp(6)
   deleted_by                         String?                  @db.Uuid
+  avatar                             String                   @default("https://mkhub.s3.us-east-1.amazonaws.com/avatar/default_avt.jpg")
+  isMember                           Boolean?                 @default(false)
   chat_rooms                         chat_rooms[]
   coaches                            coaches[]
   comments                           comments[]

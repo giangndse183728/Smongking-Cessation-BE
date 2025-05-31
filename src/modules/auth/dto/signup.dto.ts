@@ -30,8 +30,7 @@ export const signupSchema = z
         invalid_type_error: AUTH_MESSAGES.FIRST_NAME_MUST_BE_STRING,
       })
       .min(3, AUTH_MESSAGES.FIRST_NAME_MUST_BE_BETWEEN_3_AND_50_CHARACTERS)
-      .max(50, AUTH_MESSAGES.FIRST_NAME_MUST_BE_BETWEEN_3_AND_50_CHARACTERS)
-      .optional(),
+      .max(50, AUTH_MESSAGES.FIRST_NAME_MUST_BE_BETWEEN_3_AND_50_CHARACTERS),
 
     last_name: z
       .string({
@@ -39,14 +38,13 @@ export const signupSchema = z
         invalid_type_error: AUTH_MESSAGES.LAST_NAME_MUST_BE_STRING,
       })
       .min(3, AUTH_MESSAGES.LAST_NAME_MUST_BE_BETWEEN_3_AND_50_CHARACTERS)
-      .max(50, AUTH_MESSAGES.LAST_NAME_MUST_BE_BETWEEN_3_AND_50_CHARACTERS)
-      .optional(),
+      .max(50, AUTH_MESSAGES.LAST_NAME_MUST_BE_BETWEEN_3_AND_50_CHARACTERS),
 
-    birth_date: z
+    dob: z
       .string({
         invalid_type_error: AUTH_MESSAGES.BIRTH_DATE_MUST_BE_VALID_FORMAT,
       })
-      .refine((value: string) => !isNaN(Date.parse(value)), {
+      .refine((val: string) => !isNaN(Date.parse(val)), {
         message: AUTH_MESSAGES.BIRTH_DATE_MUST_BE_VALID_FORMAT,
       })
       .optional(),
@@ -86,21 +84,23 @@ export class SignupDto extends createZodDto(signupSchema) {
     description: 'First name',
     required: false,
   })
-  first_name?: string;
+  first_name: string;
 
   @ApiProperty({
     example: 'Doe',
     description: 'Last name',
     required: false,
   })
-  last_name?: string;
+  last_name: string;
 
   @ApiProperty({
     example: '1990-01-01',
     description: 'Birth date',
     required: false,
+    type: String,
+    format: 'string',
   })
-  birth_date?: string;
+  dob?: string;
 
   @ApiProperty({
     example: '0901234567',

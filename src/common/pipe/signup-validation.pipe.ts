@@ -14,7 +14,6 @@ export class SignupValidationPipe implements PipeTransform {
   constructor(private readonly usersService: UsersService) {}
   async transform(value: SignupDto, metadata: ArgumentMetadata) {
     const errors: { path: string; message: string }[] = [];
-
     const result = signupSchema.safeParse(value);
 
     const invalidFields = new Set<string>();
@@ -39,6 +38,7 @@ export class SignupValidationPipe implements PipeTransform {
         ? this.usersService.getUser({ email })
         : Promise.resolve(null),
     );
+
     checks.push(
       shouldCheckPhone
         ? this.usersService.getUser({ phone_number })

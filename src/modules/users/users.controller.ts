@@ -2,22 +2,25 @@ import {
   Controller,
   Get,
   Post,
-  Put,
   Delete,
   Body,
   Param,
   NotFoundException,
   UseGuards,
+  Patch,
+  HttpStatus,
+  UsePipes,
 } from '@nestjs/common';
 import { AccessTokenGuard } from '@modules/auth/guards/access-token.guard';
 import { UsersService } from './users.service';
 import { GetCurrentUser } from '@common/decorators/user.decorator';
 import { CreateUserDto } from './dto/create-user.schema';
-import { UpdateUserDto } from './dto/update-user.schema';
+import { UpdateMeDto, updateMeSchema } from './dto/update-user.schema';
 import { UserEntity } from './entities/users.entity';
 import { users } from '@prisma/client';
 import { plainToInstance } from 'class-transformer';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { ZodValidationPipe } from 'nestjs-zod';
 
 @Controller('users')
 @ApiBearerAuth('access-token')
@@ -50,9 +53,31 @@ export class UsersController {
   }
 
   @UseGuards(AccessTokenGuard)
-  @Put(':id')
-  async update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.usersService.update(id, updateUserDto);
+  @Patch('me')
+  @ApiOperation({ summary: 'Update own profile' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Update me success',
+  })
+  @ApiResponse({
+    status: HttpStatus.UNPROCESSABLE_ENTITY,
+    description: 'Validation failed.',
+  })
+  @ApiResponse({
+    status: HttpStatus.UNAUTHORIZED,
+    description: 'Unauthorized.',
+  })
+  async update(
+    @GetCurrentUser() user: users,
+    @Body(new ZodValidationPipe(updateMeSchema)) body: UpdateMeDto,
+  ) {
+    console.log(body);
+    await this.usersService.checkDuplicateFields(user.id, body, [
+      'phone_number',
+      'email',
+    ]);
+
+    return await this.usersService.update(user.id, body);
   }
 
   @Delete(':id')

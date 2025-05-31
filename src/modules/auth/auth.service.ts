@@ -13,6 +13,7 @@ import { RedisService } from '@libs/redis/redis.service';
 import { MailService } from '@libs/mail/mail.service';
 import { sendPasswordResetEmail } from '@common/utils/mail.utils';
 import { AuthRepository } from './auth.repository';
+import { users } from '@prisma/client';
 
 @Injectable()
 export class AuthService {
@@ -26,11 +27,21 @@ export class AuthService {
   async signup(signupDto: SignupDto) {
     const { password, ...rest } = signupDto;
     const hashedPassword = await hashPassword(password);
+    let user: users | null = null;
+    try {
+      console.log(signupDto.dob, typeof signupDto.dob);
+      user = await this.authRepository.createUser({
+        ...rest,
+        password: hashedPassword,
+      });
+    } catch (err) {
+      console.log(err);
+      throw new BadRequestException('Failed to create user');
+    }
 
-    const user = await this.authRepository.createUser({
-      ...rest,
-      password: hashedPassword,
-    });
+    if (!user) {
+      throw new BadRequestException('Failed to create user');
+    }
 
     const tokens = await this.tokenService.generateTokens(
       user.id,
@@ -136,6 +147,8 @@ export class AuthService {
       dbUser = await this.authRepository.createUser({
         email: user.email,
         username: user.username,
+        first_name: user.first_name,
+        last_name: user.first_name,
         password: '',
         phone_number: '',
       });

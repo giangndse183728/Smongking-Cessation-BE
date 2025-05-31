@@ -9,7 +9,10 @@ export class AuthRepository {
 
   async createUser(data: SignupDto & { password: string }): Promise<users> {
     return this.prisma.users.create({
-      data,
+      data: {
+        ...data,
+        dob: data.dob ? new Date(data.dob) : null,
+      },
     });
   }
 

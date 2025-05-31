@@ -1,7 +1,13 @@
 import { KILOBYTE, MEDIA_TYPE } from '@common/constants/enum';
 import { MEDIA_MESSAGES } from '@common/constants/messages';
+import { UnprocessableEntityException } from '@nestjs/common';
 import { Request } from 'express';
-import formidable, { Fields, File } from 'formidable';
+import formidable, {
+  EmitData,
+  Fields,
+  File,
+  errors as formidableErrors,
+} from 'formidable';
 
 export async function handleImageFiles(req: Request) {
   const form = formidable({
@@ -12,10 +18,15 @@ export async function handleImageFiles(req: Request) {
     filter: function ({ name, originalFilename, mimetype }) {
       const valid =
         name === MEDIA_TYPE.IMAGES && Boolean(mimetype?.includes('image/'));
+
       if (!valid) {
         form.emit(
           'error' as any,
-          new Error(MEDIA_MESSAGES.INVALID_FILE_TYPE) as any,
+          {
+            formname: 'upload',
+            name: 'file',
+            value: MEDIA_MESSAGES.INVALID_FILE_TYPE,
+          } as EmitData,
         );
       }
       return valid;
@@ -34,11 +45,16 @@ export async function handleImageFiles(req: Request) {
         files: formidable.Files,
       ) => {
         if (err) {
-          return reject(err);
+          return reject(
+            new UnprocessableEntityException(MEDIA_MESSAGES.INVALID_FILE_TYPE),
+          );
         }
-        if (!files.images) {
-          return reject(new Error(MEDIA_MESSAGES.IMAGES_NOT_EMPTY));
+        if (!files.images || files.images.length === 0) {
+          return reject(
+            new UnprocessableEntityException(MEDIA_MESSAGES.IMAGES_NOT_EMPTY),
+          );
         }
+
         return resolve({ files: files.images as File[], fields });
       },
     );

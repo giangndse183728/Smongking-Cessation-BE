@@ -4,13 +4,13 @@ import {
   ArgumentMetadata,
   UnprocessableEntityException,
 } from '@nestjs/common';
-import { ZodSchema } from 'zod';
+import { ZodType, ZodTypeDef } from 'zod';
 
 @Injectable()
-export class ZodValidationPipe implements PipeTransform {
-  constructor(private schema: ZodSchema<any>) {}
+export class ZodValidationPipe<T> implements PipeTransform {
+  constructor(private schema: ZodType<T, ZodTypeDef, unknown>) {}
 
-  transform(value: any, metadata: ArgumentMetadata) {
+  transform(value: any, metadata: ArgumentMetadata): T {
     const result = this.schema.safeParse(value);
     if (!result.success) {
       const formattedErrors = result.error.errors.map((err) => ({

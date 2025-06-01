@@ -8,7 +8,7 @@ export const AUTH_MESSAGES = {
   PASSWORD_IS_REQUIRED: 'Password is required.',
   PASSWORD_MUST_BE_STRING: 'Password must be string.',
   PASSWORD_MUST_BE_AT_LEAST_6_CHARACTERS:
-    'Password must be at least 6 characters',
+    'Password must be at least 6 characters.',
   FIRST_NAME_IS_REQUIRED: 'First name is required.',
   FIRST_NAME_MUST_BE_STRING: 'First name must be string.',
   FIRST_NAME_MUST_BE_BETWEEN_3_AND_50_CHARACTERS:
@@ -22,6 +22,17 @@ export const AUTH_MESSAGES = {
   PHONE_NUMBER_IS_REQUIRED: 'Phone number is required.',
   PHONE_NUMBER_MUST_BE_STRING: 'Phone number must be string.',
   INVALID_PHONE_NUMBER_FORMAT: 'Invalid Vietnamese phone number format.',
+  USER_NOT_FOUND: 'User not found.',
+  RESET_TOKEN_IS_REQUIRED: 'Reset token is required.',
+  RESET_TOKEN_IS_INVALID: 'Reset token is invalid.',
+  CONFIRM_PASSWORD_IS_REQUIRED: 'Confirm password is required.',
+  CONFIRM_PASSWORD_MUST_BE_STRING: 'Confirm password must be string.',
+  CONFIRM_PASSWORD_MUST_BE_AT_LEAST_6_CHARACTERS:
+    'Confirm password must be at least 6 characters.',
+  INVALID_OR_EXPIRED_RESET_TOKEN: 'Invalid or expired reset token.',
+  PASSWORD_RESET_SUCCESSFULLY: 'Password reset successfully.',
+  CONFIRM_PASSWORD_DOES_NOT_MATCH_PASSWORD:
+    'Confirm password does not match password.',
 };
 
 export const MOTIVATION_MESSAGES = {

@@ -353,7 +353,7 @@ model users {
   username                           String                   @unique @db.VarChar
   email                              String                   @unique @db.VarChar
   password                           String                   @db.VarChar
-  phone_number                       String                   @unique @db.VarChar
+  phone_number                       String?                  @unique @db.VarChar
   dob                                DateTime?                @db.Date
   role                               String                   @default("user") @db.VarChar
   created_at                         DateTime?                @default(now()) @db.Timestamp(6)

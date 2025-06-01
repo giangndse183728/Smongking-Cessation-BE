@@ -3,15 +3,24 @@ import { PrismaService } from '@libs/prisma/prisma.service';
 import { SignupDto } from './dto/signup.dto';
 import { users } from '@prisma/client';
 
+type CreateUserInput = Partial<SignupDto> & {
+  avatar?: string;
+};
 @Injectable()
 export class AuthRepository {
   constructor(private prisma: PrismaService) {}
 
-  async createUser(data: SignupDto & { password: string }): Promise<users> {
+  async createUser(data: CreateUserInput): Promise<users> {
     return this.prisma.users.create({
       data: {
-        ...data,
+        username: data.username as string,
+        email: data.email as string,
+        password: data.password as string,
+        first_name: data.first_name,
+        last_name: data.last_name,
         dob: data.dob ? new Date(data.dob) : null,
+        phone_number: data.phone_number ?? null,
+        avatar: data.avatar ?? '',
       },
     });
   }

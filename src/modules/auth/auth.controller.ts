@@ -22,7 +22,7 @@ import {
 import { ZodValidationPipe } from '@common/pipe/zod-validation.pipe';
 import { AuthService } from './auth.service';
 import { LoginDto, loginSchema } from './dto/login.dto';
-import { SignupDto, signupSchema } from './dto/signup.dto';
+import { SignupDto } from './dto/signup.dto';
 import {
   ForgotPasswordDto,
   forgotPasswordSchema,
@@ -40,7 +40,7 @@ import { AuthGuard } from '@nestjs/passport';
 import { ConfigService } from '@nestjs/config';
 import { UsersService } from '@modules/users/users.service';
 import { SignupValidationPipe } from '@common/pipe/signup-validation.pipe';
-import { users } from '@prisma/client';
+import { GoogleUser } from '@modules/users/dto/login-google.schema';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -151,27 +151,24 @@ export class AuthController {
   @UseGuards(AuthGuard('google'))
   @ApiOperation({ summary: 'Initiate Google OAuth login' })
   @ApiResponse({ status: 200, description: 'Redirects to Google login page' })
-  async googleAuth() {
-    // This endpoint initiates the Google OAuth flow
-  }
+  async googleAuth() {}
 
   @Get('google/redirect')
   @UseGuards(AuthGuard('google'))
   @ApiOperation({ summary: 'Handle Google OAuth callback' })
   @ApiResponse({ status: 200, description: 'Google authentication successful' })
   async googleAuthCallback(
-    @Req() req: Request & { user: any },
+    @Req() req: Request & { user: GoogleUser },
     @Res({ passthrough: true }) res: Response,
   ) {
     try {
       const { accessToken, refreshToken } = await this.authService.googleLogin(
-        req.user,
+        req.user as GoogleUser,
       );
       setAuthCookies(res, refreshToken);
       return res.redirect(
         `${this.configService.get<string>('FRONTEND_URL')}/login/success?access_token=${accessToken}`,
       );
-      return true;
     } catch (error) {
       throw new UnauthorizedException('Google login failed');
     }

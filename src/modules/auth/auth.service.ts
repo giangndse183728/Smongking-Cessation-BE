@@ -13,8 +13,8 @@ import { RedisService } from '@libs/redis/redis.service';
 import { MailService } from '@libs/mail/mail.service';
 import { sendPasswordResetEmail } from '@common/utils/mail.utils';
 import { AuthRepository } from './auth.repository';
-import { users } from '@prisma/client';
-
+import { ConfigService } from '@nestjs/config';
+import { GoogleUser } from '@modules/users/dto/login-google.schema';
 @Injectable()
 export class AuthService {
   constructor(
@@ -22,26 +22,16 @@ export class AuthService {
     private tokenService: TokenService,
     private redisService: RedisService,
     private mailService: MailService,
+    private configService: ConfigService,
   ) {}
 
   async signup(signupDto: SignupDto) {
     const { password, ...rest } = signupDto;
     const hashedPassword = await hashPassword(password);
-    let user: users | null = null;
-    try {
-      console.log(signupDto.dob, typeof signupDto.dob);
-      user = await this.authRepository.createUser({
-        ...rest,
-        password: hashedPassword,
-      });
-    } catch (err) {
-      console.log(err);
-      throw new BadRequestException('Failed to create user');
-    }
-
-    if (!user) {
-      throw new BadRequestException('Failed to create user');
-    }
+    const user = await this.authRepository.createUser({
+      ...rest,
+      password: hashedPassword,
+    });
 
     const tokens = await this.tokenService.generateTokens(
       user.id,
@@ -136,21 +126,21 @@ export class AuthService {
     return { message: 'Password reset successfully' };
   }
 
-  async googleLogin(user: SignupDto) {
+  async googleLogin(user: GoogleUser) {
     if (!user) {
       throw new UnauthorizedException('No user from google');
     }
 
     let dbUser = await this.authRepository.findUserByEmail(user.email);
-
     if (!dbUser) {
+      const hashedPassword = await hashPassword('');
       dbUser = await this.authRepository.createUser({
         email: user.email,
-        username: user.username,
+        username: Math.random().toString(36).slice(1, 15),
         first_name: user.first_name,
-        last_name: user.first_name,
-        password: '',
-        phone_number: '',
+        last_name: user.last_name,
+        password: hashedPassword,
+        avatar: user.avatar,
       });
     }
 

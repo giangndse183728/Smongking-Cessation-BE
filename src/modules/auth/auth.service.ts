@@ -1,7 +1,9 @@
 import {
   BadRequestException,
   Injectable,
+  NotFoundException,
   UnauthorizedException,
+  UnprocessableEntityException,
 } from '@nestjs/common';
 import { LoginDto } from './dto/login.dto';
 import { SignupDto } from './dto/signup.dto';
@@ -15,6 +17,8 @@ import { sendPasswordResetEmail } from '@common/utils/mail.utils';
 import { AuthRepository } from './auth.repository';
 import { ConfigService } from '@nestjs/config';
 import { GoogleUser } from '@modules/users/dto/login-google.schema';
+import { users } from '@prisma/client';
+import { AUTH_MESSAGES } from '@common/constants/messages';
 @Injectable()
 export class AuthService {
   constructor(
@@ -75,25 +79,13 @@ export class AuthService {
     await this.redisService.deleteRefreshToken(userId);
   }
 
-  async forgotPassword(forgotPasswordDto: ForgotPasswordDto) {
-    const user = await this.authRepository.findUserByEmail(
-      forgotPasswordDto.email,
-    );
-
-    if (!user) {
-      return {
-        message:
-          'If a user with that email exists, a password reset link has been sent.',
-      };
-    }
-
+  async forgotPassword(user: users, forgotPasswordDto: ForgotPasswordDto) {
     const resetToken = this.tokenService.generateResetToken();
 
     const redisKey = `reset-password:${resetToken}`;
     await this.redisService.set(redisKey, user.id, 900);
 
     await sendPasswordResetEmail(this.mailService, user.email, resetToken);
-
     return {
       message:
         'If a user with that email exists, a password reset link has been sent.',
@@ -105,16 +97,14 @@ export class AuthService {
     const userId = await this.redisService.get(redisPassKey);
 
     if (!userId) {
-      throw new BadRequestException('Invalid or expired reset token');
+      throw new BadRequestException(
+        AUTH_MESSAGES.INVALID_OR_EXPIRED_RESET_TOKEN,
+      );
     }
 
     const user = await this.authRepository.findUserById(userId);
     if (!user) {
-      throw new BadRequestException('User not found');
-    }
-
-    if (resetPasswordDto.password !== resetPasswordDto.confirmPassword) {
-      throw new BadRequestException('Passwords do not match');
+      throw new NotFoundException(AUTH_MESSAGES.USER_NOT_FOUND);
     }
 
     const hashedPassword = await hashPassword(resetPasswordDto.password);
@@ -123,7 +113,7 @@ export class AuthService {
     await this.redisService.del(redisPassKey);
     await this.redisService.deleteRefreshToken(user.id);
 
-    return { message: 'Password reset successfully' };
+    return { message: AUTH_MESSAGES.PASSWORD_RESET_SUCCESSFULLY };
   }
 
   async googleLogin(user: GoogleUser) {

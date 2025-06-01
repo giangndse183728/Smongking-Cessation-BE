@@ -10,6 +10,7 @@ import {
   UnauthorizedException,
   Get,
   UsePipes,
+  NotFoundException,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -41,6 +42,7 @@ import { ConfigService } from '@nestjs/config';
 import { UsersService } from '@modules/users/users.service';
 import { SignupValidationPipe } from '@common/pipe/signup-validation.pipe';
 import { GoogleUser } from '@modules/users/dto/login-google.schema';
+import { AUTH_MESSAGES } from '@common/constants/messages';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -123,28 +125,52 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Request a password reset link' })
   @ApiResponse({
-    status: 200,
+    status: HttpStatus.OK,
     description:
       'If a user with that email exists, a password reset link has been sent.',
+  })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: AUTH_MESSAGES.USER_NOT_FOUND,
   })
   @ApiBody({ type: ForgotPasswordDto })
   async forgotPassword(
     @Body(new ZodValidationPipe(forgotPasswordSchema))
     forgotPasswordDto: ForgotPasswordDto,
   ) {
-    return this.authService.forgotPassword(forgotPasswordDto);
+    const existingUser = await this.usersService.getUser({
+      email: forgotPasswordDto.email,
+    });
+    if (!existingUser) {
+      throw new NotFoundException(AUTH_MESSAGES.USER_NOT_FOUND);
+    }
+    return await this.authService.forgotPassword(
+      existingUser,
+      forgotPasswordDto,
+    );
   }
 
   @Post('reset-password')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Reset password using a token' })
-  @ApiResponse({ status: 200, description: 'Password reset successfully' })
+  @ApiResponse({
+    status: 200,
+    description: AUTH_MESSAGES.PASSWORD_RESET_SUCCESSFULLY,
+  })
+  @ApiResponse({
+    status: HttpStatus.BAD_REQUEST,
+    description: AUTH_MESSAGES.INVALID_OR_EXPIRED_RESET_TOKEN,
+  })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: AUTH_MESSAGES.USER_NOT_FOUND,
+  })
   @ApiBody({ type: ResetPasswordDto })
   async resetPassword(
     @Body(new ZodValidationPipe(resetPasswordSchema))
     resetPasswordDto: ResetPasswordDto,
   ) {
-    return this.authService.resetPassword(resetPasswordDto);
+    return await this.authService.resetPassword(resetPasswordDto);
   }
 
   @Get('google')

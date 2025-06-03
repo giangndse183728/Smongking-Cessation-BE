@@ -1,6 +1,6 @@
 import { createZodDto } from 'nestjs-zod';
 import { ApiProperty } from '@nestjs/swagger';
-import { createPostSchema } from 'src/posts/schema/create-post.schema';
+import { createPostSchema } from '@modules/posts/schema/create-post.schema';
 
 export class CreatePostDto extends createZodDto(createPostSchema) {
   @ApiProperty({

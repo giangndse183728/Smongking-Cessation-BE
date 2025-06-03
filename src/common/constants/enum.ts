@@ -18,10 +18,17 @@ export const MEDIA_TYPE = {
 export const KILOBYTE = 1024;
 
 export const POST_TYPE = {
-  HEALTH_BENEFITS: 'HEALTH_BENEFITS',
-  SUCCESS_STORIES: 'SUCCESS_STORIES',
-  TOOLS_AND_TIPS: 'TOOLS_AND_TIPS',
-  SMOKING_DANGERS: 'SMOKING_DANGERS',
-  SUPPORT_RESOURCES: 'SUPPORT_RESOURCES',
-  NEWS_AND_RESEARCH: 'NEWS_AND_RESEARCH',
+  HEALTH_BENEFITS: 'health_benefits',
+  SUCCESS_STORIES: 'success_stories',
+  TOOLS_AND_TIPS: 'tools_and_tips',
+  SMOKING_DANGERS: 'smoking_dangers',
+  SUPPORT_RESOURCES: 'support_resources',
+  NEWS_AND_RESEARCH: 'news_and_research',
+};
+
+export const POST_STATUS = {
+  PENDING: 'pending',
+  APPROVED: 'approved',
+  REJECTED: 'rejected',
+  UPDATING: 'updating',
 };

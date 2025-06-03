@@ -18,10 +18,7 @@ export class PostResponseDto {
   thumbnail: string;
 
   @Expose()
-  health_issues: string;
-
-  @Expose()
-  ai_feedback: string | null;
+  achievement_id: string;
 
   @Expose()
   created_at: string | null;

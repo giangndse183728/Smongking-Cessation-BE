@@ -7,7 +7,7 @@ import { posts } from '@prisma/client';
 export class PostsRepository {
   constructor(private prisma: PrismaService) {}
   async createPost(data: CreatePostDto, user_id: string): Promise<posts> {
-    return this.prisma.posts.create({
+    return await this.prisma.posts.create({
       data: {
         ...data,
         user_id,

@@ -19,7 +19,7 @@ import { UserEntity } from './entities/users.entity';
 import { users } from '@prisma/client';
 import { plainToInstance } from 'class-transformer';
 import { ApiBearerAuth, ApiOperation, ApiResponse } from '@nestjs/swagger';
-import { ZodValidationPipe } from 'nestjs-zod';
+import { ZodValidationPipe } from '@common/pipe/zod-validation.pipe';
 
 @Controller('users')
 @ApiBearerAuth('access-token')

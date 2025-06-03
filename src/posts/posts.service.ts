@@ -12,7 +12,6 @@ export class PostsService {
     userId: string,
   ): Promise<CreatePostDto> {
     const result = await this.postsRepository.createPost(createPostDto, userId);
-
     return plainToInstance(PostResponseDto, result, {
       excludeExtraneousValues: true,
     });

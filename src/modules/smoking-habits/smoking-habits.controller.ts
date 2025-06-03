@@ -8,7 +8,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { SmokingHabitsService } from './smoking-habits.service';
-import {CreateSmokingHabitDto} from './dto/create-smoking-habit.dto';
+import { CreateSmokingHabitDto } from './dto/create-smoking-habit.dto';
 import { SmokingHabitResponseDto } from './dto/res-smoking-habits.dto';
 import { AccessTokenGuard } from '@modules/auth/guards/access-token.guard';
 import {

@@ -5,7 +5,8 @@ export async function sendPasswordResetEmail(
   email: string,
   resetToken: string,
 ): Promise<void> {
-  const resetLink = `https://your-frontend-url/reset-password?token=${resetToken}`;
+  const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+  const resetLink = `${frontendUrl}/reset-password?token=${resetToken}`;
   const subject = 'Password Reset Request';
   const text = `You are receiving this because you (or someone else) has requested the reset of the password for your account.\n\n
     Please click on the following link, or paste this into your browser to complete the process:\n\n

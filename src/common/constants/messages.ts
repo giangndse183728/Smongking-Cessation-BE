@@ -80,3 +80,19 @@ export const USERS_MESSAGES = {
   INVALID_PHONE_NUMBER_FORMAT: 'Invalid Vietnamese phone number format.',
   AVATAR_IS_INVALID_URL: 'Invalid avatar url.',
 };
+
+export const POSTS_MESSAGES = {
+  USER_ID_IS_INVALID: 'User id is invalid.',
+  USER_ID_IS_REQUIRED: 'User id is required.',
+  TYPE_IS_REQUIRED: 'Post type is required.',
+  TYPE_IS_INVALID: 'Post type is invalid.',
+  TITLE_IS_REQUIRED: 'Post title is required.',
+  TITLE_MUST_BE_STRING: 'Post title must be string.',
+  TITLE_MUST_BE_BETWEEN_5_50_CHARACTERS:
+    'Post title must be between 5 and 50 characters.',
+  CONTENT_IS_REQUIRED: 'Content is required.',
+  CONTENT_MUST_BE_STRING: 'Content must be string.',
+  THUMBNAIL_IS_REQUIRED: 'Thumbnail is required.',
+  THUMBNAIL_IS_INVALID_URL: 'Invalid thumbnail url.',
+  ACHIEVEMENT_IS_INVALID: 'Achievement id invalid.',
+};

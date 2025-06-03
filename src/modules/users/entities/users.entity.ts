@@ -6,10 +6,10 @@ export class UserEntity {
   id: string;
 
   @Expose()
-  first_name?: string;
+  first_name: string;
 
   @Expose()
-  last_name?: string;
+  last_name: string;
 
   @Expose()
   username: string;
@@ -19,6 +19,9 @@ export class UserEntity {
 
   @Exclude()
   password: string;
+
+  @Expose()
+  avatar: string;
 
   @Expose()
   phone_number: string;

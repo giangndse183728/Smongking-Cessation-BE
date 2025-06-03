@@ -362,7 +362,7 @@ model users {
   updated_by                         String?                  @db.Uuid
   deleted_at                         DateTime?                @db.Timestamp(6)
   deleted_by                         String?                  @db.Uuid
-  avatar                             String                   @default("https://mkhub.s3.us-east-1.amazonaws.com/avatar/default_avt.jpg")
+  avatar                             String                   @default("https://smk-cessation-bucket.s3.us-east-1.amazonaws.com/avatar/default_avt.png")
   isMember                           Boolean?                 @default(false)
   chat_rooms                         chat_rooms[]
   coaches                            coaches[]

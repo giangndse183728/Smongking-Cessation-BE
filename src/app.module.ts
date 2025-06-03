@@ -8,6 +8,7 @@ import { AuthModule } from './modules/auth/auth.module';
 import { MotivationModule } from '@modules/motivation/motivation.module';
 import { SmokingHabitsModule } from '@modules/smoking-habits/smoking-habits.module';
 import { MediaModule } from './modules/media/media.module';
+import { PostsModule } from './posts/posts.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { MediaModule } from './modules/media/media.module';
     MotivationModule,
     SmokingHabitsModule,
     MediaModule,
+    PostsModule,
     ConfigModule.forRoot({
       isGlobal: true,
     }),

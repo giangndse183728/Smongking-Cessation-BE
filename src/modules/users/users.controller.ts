@@ -9,7 +9,6 @@ import {
   UseGuards,
   Patch,
   HttpStatus,
-  UsePipes,
 } from '@nestjs/common';
 import { AccessTokenGuard } from '@modules/auth/guards/access-token.guard';
 import { UsersService } from './users.service';
@@ -71,7 +70,6 @@ export class UsersController {
     @GetCurrentUser() user: users,
     @Body(new ZodValidationPipe(updateMeSchema)) body: UpdateMeDto,
   ) {
-    console.log(body);
     await this.usersService.checkDuplicateFields(user.id, body, [
       'phone_number',
       'email',

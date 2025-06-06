@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Get,
   HttpStatus,
   Param,
   Patch,
@@ -151,5 +152,34 @@ export class PostsController {
     @Body(new ZodValidationPipe(updatePostSchema)) body: UpdatePostDto,
   ) {
     return await this.postsService.updatePost(body, post_id, userId);
+  }
+
+  @Get()
+  @ApiOperation({ summary: 'Gell all posts' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Update Successfully',
+    schema: {
+      example: {
+        statusCode: 200,
+        msg: 'Success!',
+        data: [
+          {
+            user_id: 'cc03e440-3bfb-44c5-8c8c-083408c31752',
+            type: 'success_stories',
+            title: 'Gary story',
+            content: 'HEHE',
+            thumbnail:
+              'https://smk-cessation-bucket.s3.us-east-1.amazonaws.com/avatar/default_avt.png',
+            achievement_id: null,
+            created_at: '2025-06-03T08:32:47.122Z',
+          },
+        ],
+        timestamp: '2025-06-06T06:27:08.303Z',
+      },
+    },
+  })
+  async getAllPosts() {
+    return await this.postsService.getAllPosts();
   }
 }

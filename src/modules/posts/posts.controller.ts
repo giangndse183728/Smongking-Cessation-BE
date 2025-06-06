@@ -155,7 +155,6 @@ export class PostsController {
     @Param(new ZodValidationPipe(getPostSchema)) params: { id: string },
     @Body(new ZodValidationPipe(updatePostSchema)) body: UpdatePostDto,
   ) {
-    console.log(params.id);
     const existingPost = await this.postsService.getPostDetail(params.id);
     if (!existingPost) {
       throw new NotFoundException('Post not found.');

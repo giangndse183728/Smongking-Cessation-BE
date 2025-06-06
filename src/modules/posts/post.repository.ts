@@ -84,24 +84,4 @@ export class PostsRepository {
       };
     });
   }
-
-  async getPostDetail(id: string) {
-    return await this.prisma.posts.findUnique({
-      where: {
-        id,
-        deleted_at: null,
-        deleted_by: null,
-      },
-      include: {
-        users: {
-          select: {
-            first_name: true,
-            last_name: true,
-            avatar: true,
-            role: true,
-          },
-        },
-      },
-    });
-  }
 }

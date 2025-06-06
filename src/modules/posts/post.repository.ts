@@ -28,31 +28,50 @@ export class PostsRepository {
   }
 
   async updatePost(data: UpdatePostDto, post_id: string, user_id: string) {
-    try {
-      console.log(post_id, user_id);
-      const updatedPost = await this.prisma.posts.update({
-        where: {
-          id: post_id,
-          user_id,
-          status: POST_STATUS.APPROVED,
-          deleted_at: null,
-          deleted_by: null,
+    const updatedPost = await this.prisma.posts.update({
+      where: {
+        id: post_id,
+        user_id,
+        status: POST_STATUS.APPROVED,
+        deleted_at: null,
+        deleted_by: null,
+      },
+      data: {
+        ...data,
+        user_id,
+        status: POST_STATUS.UPDATING,
+        created_at: new Date(),
+        created_by: user_id,
+        updated_at: new Date(),
+        updated_by: user_id,
+      },
+    });
+    return updatedPost;
+  }
+
+  async getAllPosts() {
+    const result = await this.prisma.posts.findMany({
+      where: {
+        deleted_at: null,
+        deleted_by: null,
+      },
+      include: {
+        users: {
+          select: {
+            first_name: true,
+            last_name: true,
+            avatar: true,
+            role: true,
+          },
         },
-        data: {
-          ...data,
-          user_id,
-          status: POST_STATUS.UPDATING,
-          created_at: new Date(),
-          created_by: user_id,
-          updated_at: new Date(),
-          updated_by: user_id,
-        },
-      });
-      return updatedPost;
-    } catch (error) {
-      // Xử lý lỗi ở đây, ví dụ:
-      console.error('Error updating post:', error);
-      throw new Error('Failed to update post.');
-    }
+      },
+    });
+    return result.map((item) => {
+      const { users, ...rest } = item;
+      return {
+        ...rest,
+        ...users,
+      };
+    });
   }
 }

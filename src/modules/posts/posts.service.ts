@@ -39,4 +39,9 @@ export class PostsService {
       excludeExtraneousValues: true,
     });
   }
+
+  async getAllPosts() {
+    const result = await this.postsRepository.getAllPosts();
+    return result;
+  }
 }

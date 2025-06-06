@@ -1,5 +1,9 @@
 import { CreatePostDto } from '@modules/posts/dto/create-post.dto';
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { PostsRepository } from './post.repository';
 import { plainToInstance } from 'class-transformer';
 import { PostResponseDto } from './dto/res-posts.dto';
@@ -43,5 +47,17 @@ export class PostsService {
   async getAllPosts() {
     const result = await this.postsRepository.getAllPosts();
     return result;
+  }
+
+  async getPostDetail(post_id: string) {
+    const result = await this.postsRepository.getPost({ id: post_id });
+    if (!result) {
+      throw new NotFoundException('Post not found.');
+    }
+    const { users, ...rest } = result;
+    return {
+      ...rest,
+      ...users,
+    };
   }
 }

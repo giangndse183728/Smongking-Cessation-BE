@@ -1,9 +1,9 @@
 import { PrismaService } from '@libs/prisma/prisma.service';
 import { CreatePostDto } from '@modules/posts/dto/create-post.dto';
-import { Injectable } from '@nestjs/common';
 import { posts, Prisma } from '@prisma/client';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { POST_STATUS } from '@common/constants/enum';
+import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class PostsRepository {
@@ -24,6 +24,16 @@ export class PostsRepository {
   async getPost(filter: Prisma.postsWhereUniqueInput) {
     return await this.prisma.posts.findUnique({
       where: { ...filter, deleted_at: null, deleted_by: null },
+      include: {
+        users: {
+          select: {
+            first_name: true,
+            last_name: true,
+            avatar: true,
+            role: true,
+          },
+        },
+      },
     });
   }
 
@@ -72,6 +82,26 @@ export class PostsRepository {
         ...rest,
         ...users,
       };
+    });
+  }
+
+  async getPostDetail(id: string) {
+    return await this.prisma.posts.findUnique({
+      where: {
+        id,
+        deleted_at: null,
+        deleted_by: null,
+      },
+      include: {
+        users: {
+          select: {
+            first_name: true,
+            last_name: true,
+            avatar: true,
+            role: true,
+          },
+        },
+      },
     });
   }
 }

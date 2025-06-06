@@ -95,4 +95,6 @@ export const POSTS_MESSAGES = {
   THUMBNAIL_IS_REQUIRED: 'Thumbnail is required.',
   THUMBNAIL_IS_INVALID_URL: 'Invalid thumbnail url.',
   ACHIEVEMENT_IS_INVALID: 'Achievement id invalid.',
+  POST_ID_IS_INVALID: 'Post id is invalid.',
+  POST_ID_IS_REQUIRED: 'Post id is required.',
 };

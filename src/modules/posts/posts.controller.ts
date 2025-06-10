@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpStatus,
   NotFoundException,
@@ -25,6 +26,7 @@ import { GetCurrentUser } from '@common/decorators/user.decorator';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { updatePostSchema } from './schema/update-post.schema';
 import { getPostSchema } from './schema/get-post.schema';
+import { POSTS_MESSAGES } from '@common/constants/messages';
 
 @Controller('posts')
 @ApiBearerAuth('access-token')
@@ -157,7 +159,7 @@ export class PostsController {
   ) {
     const existingPost = await this.postsService.getPostDetail(params.id);
     if (!existingPost) {
-      throw new NotFoundException('Post not found.');
+      throw new NotFoundException(POSTS_MESSAGES.POST_NOT_FOUND);
     }
     return await this.postsService.updatePost(body, params.id, userId);
   }
@@ -225,5 +227,89 @@ export class PostsController {
   })
   async getPostDetail(@Param() params: { id: string }) {
     return await this.postsService.getPostDetail(params.id);
+  }
+
+  @UseGuards(AccessTokenGuard)
+  @Delete(':id')
+  @ApiOperation({ summary: 'Delete post' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Delete post successfully.',
+    schema: {
+      example: {
+        statusCode: 200,
+        msg: 'Success!',
+        data: {
+          id: '242de2f2-4b9a-46ff-a678-af0f847b543e',
+          user_id: '1b61f583-f326-4abd-b135-b97ca33b84ff',
+          type: 'success_stories',
+          title: 'Be inspired from Gary stories',
+          content: 'This is post content.',
+          status: 'PENDING',
+          reason: null,
+          thumbnail:
+            'https://smk-cessation-bucket.s3.us-east-1.amazonaws.com/avatar/default_avt.png',
+          achievement_id: null,
+          created_at: '2025-06-06T08:36:08.117Z',
+          created_by: '1b61f583-f326-4abd-b135-b97ca33b84ff',
+          updated_at: '2025-06-10T09:02:37.387Z',
+          updated_by: '1b61f583-f326-4abd-b135-b97ca33b84ff',
+          deleted_at: '2025-06-10T09:02:37.385Z',
+          deleted_by: '1b61f583-f326-4abd-b135-b97ca33b84ff',
+        },
+        timestamp: '2025-06-10T09:02:37.596Z',
+      },
+    },
+  })
+  @ApiResponse({
+    status: HttpStatus.UNPROCESSABLE_ENTITY,
+    description: 'Validation failed.',
+    schema: {
+      example: {
+        statusCode: 422,
+        timestamp: '2025-06-10T09:20:22.733Z',
+        path: '/api/v1/posts/242de2f2-4b9a-46ff-a678-af0f847b543',
+        message: [
+          {
+            path: 'id',
+            message: 'Post id is invalid.',
+          },
+        ],
+        errors: [],
+      },
+    },
+  })
+  @ApiResponse({
+    status: HttpStatus.UNAUTHORIZED,
+    description: 'Unauthorized',
+    schema: {
+      example: {
+        statusCode: 401,
+        timestamp: '2025-06-10T09:22:48.150Z',
+        path: '/api/v1/posts/07614c8b-b4cc-4a1c-8ebe-79b8a30636cc',
+        message: 'User not allowed.',
+        errors: [],
+      },
+    },
+  })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'Post not found.',
+    schema: {
+      example: {
+        statusCode: 404,
+        timestamp: '2025-06-10T09:21:47.592Z',
+        path: '/api/v1/posts/cc03e440-3bfb-44c5-8c8c-083408c31752',
+        message: 'Post not found.',
+        errors: [],
+      },
+    },
+  })
+  async deletePost(
+    @GetCurrentUser('id')
+    userId: string,
+    @Param(new ZodValidationPipe(getPostSchema)) params: { id: string },
+  ) {
+    return await this.postsService.deletePost(params.id, userId);
   }
 }

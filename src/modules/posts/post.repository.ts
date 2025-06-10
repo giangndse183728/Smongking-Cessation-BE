@@ -84,4 +84,19 @@ export class PostsRepository {
       };
     });
   }
+
+  async deletePost(post_id: string, user_id: string): Promise<posts> {
+    return await this.prisma.posts.update({
+      data: {
+        deleted_at: new Date(),
+        deleted_by: user_id,
+      },
+      where: {
+        id: post_id,
+        user_id,
+        deleted_at: null,
+        deleted_by: null,
+      },
+    });
+  }
 }

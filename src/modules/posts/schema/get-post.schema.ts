@@ -1,4 +1,3 @@
-import { POST_TYPE } from '@common/constants/enum';
 import { POSTS_MESSAGES } from '@common/constants/messages';
 import { z } from 'zod';
 

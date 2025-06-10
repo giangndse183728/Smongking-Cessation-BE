@@ -12,6 +12,7 @@ import { RefreshTokenStrategy } from './strategies/refresh-token.strategy';
 import { UsersModule } from '@modules/users/users.module';
 import { GoogleStrategy } from './strategies/google.strategy';
 import { AuthRepository } from './auth.repository';
+import { RolesGuard } from './guards/roles.guard';
 
 @Module({
   imports: [
@@ -38,7 +39,8 @@ import { AuthRepository } from './auth.repository';
     RefreshTokenStrategy,
     GoogleStrategy,
     AuthRepository,
+    RolesGuard,
   ],
-  exports: [AuthService],
+  exports: [AuthService, TokenService, RolesGuard],
 })
 export class AuthModule {}

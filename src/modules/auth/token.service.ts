@@ -12,9 +12,9 @@ export class TokenService {
     private configService: ConfigService,
   ) {}
 
-  async generateTokens(userId: string, username: string, role: string) {
+  async generateTokens(userId: string, email: string, role: string) {
     const accessToken = await this.jwtService.signAsync(
-      { sub: userId, username, role },
+      { sub: userId, email, role },
       {
         secret: this.configService.get<string>('JWT_SECRET'),
         expiresIn: this.configService.get<string>('ACCESS_TOKEN_EXPIRES_IN'),

@@ -11,12 +11,14 @@ import { MediaModule } from './modules/media/media.module';
 import { PostsModule } from './modules/posts/posts.module';
 import { QuitPlanModule } from '@modules/quit-plan/quit-plan.module';
 import { PlanRecordModule } from '@modules/plan-record/plan-record.module';
+import { MembershipPlanModule } from '@modules/membership-plan/membership-plan.module';
 
 
 @Module({
   imports: [
     PrismaModule,
     QuitPlanModule,
+    MembershipPlanModule,
     PlanRecordModule,
     UsersModule,
     AuthModule,

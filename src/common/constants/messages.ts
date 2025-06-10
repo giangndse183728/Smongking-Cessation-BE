@@ -97,10 +97,13 @@ export const POSTS_MESSAGES = {
   ACHIEVEMENT_IS_INVALID: 'Achievement id invalid.',
   POST_ID_IS_INVALID: 'Post id is invalid.',
   POST_ID_IS_REQUIRED: 'Post id is required.',
+  USER_NOT_ALLOWED: 'User not allowed.',
+  POST_NOT_FOUND: 'Post not found.',
 };
 
 export const QUIT_PLAN_MESSAGES = {
-  ACTIVE_PLAN_EXISTS: 'You already have an active quit plan. Please complete or delete your current plan before starting a new one.',
+  ACTIVE_PLAN_EXISTS:
+    'You already have an active quit plan. Please complete or delete your current plan before starting a new one.',
   SMOKING_HABITS_REQUIRED: 'Please complete your smoking habits profile first',
   FAILED_TO_GENERATE_PHASES: 'Failed to generate quit plan phases',
   FAILED_TO_CREATE_PLAN: 'Failed to create quit plan with AI assistance',

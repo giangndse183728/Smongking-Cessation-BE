@@ -8,6 +8,7 @@ import { PostsRepository } from './post.repository';
 import { plainToInstance } from 'class-transformer';
 import { PostResponseDto } from './dto/res-posts.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
+import { POSTS_MESSAGES } from '@common/constants/messages';
 
 @Injectable()
 export class PostsService {
@@ -32,7 +33,7 @@ export class PostsService {
       user_id,
     });
     if (!validAuthor) {
-      throw new UnauthorizedException('User not allowed.');
+      throw new UnauthorizedException(POSTS_MESSAGES.USER_NOT_ALLOWED);
     }
     const result = await this.postsRepository.updatePost(
       updatePostDto,
@@ -52,12 +53,25 @@ export class PostsService {
   async getPostDetail(post_id: string) {
     const result = await this.postsRepository.getPost({ id: post_id });
     if (!result) {
-      throw new NotFoundException('Post not found.');
+      throw new NotFoundException(POSTS_MESSAGES.POST_NOT_FOUND);
     }
     const { users, ...rest } = result;
     return {
       ...rest,
       ...users,
     };
+  }
+
+  async deletePost(post_id: string, user_id: string) {
+    const existingPost = await this.postsRepository.getPost({ id: post_id });
+    if (!existingPost) {
+      throw new NotFoundException(POSTS_MESSAGES.POST_NOT_FOUND);
+    }
+    if (existingPost.user_id !== user_id) {
+      throw new UnauthorizedException(POSTS_MESSAGES.USER_NOT_ALLOWED);
+    }
+
+    const result = await this.postsRepository.deletePost(post_id, user_id);
+    return result;
   }
 }

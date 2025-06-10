@@ -9,10 +9,15 @@ import { MotivationModule } from '@modules/motivation/motivation.module';
 import { SmokingHabitsModule } from '@modules/smoking-habits/smoking-habits.module';
 import { MediaModule } from './modules/media/media.module';
 import { PostsModule } from './modules/posts/posts.module';
+import { QuitPlanModule } from '@modules/quit-plan/quit-plan.module';
+import { PlanRecordModule } from '@modules/plan-record/plan-record.module';
+
 
 @Module({
   imports: [
     PrismaModule,
+    QuitPlanModule,
+    PlanRecordModule,
     UsersModule,
     AuthModule,
     MotivationModule,

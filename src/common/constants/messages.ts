@@ -98,3 +98,16 @@ export const POSTS_MESSAGES = {
   POST_ID_IS_INVALID: 'Post id is invalid.',
   POST_ID_IS_REQUIRED: 'Post id is required.',
 };
+
+export const QUIT_PLAN_MESSAGES = {
+  ACTIVE_PLAN_EXISTS: 'You already have an active quit plan. Please complete or delete your current plan before starting a new one.',
+  SMOKING_HABITS_REQUIRED: 'Please complete your smoking habits profile first',
+  FAILED_TO_GENERATE_PHASES: 'Failed to generate quit plan phases',
+  FAILED_TO_CREATE_PLAN: 'Failed to create quit plan with AI assistance',
+  FAILED_TO_CREATE_RECORD: 'Failed to create quit plan record',
+  FAILED_TO_RETRIEVE_PLAN: 'Failed to retrieve quit plan',
+  FAILED_TO_RETRIEVE_RECORDS: 'Failed to retrieve quit plan records',
+  FAILED_TO_DELETE_PLAN: 'Failed to delete quit plan',
+  PLAN_NOT_FOUND: 'Quit plan not found',
+  FAILED_TO_UPDATE_PHASE_STATUSES: 'Failed to update phase statuses',
+} as const;

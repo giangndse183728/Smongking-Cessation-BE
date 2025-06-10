@@ -36,7 +36,6 @@ export class AIService {
     planType: string,
     smokingHabits: SmokingHabitsData,
     startDate: Date,
-    targetDays?: number,
   ): Promise<QuitPlanPhaseAI[]> {
     try {
       const systemPrompt = `You are an expert smoking cessation coach. Generate a structured quit smoking plan with multiple phases based on detailed smoking habits.
@@ -49,7 +48,6 @@ Price per pack: $${smokingHabits.price_per_pack}
 Triggers: ${smokingHabits.triggers.join(', ')}
 Health issues: ${smokingHabits.health_issues}
 Start date: ${startDate.toISOString().split('T')[0]}
-${targetDays ? `Target duration: ${targetDays} days` : ''}
 
 Generate a JSON array of phases with the following structure:
 [
@@ -69,7 +67,7 @@ Rules:
 5. For standard plan: balanced approach
 6. Phase 1 should start with 10-20% reduction from current amount
 7. Final phase should be 0 cigarettes
-8. Total phases should be 3-7 phases based on smoking intensity
+8. Total phases should be 3-5 phases based on smoking intensity
 9. Each phase duration should be realistic (5-21 days based on plan type)
 10. Address specific triggers mentioned in description
 11. Return only valid JSON array, no extra text`;
@@ -102,7 +100,6 @@ Rules:
       const aiResponse = response.data.choices[0].message.content.trim();
       const phases = JSON.parse(aiResponse);
 
-      // Convert to proper format with dates
       const currentStartDate = new Date(startDate);
 
       return phases.map((phase: any, index: number) => {
@@ -119,7 +116,6 @@ Rules:
           description: phase.description,
         };
 
-        // Move to next phase start date
         currentStartDate.setDate(
           currentStartDate.getDate() + phase.duration_days,
         );
@@ -129,7 +125,6 @@ Rules:
     } catch (error) {
       this.logger.error('Failed to generate quit plan phases', error.message);
 
-      // Fallback to default phases if AI fails
       return this.generateDefaultPhases(
         smokingHabits.cigarettes_per_day,
         startDate,
@@ -146,7 +141,6 @@ Rules:
     const phases: QuitPlanPhaseAI[] = [];
     const currentStartDate = new Date(startDate);
 
-    // Adjust phases based on plan type
     let reductionRates: number[];
     let phaseDurations: number[];
 

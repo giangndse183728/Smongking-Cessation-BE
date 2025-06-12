@@ -332,6 +332,7 @@ model user_subscriptions {
   id               String           @id @default(uuid()) @db.Uuid
   user_id          String           @db.Uuid
   plan_id          String           @db.Uuid
+  order_code       String           @db.VarChar
   start_date       DateTime         @db.Timestamp(6)
   end_date         DateTime         @db.Timestamp(6)
   is_active        Boolean?         @default(true)

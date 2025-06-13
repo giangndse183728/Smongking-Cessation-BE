@@ -114,3 +114,19 @@ export const QUIT_PLAN_MESSAGES = {
   PLAN_NOT_FOUND: 'Quit plan not found',
   FAILED_TO_UPDATE_PHASE_STATUSES: 'Failed to update phase statuses',
 } as const;
+
+export const ACHIEVEMENTS_MESSAGES = {
+  ACHIEVEMENT_NAME_MUST_BE_STRING: 'Achievement name must be string.',
+  ACHIEVEMENT_NAME_IS_REQUIRED: 'Achievement name is required.',
+  ACHIEVEMENT_DESCRIPTION_MUST_BE_STRING:
+    'Achievement description must be string.',
+  ACHIEVEMENT_DESCRIPTION_IS_REQUIRED: 'Achievement description is required.',
+  IMAGE_IS_INVALID_URL: 'Achievement image is invalid url.',
+  ACHIEVEMENT_TYPE_MUST_BE_STRING: 'Achievement type must be string.',
+  ACHIEVEMENT_TYPE_IS_REQUIRED: 'Achievement type is required.',
+  ACHIEVEMENT_TYPE_INVALID: 'Achievement type is invalid.',
+  THRESHOLD_IS_REQUIRED: 'Achievement threshold value is required.',
+  THRESHOLD_MUST_BE_STRING: 'Achievement threshold value must be string.',
+  THRESHOLD_MUST_BE_POSITIVE: 'Achievement threshold value must be positive.',
+  IMAGE_IS_REQUIRED: 'Achievement image is required.',
+};

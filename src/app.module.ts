@@ -12,7 +12,7 @@ import { PostsModule } from './modules/posts/posts.module';
 import { QuitPlanModule } from '@modules/quit-plan/quit-plan.module';
 import { PlanRecordModule } from '@modules/plan-record/plan-record.module';
 import { MembershipPlanModule } from '@modules/membership-plan/membership-plan.module';
-
+import { AchievementsModule } from './modules/achievements/achievements.module';
 
 @Module({
   imports: [
@@ -29,6 +29,7 @@ import { MembershipPlanModule } from '@modules/membership-plan/membership-plan.m
     ConfigModule.forRoot({
       isGlobal: true,
     }),
+    AchievementsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -32,3 +32,12 @@ export const POST_STATUS = {
   REJECTED: 'rejected',
   UPDATING: 'updating',
 };
+
+export const achievement_type = {
+  ABSTINENCE_DAYS: 'abstinence_days',
+  MONEY_SAVED: 'money_saved',
+  HEALTH_MILESTONE: 'health_milestone',
+  COMMUNITY_SUPPORT: 'community_support',
+  APP_USAGE: 'app_usage',
+  RELAPSE_FREE_STREAK: 'relapse_free_streak',
+};

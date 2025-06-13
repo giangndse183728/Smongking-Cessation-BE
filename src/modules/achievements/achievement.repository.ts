@@ -22,6 +22,7 @@ export class AchievementRepository {
       },
     });
   }
+
   async updateAchievement(
     achievement_id: string,
     payload: UpdateAchievementDto,
@@ -33,6 +34,21 @@ export class AchievementRepository {
         id: achievement_id,
         deleted_at: null,
         deleted_by: null,
+      },
+    });
+    return achievement;
+  }
+
+  async deleteAchievement(achievement_id: string, user_id: string) {
+    const achievement = await this.prisma.achievements.update({
+      where: {
+        id: achievement_id,
+        deleted_at: null,
+        deleted_by: null,
+      },
+      data: {
+        deleted_at: new Date(),
+        deleted_by: user_id,
       },
     });
     return achievement;

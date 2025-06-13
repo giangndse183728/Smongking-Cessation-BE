@@ -129,4 +129,7 @@ export const ACHIEVEMENTS_MESSAGES = {
   THRESHOLD_MUST_BE_STRING: 'Achievement threshold value must be string.',
   THRESHOLD_MUST_BE_POSITIVE: 'Achievement threshold value must be positive.',
   IMAGE_IS_REQUIRED: 'Achievement image is required.',
+  ACHIEVEMENT_ID_IS_REQUIRED: 'Achievement id is required.',
+  ACHIEVEMENT_ID_IS_INVALID: 'Achievement id is invalid.',
+  ACHIEVEMENT_NOT_FOUND: 'Achievement not found.',
 };

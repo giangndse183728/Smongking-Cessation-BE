@@ -16,6 +16,7 @@ import {
   ApiBearerAuth,
   ApiBody,
   ApiOperation,
+  ApiParam,
   ApiResponse,
 } from '@nestjs/swagger';
 import { AccessTokenGuard } from '@modules/auth/guards/access-token.guard';
@@ -151,6 +152,12 @@ export class PostsController {
       },
     },
   })
+  @ApiParam({
+    name: 'id',
+    type: String,
+    description: 'ID of the post to update',
+    example: '4f1e2f17-1f8c-4b63-a74e-7bb176aaed84',
+  })
   async updatePost(
     @GetCurrentUser('id')
     userId: string,
@@ -224,6 +231,12 @@ export class PostsController {
         timestamp: '2025-06-06T06:57:47.079Z',
       },
     },
+  })
+  @ApiParam({
+    name: 'id',
+    type: String,
+    description: 'ID of the post to get detail',
+    example: '4f1e2f17-1f8c-4b63-a74e-7bb176aaed84',
   })
   async getPostDetail(@Param() params: { id: string }) {
     return await this.postsService.getPostDetail(params.id);
@@ -304,6 +317,12 @@ export class PostsController {
         errors: [],
       },
     },
+  })
+  @ApiParam({
+    name: 'id',
+    type: String,
+    description: 'ID of the post to delete',
+    example: '4f1e2f17-1f8c-4b63-a74e-7bb176aaed84',
   })
   async deletePost(
     @GetCurrentUser('id')

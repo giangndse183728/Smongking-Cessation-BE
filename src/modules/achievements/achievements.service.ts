@@ -1,7 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateAchievementDto } from './dto/create-achievement.dto';
 import { AchievementRepository } from './achievement.repository';
 import { achievements } from '@prisma/client';
+import { UpdateAchievementDto } from './dto/update-achievement.dto';
+import { ACHIEVEMENTS_MESSAGES } from '@common/constants/messages';
 
 @Injectable()
 export class AchievementsService {
@@ -12,6 +14,24 @@ export class AchievementsService {
     user_id: string,
   ): Promise<achievements> {
     const achievement = await this.achievementRepository.createAchievement(
+      payload,
+      user_id,
+    );
+    return achievement;
+  }
+
+  async updateAchievement(
+    achievement_id: string,
+    payload: UpdateAchievementDto,
+    user_id: string,
+  ): Promise<achievements> {
+    const existingAchievement =
+      await this.achievementRepository.getAchievement(achievement_id);
+    if (!existingAchievement) {
+      throw new NotFoundException(ACHIEVEMENTS_MESSAGES.ACHIEVEMENT_NOT_FOUND);
+    }
+    const achievement = await this.achievementRepository.updateAchievement(
+      achievement_id,
       payload,
       user_id,
     );

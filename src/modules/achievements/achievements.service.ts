@@ -37,4 +37,17 @@ export class AchievementsService {
     );
     return achievement;
   }
+
+  async deleteAchievement(achievement_id: string, user_id: string) {
+    const existingAchievement =
+      await this.achievementRepository.getAchievement(achievement_id);
+    if (!existingAchievement) {
+      throw new NotFoundException(ACHIEVEMENTS_MESSAGES.ACHIEVEMENT_NOT_FOUND);
+    }
+    const achievement = await this.achievementRepository.deleteAchievement(
+      achievement_id,
+      user_id,
+    );
+    return achievement;
+  }
 }

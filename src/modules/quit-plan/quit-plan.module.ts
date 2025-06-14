@@ -10,6 +10,8 @@ import { UsersModule } from '@modules/users/users.module';
 import { PlanRecordModule } from '@modules/plan-record/plan-record.module';
 import { QuitPlanRecordRepository } from '@modules/plan-record/plan-record.repository';
 import { SmokingHabitsModule } from '@modules/smoking-habits/smoking-habits.module';
+import { AchievementsModule } from '@modules/achievements/achievements.module';
+import { UserAchievementModule } from '@modules/user-achievement/user-achievement.module';
 
 @Module({
   imports: [
@@ -18,10 +20,12 @@ import { SmokingHabitsModule } from '@modules/smoking-habits/smoking-habits.modu
     UsersModule,
     PlanRecordModule,
     SmokingHabitsModule,
+    AchievementsModule,
+    UserAchievementModule,
   ],
   controllers: [QuitPlanController],
   providers: [
-    QuitPlanService, 
+    QuitPlanService,
     QuitPlanRepository,
     QuitPlanRecordRepository,
     AIService,

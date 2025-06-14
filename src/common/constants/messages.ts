@@ -133,3 +133,11 @@ export const ACHIEVEMENTS_MESSAGES = {
   ACHIEVEMENT_ID_IS_INVALID: 'Achievement id is invalid.',
   ACHIEVEMENT_NOT_FOUND: 'Achievement not found.',
 };
+
+export const USER_ACHIEVEMENT_MESSAGE = {
+  ACHIEVEMENT_ID_IS_REQUIRED: 'Achievement id is required.',
+  ACHIEVEMENT_ID_IS_INVALID: 'Achievement id is invalid.',
+  ACHIEVEMENT_NOT_FOUND: 'Achievement not found.',
+  EARNED_DATE_IS_REQUIRED: 'Earn date is required.',
+  EARNED_DATE_IS_INVALID: 'Earn date is invalid.',
+};

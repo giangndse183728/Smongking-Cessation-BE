@@ -53,4 +53,13 @@ export class AchievementRepository {
     });
     return achievement;
   }
+
+  async getAchievements() {
+    return await this.prisma.achievements.findMany({
+      where: {
+        deleted_at: null,
+        deleted_by: null,
+      },
+    });
+  }
 }

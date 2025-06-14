@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Delete,
+  Get,
   HttpStatus,
   Param,
   Patch,
@@ -327,5 +328,91 @@ export class AchievementsController {
     @Param(new ZodValidationPipe(getAchievementSchema)) params: { id: string },
   ) {
     return await this.achievementsService.deleteAchievement(params.id, userId);
+  }
+
+  @Get(':id')
+  @ApiOperation({ summary: 'Get Achievement detail' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Get Achievement Detail Successfully',
+    schema: {
+      example: {
+        statusCode: 200,
+        msg: 'Success!',
+        data: {
+          id: '09b314be-1a19-4c31-9b06-898bfb9cd2b5',
+          name: 'No relapse for 7 days',
+          description: 'You have kept a 7 day streak of no relapse.',
+          image_url:
+            'https://smk-cessation-bucket.s3.us-east-1.amazonaws.com/avatar/default_avt.png',
+          achievement_type: 'relapse_free_streak',
+          threshold_value: '7',
+          created_at: '2025-06-13T05:03:54.293Z',
+          created_by: '1b61f583-f326-4abd-b135-b97ca33b84ff',
+          updated_at: '2025-06-13T05:56:36.215Z',
+          updated_by: '1b61f583-f326-4abd-b135-b97ca33b84ff',
+          deleted_at: '2025-06-13T05:08:54.293Z',
+          deleted_by: '1b61f583-f326-4abd-b135-b97ca33b84ff',
+        },
+        timestamp: '2025-06-13T05:56:36.565Z',
+      },
+    },
+  })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'Achievement not found',
+    schema: {
+      example: {
+        statusCode: 404,
+        timestamp: '2025-06-13T06:37:29.106Z',
+        path: '/api/v1/achievements/09b314be-1a19-4c31-9b06-898bfb9cd2ba',
+        message: 'Achievement not found.',
+        errors: [],
+      },
+    },
+  })
+  @ApiParam({
+    name: 'id',
+    description: 'Achievement id to get detail',
+    type: 'string',
+    format: 'uuid',
+    example: '09b314be-1a19-4c31-9b06-898bfb9cd2b5',
+  })
+  async getAchievementDetail(
+    @Param(new ZodValidationPipe(getAchievementSchema)) params: { id: string },
+  ) {
+    return await this.achievementsService.getAchievement(params.id);
+  }
+
+  @Get()
+  @ApiOperation({ summary: 'Get Achievements' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Get Achievement Detail Successfully',
+    schema: {
+      example: {
+        statusCode: 200,
+        msg: 'Success!',
+        data: {
+          id: '09b314be-1a19-4c31-9b06-898bfb9cd2b5',
+          name: 'No relapse for 7 days',
+          description: 'You have kept a 7 day streak of no relapse.',
+          image_url:
+            'https://smk-cessation-bucket.s3.us-east-1.amazonaws.com/avatar/default_avt.png',
+          achievement_type: 'relapse_free_streak',
+          threshold_value: '7',
+          created_at: '2025-06-13T05:03:54.293Z',
+          created_by: '1b61f583-f326-4abd-b135-b97ca33b84ff',
+          updated_at: '2025-06-13T05:56:36.215Z',
+          updated_by: '1b61f583-f326-4abd-b135-b97ca33b84ff',
+          deleted_at: '2025-06-13T05:08:54.293Z',
+          deleted_by: '1b61f583-f326-4abd-b135-b97ca33b84ff',
+        },
+        timestamp: '2025-06-13T05:56:36.565Z',
+      },
+    },
+  })
+  async getAchievements() {
+    return await this.achievementsService.getAchievements();
   }
 }

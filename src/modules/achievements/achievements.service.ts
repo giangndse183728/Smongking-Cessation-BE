@@ -50,4 +50,18 @@ export class AchievementsService {
     );
     return achievement;
   }
+
+  async getAchievement(achievement_id: string) {
+    const existingAchievement =
+      await this.achievementRepository.getAchievement(achievement_id);
+    if (!existingAchievement) {
+      throw new NotFoundException(ACHIEVEMENTS_MESSAGES.ACHIEVEMENT_NOT_FOUND);
+    }
+    return existingAchievement;
+  }
+
+  async getAchievements() {
+    const achievements = await this.achievementRepository.getAchievements();
+    return achievements;
+  }
 }

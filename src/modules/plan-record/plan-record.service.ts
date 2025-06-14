@@ -21,18 +21,23 @@ export class PlanRecordService {
   async createRecord(userId: string, data: CreateQuitPlanRecordDto) {
     try {
       // Find active quit plan
-      const activePlan = await this.quitPlanRepository.findActiveQuitPlanByUserId(userId);
+      const activePlan =
+        await this.quitPlanRepository.findActiveQuitPlanByUserId(userId);
       if (!activePlan) {
         throw new BadRequestException('No active quit plan found');
       }
 
       // Find active phase
-      const activePhase = await this.quitPlanRepository.findActivePhaseByPlanId(activePlan.id, userId);
+      const activePhase = await this.quitPlanRepository.findActivePhaseByPlanId(
+        activePlan.id,
+        userId,
+      );
       if (!activePhase) {
         throw new BadRequestException('No active phase found in the quit plan');
       }
 
-      const smokingHabits = await this.smokingHabitsService.findByUserId(userId);
+      const smokingHabits =
+        await this.smokingHabitsService.findByUserId(userId);
       if (!smokingHabits) {
         throw new BadRequestException('Smoking habits profile not found');
       }
@@ -51,31 +56,34 @@ export class PlanRecordService {
       const nextDay = new Date(recordDate);
       nextDay.setDate(nextDay.getDate() + 1);
 
-      const existingDateRecord = await this.quitPlanRecordRepository.findTodayRecord(
-        userId,
-        activePlan.id,
-        activePhase.id,
-        recordDate,
-        nextDay,
-      );
+      const existingDateRecord =
+        await this.quitPlanRecordRepository.findTodayRecord(
+          userId,
+          activePlan.id,
+          activePhase.id,
+          recordDate,
+          nextDay,
+        );
 
       const cigarettesSmoked = Math.max(0, data.cigarette_smoke || 0);
       const originalCigarettes = smokingHabits.cigarettes_per_day || 0;
 
-      const costPerCigarette = smokingHabits.cigarettes_per_pack > 0
-        ? Number(smokingHabits.price_per_pack) / smokingHabits.cigarettes_per_pack
-        : 0;
-      
+      const costPerCigarette =
+        smokingHabits.cigarettes_per_pack > 0
+          ? Number(smokingHabits.price_per_pack) /
+            smokingHabits.cigarettes_per_pack
+          : 0;
+
       const moneySaved = QuitPlanRecord.calculateMoneySaved(
         cigarettesSmoked,
         originalCigarettes,
         Number(smokingHabits.price_per_pack),
-        smokingHabits.cigarettes_per_pack
+        smokingHabits.cigarettes_per_pack,
       );
 
       const isPass = QuitPlanRecord.calculateIsPass(
         cigarettesSmoked,
-        activePhase.limit_cigarettes_per_day
+        activePhase.limit_cigarettes_per_day,
       );
 
       const recordData = {
@@ -92,14 +100,17 @@ export class PlanRecordService {
       let result;
       if (existingDateRecord) {
         // Update existing record
-        const updatedRecord = await this.quitPlanRecordRepository.update(existingDateRecord.id, {
-          cigarette_smoke: recordData.cigarette_smoke,
-          money_saved: recordData.money_saved,
-          craving_level: recordData.craving_level,
-          health_status: recordData.health_status,
-          is_pass: recordData.is_pass,
-          updated_by: userId,
-        });
+        const updatedRecord = await this.quitPlanRecordRepository.update(
+          existingDateRecord.id,
+          {
+            cigarette_smoke: recordData.cigarette_smoke,
+            money_saved: recordData.money_saved,
+            craving_level: recordData.craving_level,
+            health_status: recordData.health_status,
+            is_pass: recordData.is_pass,
+            updated_by: userId,
+          },
+        );
 
         result = {
           ...updatedRecord,
@@ -110,7 +121,8 @@ export class PlanRecordService {
         };
       } else {
         // Create new record
-        const newRecord = await this.quitPlanRecordRepository.create(recordData);
+        const newRecord =
+          await this.quitPlanRecordRepository.create(recordData);
         result = {
           ...newRecord,
           money_saved: newRecord.getMoneySavedAmount(),
@@ -131,9 +143,13 @@ export class PlanRecordService {
 
   async getRecords(userId: string, planId: string, phaseId: string) {
     try {
-      const records = await this.quitPlanRecordRepository.findByPlanAndPhase(planId, phaseId, userId);
-      
-      return records.map(record => ({
+      const records = await this.quitPlanRecordRepository.findByPlanAndPhase(
+        planId,
+        phaseId,
+        userId,
+      );
+
+      return records.map((record) => ({
         ...record,
         money_saved: record.getMoneySavedAmount(),
         craving_level_text: record.getCravingLevelText(),
@@ -151,9 +167,12 @@ export class PlanRecordService {
 
   async getAllRecords(userId: string, planId: string) {
     try {
-      const records = await this.quitPlanRecordRepository.findAllByPlan(planId, userId);
-      
-      return records.map(record => ({
+      const records = await this.quitPlanRecordRepository.findAllByPlan(
+        planId,
+        userId,
+      );
+
+      return records.map((record) => ({
         ...record,
         money_saved: record.getMoneySavedAmount(),
         craving_level_text: record.getCravingLevelText(),
@@ -169,9 +188,17 @@ export class PlanRecordService {
     }
   }
 
-  async getRecordsByPlanAndPhase(userId: string, planId: string, phaseId: string) {
+  async getRecordsByPlanAndPhase(
+    userId: string,
+    planId: string,
+    phaseId: string,
+  ) {
     try {
-      const records = await this.quitPlanRecordRepository.findByPlanAndPhase(planId, phaseId, userId);
+      const records = await this.quitPlanRecordRepository.findByPlanAndPhase(
+        planId,
+        phaseId,
+        userId,
+      );
       return records;
     } catch (error) {
       this.logger.error('Error getting plan records by plan and phase:', error);
@@ -181,7 +208,10 @@ export class PlanRecordService {
 
   async getAllRecordsByPlan(userId: string, planId: string) {
     try {
-      const records = await this.quitPlanRecordRepository.findAllByPlan(planId, userId);
+      const records = await this.quitPlanRecordRepository.findAllByPlan(
+        planId,
+        userId,
+      );
       return records;
     } catch (error) {
       this.logger.error('Error getting all plan records:', error);

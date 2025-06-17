@@ -9,7 +9,6 @@ import { GetCurrentUser } from '@common/decorators/user.decorator';
 export class PlanRecordController {
   constructor(private readonly planRecordService: PlanRecordService) {}
 
-
   @Get(':planId/:phaseId')
   async getRecords(
     @GetCurrentUser('id') userId: string,

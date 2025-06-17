@@ -13,7 +13,10 @@ import {
 import { QuitPlanService } from './quit-plan.service';
 import { CreateQuitPlanDto } from './dto/create-quit-plan.dto';
 import { createQuitPlanSchema } from './schemas/quit-plan.schema';
-import { CreateQuitPlanRecordDto, createQuitPlanRecordSchema } from '../plan-record/dto/create-plan-record.dto';
+import {
+  CreateQuitPlanRecordDto,
+  createQuitPlanRecordSchema,
+} from '../plan-record/dto/create-plan-record.dto';
 import { AccessTokenGuard } from '@modules/auth/guards/access-token.guard';
 import { GetCurrentUser } from '@common/decorators/user.decorator';
 import { ZodValidationPipe } from '@common/pipe/zod-validation.pipe';
@@ -43,35 +46,36 @@ export class QuitPlanController {
       standard: {
         value: {
           reason: 'I want to improve my health',
-          plan_type: 'standard'
-        }
+          plan_type: 'standard',
+        },
       },
       aggressive: {
         value: {
           reason: 'I need to quit smoking immediately',
-          plan_type: 'aggressive'
-        }
+          plan_type: 'aggressive',
+        },
       },
       slow: {
         value: {
           reason: 'I want to gradually reduce smoking',
-          plan_type: 'slow'
-        }
-      }
-    }
+          plan_type: 'slow',
+        },
+      },
+    },
   })
   @ApiResponse({
     status: HttpStatus.CREATED,
     description: 'Quit plan created successfully',
-    type: QuitPlanResponseDto
+    type: QuitPlanResponseDto,
   })
   @ApiResponse({
     status: HttpStatus.BAD_REQUEST,
-    description: 'Invalid input or failed to create quit plan'
+    description: 'Invalid input or failed to create quit plan',
   })
   async createQuitPlan(
     @GetCurrentUser('id') userId: string,
-    @Body(new ZodValidationPipe(createQuitPlanSchema)) createQuitPlanDto: CreateQuitPlanDto,
+    @Body(new ZodValidationPipe(createQuitPlanSchema))
+    createQuitPlanDto: CreateQuitPlanDto,
   ) {
     try {
       const result = await this.quitPlanService.createQuitPlan(
@@ -95,42 +99,47 @@ export class QuitPlanController {
   }
 
   @Post('records')
-  @ApiOperation({ summary: 'Create a daily record for the active quit plan phase' })
+  @ApiOperation({
+    summary: 'Create a daily record for the active quit plan phase',
+  })
   @ApiBody({
     type: CreateQuitPlanRecordDto,
-    description: 'Data for creating a daily record. The record will be associated with your active quit plan and phase.',
+    description:
+      'Data for creating a daily record. The record will be associated with your active quit plan and phase.',
     examples: {
       complete: {
         value: {
           cigarette_smoke: 5,
           craving_level: 7,
           health_status: 'GOOD',
-          record_date: new Date()
-        }
+          record_date: new Date(),
+        },
       },
       minimal: {
         value: {
-          cigarette_smoke: 3
-        }
-      }
-    }
+          cigarette_smoke: 3,
+        },
+      },
+    },
   })
   @ApiResponse({
     status: HttpStatus.CREATED,
     description: 'Daily record created successfully',
-    type: QuitPlanRecordResponseDto
+    type: QuitPlanRecordResponseDto,
   })
   @ApiResponse({
     status: HttpStatus.BAD_REQUEST,
-    description: 'Invalid input, no active plan found, or failed to create record'
+    description:
+      'Invalid input, no active plan found, or failed to create record',
   })
   @ApiResponse({
     status: HttpStatus.CONFLICT,
-    description: 'Record already exists for this date'
+    description: 'Record already exists for this date',
   })
   async createQuitPlanRecord(
     @GetCurrentUser('id') userId: string,
-    @Body(new ZodValidationPipe(createQuitPlanRecordSchema)) createQuitPlanRecordDto: CreateQuitPlanRecordDto,
+    @Body(new ZodValidationPipe(createQuitPlanRecordSchema))
+    createQuitPlanRecordDto: CreateQuitPlanRecordDto,
   ) {
     try {
       const result = await this.quitPlanService.createQuitPlanRecord(
@@ -161,11 +170,11 @@ export class QuitPlanController {
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Quit plan retrieved successfully',
-    type: QuitPlanResponseDto
+    type: QuitPlanResponseDto,
   })
   @ApiResponse({
     status: HttpStatus.NOT_FOUND,
-    description: 'Quit plan not found'
+    description: 'Quit plan not found',
   })
   async getQuitPlanById(
     @GetCurrentUser('id') userId: string,
@@ -191,11 +200,11 @@ export class QuitPlanController {
   @ApiOperation({ summary: 'Delete a quit plan' })
   @ApiResponse({
     status: HttpStatus.OK,
-    description: 'Quit plan deleted successfully'
+    description: 'Quit plan deleted successfully',
   })
   @ApiResponse({
     status: HttpStatus.NOT_FOUND,
-    description: 'Quit plan not found'
+    description: 'Quit plan not found',
   })
   async deleteQuitPlan(
     @GetCurrentUser('id') userId: string,

@@ -88,6 +88,7 @@ export class PlanRecordService {
 
       const recordData = {
         ...data,
+        record_date: new Date(data.record_date),
         user_id: userId,
         plan_id: activePlan.id,
         phase_id: activePhase.id,

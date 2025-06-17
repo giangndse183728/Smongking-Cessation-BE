@@ -21,4 +21,16 @@ export class UserAchievementsRepository {
       },
     });
   }
+  async getUserAchievements(user_id: string): Promise<user_achievements[]> {
+    return await this.prisma.user_achievements.findMany({
+      where: {
+        user_id,
+
+        created_at: new Date(),
+        created_by: user_id,
+        updated_at: new Date(),
+        updated_by: user_id,
+      },
+    });
+  }
 }

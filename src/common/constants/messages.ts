@@ -115,6 +115,11 @@ export const QUIT_PLAN_MESSAGES = {
   FAILED_TO_UPDATE_PHASE_STATUSES: 'Failed to update phase statuses',
 } as const;
 
+export const QUIT_PLAN__RECORD_MESSAGES = {
+  RECORD_DATE_MUST_BE_VALID_FORMAT: 'Record date must be valid format.',
+  RECORD_DATE_IS_REQUIRED: 'Record date is required.',
+} as const;
+
 export const ACHIEVEMENTS_MESSAGES = {
   ACHIEVEMENT_NAME_MUST_BE_STRING: 'Achievement name must be string.',
   ACHIEVEMENT_NAME_IS_REQUIRED: 'Achievement name is required.',
@@ -135,6 +140,8 @@ export const ACHIEVEMENTS_MESSAGES = {
 };
 
 export const USER_ACHIEVEMENT_MESSAGE = {
+  USER_ID_IS_REQUIRED: 'User id is required.',
+  USER_ID_IS_INVALID: 'User id is invalid.',
   ACHIEVEMENT_ID_IS_REQUIRED: 'Achievement id is required.',
   ACHIEVEMENT_ID_IS_INVALID: 'Achievement id is invalid.',
   ACHIEVEMENT_NOT_FOUND: 'Achievement not found.',

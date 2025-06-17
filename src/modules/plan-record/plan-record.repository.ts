@@ -123,9 +123,40 @@ export class QuitPlanRecordRepository {
       data: {
         ...data,
         updated_at: new Date(),
-        updated_by: id,
       },
     });
+    const existingAchievements =
+      await this.achievementsService.getAchievements();
+
+    const relapseFreeAchievements = existingAchievements.filter(
+      (item) => item.achievement_type === achievement_type.RELAPSE_FREE_STREAK,
+    );
+    if (relapseFreeAchievements.length > 0) {
+      const recentRecords = await this.findAllByPlan(
+        data.plan_id as string,
+        data.updated_by as string,
+      );
+      // Đếm streak liên tiếp
+      let streakCount = 0;
+      for (const record of recentRecords) {
+        if (record.cigarette_smoke === 0) {
+          streakCount++;
+        } else {
+          break;
+        }
+      }
+      for (const achievement of relapseFreeAchievements) {
+        if (streakCount >= Number(achievement.threshold_value)) {
+          await this.userAchievementsService.addUserAchievement(
+            {
+              achievement_id: achievement.id,
+              earned_date: new Date().toISOString(),
+            },
+            data.updated_by as string,
+          );
+        }
+      }
+    }
     return new QuitPlanRecord(result);
   }
 

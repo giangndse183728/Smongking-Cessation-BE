@@ -75,7 +75,7 @@ export class QuitPlanRecordRepository {
         user_id: userId,
         plan_id: planId,
         phase_id: phaseId,
-        record_date: { gte: startDate, lt: endDate },
+        record_date: { gte: startDate, lte: endDate },
         deleted_at: null,
       },
     });
@@ -119,10 +119,11 @@ export class QuitPlanRecordRepository {
     data: Partial<QuitPlanRecord>,
   ): Promise<QuitPlanRecord> {
     const result = await this.prisma.quit_plan_records.update({
-      where: { id },
+      where: { id, deleted_at: null, deleted_by: null },
       data: {
         ...data,
         updated_at: new Date(),
+        updated_by: id,
       },
     });
     return new QuitPlanRecord(result);

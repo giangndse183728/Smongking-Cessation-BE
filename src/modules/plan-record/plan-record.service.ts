@@ -51,11 +51,13 @@ export class PlanRecordService {
       if (recordDate > currentDate) {
         throw new BadRequestException('Cannot record data for future dates');
       }
+      if (recordDate < currentDate) {
+        throw new BadRequestException('Cannot record data for past dates');
+      }
 
       // Check if there's already a record for the specific date
       const nextDay = new Date(recordDate);
       nextDay.setDate(nextDay.getDate() + 1);
-
       const existingDateRecord =
         await this.quitPlanRecordRepository.findTodayRecord(
           userId,
@@ -64,7 +66,6 @@ export class PlanRecordService {
           recordDate,
           nextDay,
         );
-
       const cigarettesSmoked = Math.max(0, data.cigarette_smoke || 0);
       const originalCigarettes = smokingHabits.cigarettes_per_day || 0;
 

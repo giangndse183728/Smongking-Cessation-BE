@@ -97,7 +97,7 @@ export class QuitPlanService {
       }, { excludeExtraneousValues: true });
     } catch (error) {
       this.logger.error('Error creating quit plan:', error);
-      if (error instanceof BadRequestException) {
+      if (error instanceof BadRequestException || error instanceof NotFoundException) {
         throw error;
       }
       throw new BadRequestException(QUIT_PLAN_MESSAGES.FAILED_TO_CREATE_PLAN);
@@ -110,7 +110,7 @@ export class QuitPlanService {
       return plainToInstance(QuitPlanRecordResponseDto, record, { excludeExtraneousValues: true });
     } catch (error) {
       this.logger.error('Error creating quit plan record:', error);
-      if (error instanceof BadRequestException) {
+      if (error instanceof BadRequestException || error instanceof NotFoundException) {
         throw error;
       }
       throw new BadRequestException(QUIT_PLAN_MESSAGES.FAILED_TO_CREATE_RECORD);
@@ -195,28 +195,6 @@ export class QuitPlanService {
     }
   }
 
-  async getQuitPlanRecords(userId: string, planId: string, phaseId: string): Promise<QuitPlanRecordResponseDto[]> {
-    try {
-      const records = await this.planRecordService.getRecordsByPlanAndPhase(userId, planId, phaseId);
-      return records.map(record => {
-        const recordDto = plainToInstance(QuitPlanRecordResponseDto, record, { excludeExtraneousValues: true });
-        return {
-          ...recordDto,
-          money_saved: record.getMoneySavedAmount(),
-          craving_level_text: record.getCravingLevelText(),
-          health_status_text: record.getHealthStatusText(),
-          isToday: record.isToday(),
-          isValid: record.isValid(),
-          isPassing: record.isPassing(),
-          isFailing: record.isFailing(),
-        };
-      });
-    } catch (error) {
-      this.logger.error('Error getting quit plan records:', error);
-      throw new BadRequestException(QUIT_PLAN_MESSAGES.FAILED_TO_RETRIEVE_RECORDS);
-    }
-  }
-
   async deleteQuitPlan(userId: string, planId: string): Promise<QuitPlanResponseDto> {
     try {
       const quitPlan = await this.quitPlanRepository.findById(planId);
@@ -248,6 +226,16 @@ export class QuitPlanService {
     } catch (error) {
       this.logger.error('Error updating phase statuses:', error);
       throw new BadRequestException(QUIT_PLAN_MESSAGES.FAILED_TO_UPDATE_PHASE_STATUSES);
+    }
+  }
+
+  async getAllQuitPlans(userId: string): Promise<QuitPlanResponseDto[]> {
+    try {
+      const quitPlans = await this.quitPlanRepository.findAllByUserId(userId);
+      return quitPlans.map(plan => plainToInstance(QuitPlanResponseDto, plan, { excludeExtraneousValues: true }));
+    } catch (error) {
+      this.logger.error('Error getting all quit plans:', error);
+      throw new BadRequestException(QUIT_PLAN_MESSAGES.FAILED_TO_RETRIEVE_PLANS);
     }
   }
 }

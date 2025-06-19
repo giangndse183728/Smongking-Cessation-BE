@@ -9,6 +9,8 @@ import {
   UseGuards,
   HttpStatus,
   HttpException,
+  NotFoundException,
+  BadRequestException,
 } from '@nestjs/common';
 import { QuitPlanService } from './quit-plan.service';
 import { CreateQuitPlanDto } from './dto/create-quit-plan.dto';
@@ -29,6 +31,7 @@ import {
 } from '@nestjs/swagger';
 import { QuitPlanResponseDto } from './dto/quit-plan-response.dto';
 import { QuitPlanRecordResponseDto } from '../plan-record/dto/quit-plan-record-response.dto';
+import { QUIT_PLAN_MESSAGES } from '@common/constants/messages';
 
 @ApiTags('Quit Plans')
 @Controller('quit-plans')
@@ -72,6 +75,10 @@ export class QuitPlanController {
     status: HttpStatus.BAD_REQUEST,
     description: 'Invalid input or failed to create quit plan',
   })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'Required resources not found',
+  })
   async createQuitPlan(
     @GetCurrentUser('id') userId: string,
     @Body(new ZodValidationPipe(createQuitPlanSchema))
@@ -88,6 +95,15 @@ export class QuitPlanController {
         data: result,
       };
     } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw new HttpException(
+          {
+            success: false,
+            message: error.message,
+          },
+          HttpStatus.NOT_FOUND,
+        );
+      }
       throw new HttpException(
         {
           success: false,
@@ -133,8 +149,8 @@ export class QuitPlanController {
       'Invalid input, no active plan found, or failed to create record',
   })
   @ApiResponse({
-    status: HttpStatus.CONFLICT,
-    description: 'Record already exists for this date',
+    status: HttpStatus.NOT_FOUND,
+    description: 'Required resources not found',
   })
   async createQuitPlanRecord(
     @GetCurrentUser('id') userId: string,
@@ -152,8 +168,14 @@ export class QuitPlanController {
         data: result,
       };
     } catch (error) {
-      if (error.status === HttpStatus.CONFLICT) {
-        throw error;
+      if (error instanceof NotFoundException || error instanceof BadRequestException) {
+        throw new HttpException(
+          {
+            success: false,
+            message: error.message,
+          },
+          HttpStatus.NOT_FOUND,
+        );
       }
       throw new HttpException(
         {
@@ -194,6 +216,32 @@ export class QuitPlanController {
       success: true,
       data: result,
     };
+  }
+
+  @Get()
+  @ApiOperation({ summary: 'Get all quit plans for the current user' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Quit plans retrieved successfully',
+    type: [QuitPlanResponseDto],
+  })
+  async getAllQuitPlans(@GetCurrentUser('id') userId: string) {
+    try {
+      const result = await this.quitPlanService.getAllQuitPlans(userId);
+      return {
+        success: true,
+        message: 'Quit plans retrieved successfully',
+        data: result,
+      };
+    } catch (error) {
+      throw new HttpException(
+        {
+          success: false,
+          message: error.message || QUIT_PLAN_MESSAGES.FAILED_TO_RETRIEVE_PLANS,
+        },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
   }
 
   @Delete(':id')

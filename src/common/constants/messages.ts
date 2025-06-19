@@ -113,6 +113,7 @@ export const QUIT_PLAN_MESSAGES = {
   FAILED_TO_DELETE_PLAN: 'Failed to delete quit plan',
   PLAN_NOT_FOUND: 'Quit plan not found',
   FAILED_TO_UPDATE_PHASE_STATUSES: 'Failed to update phase statuses',
+  FAILED_TO_RETRIEVE_PLANS: 'Failed to retrieve quit plans',
 } as const;
 
 export const QUIT_PLAN__RECORD_MESSAGES = {

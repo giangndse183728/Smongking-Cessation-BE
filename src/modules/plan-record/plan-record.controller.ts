@@ -1,15 +1,34 @@
-import { Controller, Post, Body, Get, Param, UseGuards } from '@nestjs/common';
+import { Controller, Post, Body, Get, Param, UseGuards, HttpStatus } from '@nestjs/common';
 import { PlanRecordService } from './plan-record.service';
 import { CreateQuitPlanRecordDto } from './dto/create-plan-record.dto';
 import { AccessTokenGuard } from '@modules/auth/guards/access-token.guard';
 import { GetCurrentUser } from '@common/decorators/user.decorator';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+  ApiBody,
+  ApiParam,
+} from '@nestjs/swagger';
+import { QuitPlanRecordResponseDto } from './dto/quit-plan-record-response.dto';
 
+@ApiTags('Plan Records')
 @Controller('plan-records')
+@ApiBearerAuth('access-token')
 @UseGuards(AccessTokenGuard)
 export class PlanRecordController {
   constructor(private readonly planRecordService: PlanRecordService) {}
 
   @Get(':planId/:phaseId')
+  @ApiOperation({ summary: 'Get records for a specific phase in a quit plan' })
+  @ApiParam({ name: 'planId', description: 'ID of the quit plan' })
+  @ApiParam({ name: 'phaseId', description: 'ID of the phase' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Records retrieved successfully',
+    type: [QuitPlanRecordResponseDto],
+  })
   async getRecords(
     @GetCurrentUser('id') userId: string,
     @Param('planId') planId: string,
@@ -19,6 +38,13 @@ export class PlanRecordController {
   }
 
   @Get(':planId')
+  @ApiOperation({ summary: 'Get all records for a quit plan' })
+  @ApiParam({ name: 'planId', description: 'ID of the quit plan' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Records retrieved successfully',
+    type: [QuitPlanRecordResponseDto],
+  })
   async getAllRecords(
     @GetCurrentUser('id') userId: string,
     @Param('planId') planId: string,

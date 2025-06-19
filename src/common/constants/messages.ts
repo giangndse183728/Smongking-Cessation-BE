@@ -94,7 +94,7 @@ export const POSTS_MESSAGES = {
   CONTENT_MUST_BE_STRING: 'Content must be string.',
   THUMBNAIL_IS_REQUIRED: 'Thumbnail is required.',
   THUMBNAIL_IS_INVALID_URL: 'Invalid thumbnail url.',
-  ACHIEVEMENT_IS_INVALID: 'Achievement id invalid.',
+  USER_ACHIEVEMENT_IS_INVALID: 'User achievement id invalid.',
   POST_ID_IS_INVALID: 'Post id is invalid.',
   POST_ID_IS_REQUIRED: 'Post id is required.',
   USER_NOT_ALLOWED: 'User not allowed.',

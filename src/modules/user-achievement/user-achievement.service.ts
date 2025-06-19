@@ -14,6 +14,14 @@ export class UserAchievementService {
       );
     return userAchievement;
   }
+  async getUserAchievement(user_achievement_id: string, user_id: string) {
+    const userAchievement =
+      await this.userAchievementsRepository.getUserAchievement(
+        user_achievement_id,
+        user_id,
+      );
+    return userAchievement;
+  }
 
   async getUserAchievements(user_id: string) {
     const userAchievement =

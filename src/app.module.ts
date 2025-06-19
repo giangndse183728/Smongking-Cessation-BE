@@ -12,6 +12,7 @@ import { PostsModule } from './modules/posts/posts.module';
 import { QuitPlanModule } from '@modules/quit-plan/quit-plan.module';
 import { PlanRecordModule } from '@modules/plan-record/plan-record.module';
 import { MembershipPlanModule } from '@modules/membership-plan/membership-plan.module';
+import { SubscriptionModule } from '@modules/subscription/subscription.module';
 
 
 @Module({
@@ -19,6 +20,7 @@ import { MembershipPlanModule } from '@modules/membership-plan/membership-plan.m
     PrismaModule,
     QuitPlanModule,
     MembershipPlanModule,
+    SubscriptionModule,
     PlanRecordModule,
     UsersModule,
     AuthModule,

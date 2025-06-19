@@ -94,7 +94,7 @@ export const POSTS_MESSAGES = {
   CONTENT_MUST_BE_STRING: 'Content must be string.',
   THUMBNAIL_IS_REQUIRED: 'Thumbnail is required.',
   THUMBNAIL_IS_INVALID_URL: 'Invalid thumbnail url.',
-  ACHIEVEMENT_IS_INVALID: 'Achievement id invalid.',
+  USER_ACHIEVEMENT_IS_INVALID: 'User achievement id invalid.',
   POST_ID_IS_INVALID: 'Post id is invalid.',
   POST_ID_IS_REQUIRED: 'Post id is required.',
   USER_NOT_ALLOWED: 'User not allowed.',
@@ -114,6 +114,40 @@ export const QUIT_PLAN_MESSAGES = {
   PLAN_NOT_FOUND: 'Quit plan not found',
   FAILED_TO_UPDATE_PHASE_STATUSES: 'Failed to update phase statuses',
 } as const;
+
+export const QUIT_PLAN__RECORD_MESSAGES = {
+  RECORD_DATE_MUST_BE_VALID_FORMAT: 'Record date must be valid format.',
+  RECORD_DATE_IS_REQUIRED: 'Record date is required.',
+} as const;
+
+export const ACHIEVEMENTS_MESSAGES = {
+  ACHIEVEMENT_NAME_MUST_BE_STRING: 'Achievement name must be string.',
+  ACHIEVEMENT_NAME_IS_REQUIRED: 'Achievement name is required.',
+  ACHIEVEMENT_DESCRIPTION_MUST_BE_STRING:
+    'Achievement description must be string.',
+  ACHIEVEMENT_DESCRIPTION_IS_REQUIRED: 'Achievement description is required.',
+  IMAGE_IS_INVALID_URL: 'Achievement image is invalid url.',
+  ACHIEVEMENT_TYPE_MUST_BE_STRING: 'Achievement type must be string.',
+  ACHIEVEMENT_TYPE_IS_REQUIRED: 'Achievement type is required.',
+  ACHIEVEMENT_TYPE_INVALID: 'Achievement type is invalid.',
+  THRESHOLD_IS_REQUIRED: 'Achievement threshold value is required.',
+  THRESHOLD_MUST_BE_STRING: 'Achievement threshold value must be string.',
+  THRESHOLD_MUST_BE_POSITIVE: 'Achievement threshold value must be positive.',
+  IMAGE_IS_REQUIRED: 'Achievement image is required.',
+  ACHIEVEMENT_ID_IS_REQUIRED: 'Achievement id is required.',
+  ACHIEVEMENT_ID_IS_INVALID: 'Achievement id is invalid.',
+  ACHIEVEMENT_NOT_FOUND: 'Achievement not found.',
+};
+
+export const USER_ACHIEVEMENT_MESSAGE = {
+  USER_ID_IS_REQUIRED: 'User id is required.',
+  USER_ID_IS_INVALID: 'User id is invalid.',
+  ACHIEVEMENT_ID_IS_REQUIRED: 'Achievement id is required.',
+  ACHIEVEMENT_ID_IS_INVALID: 'Achievement id is invalid.',
+  ACHIEVEMENT_NOT_FOUND: 'Achievement not found.',
+  EARNED_DATE_IS_REQUIRED: 'Earn date is required.',
+  EARNED_DATE_IS_INVALID: 'Earn date is invalid.',
+};
 
 export const SMOKING_HABITS_MESSAGES = {
   HABIT_ALREADY_EXISTS: 'User already has a smoking habit profile',

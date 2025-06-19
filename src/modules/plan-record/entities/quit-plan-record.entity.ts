@@ -10,7 +10,7 @@ export class QuitPlanRecord implements quit_plan_records {
   money_saved: Decimal;
   craving_level: number | null;
   health_status: string | null;
-  is_pass: boolean; 
+  is_pass: boolean;
   record_date: Date;
   created_at: Date | null;
   created_by: string | null;
@@ -28,21 +28,27 @@ export class QuitPlanRecord implements quit_plan_records {
     cigarettesSmoked: number,
     originalCigarettesPerDay: number,
     pricePerPack: number,
-    cigarettesPerPack: number
+    cigarettesPerPack: number,
   ): number {
     if (cigarettesPerPack <= 0 || pricePerPack < 0) return 0;
-    
-    const cigarettesSaved = Math.max(0, originalCigarettesPerDay - cigarettesSmoked);
+
+    const cigarettesSaved = Math.max(
+      0,
+      originalCigarettesPerDay - cigarettesSmoked,
+    );
     const costPerCigarette = pricePerPack / cigarettesPerPack;
-    return Math.round((cigarettesSaved * costPerCigarette) * 100) / 100;
+    return Math.round(cigarettesSaved * costPerCigarette * 100) / 100;
   }
 
-  static calculateIsPass(cigarettesSmoked: number, limitCigarettesPerDay: number | null): boolean {
+  static calculateIsPass(
+    cigarettesSmoked: number,
+    limitCigarettesPerDay: number | null,
+  ): boolean {
     // If no limit is set, consider it as passing
     if (limitCigarettesPerDay === null || limitCigarettesPerDay === undefined) {
       return true;
     }
-    
+
     // Pass if cigarettes smoked is within or equal to the limit
     return cigarettesSmoked <= limitCigarettesPerDay;
   }
@@ -50,34 +56,34 @@ export class QuitPlanRecord implements quit_plan_records {
   isToday(): boolean {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    
+
     const recordDate = new Date(this.record_date);
     recordDate.setHours(0, 0, 0, 0);
-    
+
     return recordDate.getTime() === today.getTime();
   }
 
   isFutureDate(): boolean {
     const currentDate = new Date();
     currentDate.setHours(0, 0, 0, 0);
-    
+
     const recordDate = new Date(this.record_date);
     recordDate.setHours(0, 0, 0, 0);
-    
+
     return recordDate > currentDate;
   }
 
   getCravingLevelText(): string {
     if (!this.craving_level) return 'Not recorded';
-    
+
     const levels = {
       1: 'Very Low',
-      2: 'Low', 
+      2: 'Low',
       3: 'Moderate',
       4: 'High',
-      5: 'Very High'
+      5: 'Very High',
     };
-    
+
     return levels[this.craving_level as keyof typeof levels] || 'Unknown';
   }
 

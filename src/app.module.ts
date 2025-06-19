@@ -13,7 +13,8 @@ import { QuitPlanModule } from '@modules/quit-plan/quit-plan.module';
 import { PlanRecordModule } from '@modules/plan-record/plan-record.module';
 import { MembershipPlanModule } from '@modules/membership-plan/membership-plan.module';
 import { SubscriptionModule } from '@modules/subscription/subscription.module';
-
+import { AchievementsModule } from './modules/achievements/achievements.module';
+import { UserAchievementModule } from './modules/user-achievement/user-achievement.module';
 
 @Module({
   imports: [
@@ -31,6 +32,8 @@ import { SubscriptionModule } from '@modules/subscription/subscription.module';
     ConfigModule.forRoot({
       isGlobal: true,
     }),
+    AchievementsModule,
+    UserAchievementModule,
   ],
   controllers: [AppController],
   providers: [AppService],

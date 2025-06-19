@@ -16,6 +16,7 @@ import {
   ApiBearerAuth,
   ApiBody,
   ApiOperation,
+  ApiParam,
   ApiResponse,
 } from '@nestjs/swagger';
 import { AccessTokenGuard } from '@modules/auth/guards/access-token.guard';
@@ -27,11 +28,15 @@ import { UpdatePostDto } from './dto/update-post.dto';
 import { updatePostSchema } from './schema/update-post.schema';
 import { getPostSchema } from './schema/get-post.schema';
 import { POSTS_MESSAGES } from '@common/constants/messages';
+import { UserAchievementService } from '@modules/user-achievement/user-achievement.service';
 
 @Controller('posts')
 @ApiBearerAuth('access-token')
 export class PostsController {
-  constructor(private readonly postsService: PostsService) {}
+  constructor(
+    private readonly postsService: PostsService,
+    private readonly userAchievementService: UserAchievementService,
+  ) {}
 
   @UseGuards(AccessTokenGuard)
   @Post()
@@ -93,6 +98,16 @@ export class PostsController {
     @GetCurrentUser('id') userId: string,
     @Body(new ZodValidationPipe(createPostSchema)) body: CreatePostDto,
   ) {
+    if (body.user_achievement_id) {
+      const existingAchievement =
+        await this.userAchievementService.getUserAchievement(
+          body.user_achievement_id,
+          userId,
+        );
+      if (!existingAchievement) {
+        throw new NotFoundException('Achievement not found.');
+      }
+    }
     return this.postsService.createPost(body, userId);
   }
 
@@ -150,6 +165,12 @@ export class PostsController {
         errors: [],
       },
     },
+  })
+  @ApiParam({
+    name: 'id',
+    type: String,
+    description: 'ID of the post to update',
+    example: '4f1e2f17-1f8c-4b63-a74e-7bb176aaed84',
   })
   async updatePost(
     @GetCurrentUser('id')
@@ -224,6 +245,12 @@ export class PostsController {
         timestamp: '2025-06-06T06:57:47.079Z',
       },
     },
+  })
+  @ApiParam({
+    name: 'id',
+    type: String,
+    description: 'ID of the post to get detail',
+    example: '4f1e2f17-1f8c-4b63-a74e-7bb176aaed84',
   })
   async getPostDetail(@Param() params: { id: string }) {
     return await this.postsService.getPostDetail(params.id);
@@ -304,6 +331,12 @@ export class PostsController {
         errors: [],
       },
     },
+  })
+  @ApiParam({
+    name: 'id',
+    type: String,
+    description: 'ID of the post to delete',
+    example: '4f1e2f17-1f8c-4b63-a74e-7bb176aaed84',
   })
   async deletePost(
     @GetCurrentUser('id')

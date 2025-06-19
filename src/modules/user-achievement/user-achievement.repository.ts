@@ -33,4 +33,15 @@ export class UserAchievementsRepository {
       },
     });
   }
+  async getUserAchievement(
+    achievement_id: string,
+    user_id: string,
+  ): Promise<user_achievements | null> {
+    return await this.prisma.user_achievements.findUnique({
+      where: {
+        id: achievement_id,
+        user_id: user_id,
+      },
+    });
+  }
 }

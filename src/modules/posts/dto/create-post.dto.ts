@@ -32,5 +32,5 @@ export class CreatePostDto extends createZodDto(createPostSchema) {
     description: 'Post achivement',
     example: 'bff9cf4c-9613-4091-870e-0b1a21d01f70',
   })
-  achievement_id?: string;
+  user_achievement_id?: string;
 }

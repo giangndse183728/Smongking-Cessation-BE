@@ -28,11 +28,15 @@ import { UpdatePostDto } from './dto/update-post.dto';
 import { updatePostSchema } from './schema/update-post.schema';
 import { getPostSchema } from './schema/get-post.schema';
 import { POSTS_MESSAGES } from '@common/constants/messages';
+import { UserAchievementService } from '@modules/user-achievement/user-achievement.service';
 
 @Controller('posts')
 @ApiBearerAuth('access-token')
 export class PostsController {
-  constructor(private readonly postsService: PostsService) {}
+  constructor(
+    private readonly postsService: PostsService,
+    private readonly userAchievementService: UserAchievementService,
+  ) {}
 
   @UseGuards(AccessTokenGuard)
   @Post()
@@ -94,6 +98,16 @@ export class PostsController {
     @GetCurrentUser('id') userId: string,
     @Body(new ZodValidationPipe(createPostSchema)) body: CreatePostDto,
   ) {
+    if (body.user_achievement_id) {
+      const existingAchievement =
+        await this.userAchievementService.getUserAchievement(
+          body.user_achievement_id,
+          userId,
+        );
+      if (!existingAchievement) {
+        throw new NotFoundException('Achievement not found.');
+      }
+    }
     return this.postsService.createPost(body, userId);
   }
 

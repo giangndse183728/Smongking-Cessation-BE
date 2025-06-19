@@ -48,7 +48,6 @@ export class PayOsService {
   }
 
   private generateChecksum(data: Record<string, any>): string {
-    // Create signature string in exact format required by PayOS
     const signatureData = [
       `amount=${data.amount}`,
       `cancelUrl=${data.cancelUrl}`,

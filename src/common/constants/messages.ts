@@ -148,3 +148,12 @@ export const USER_ACHIEVEMENT_MESSAGE = {
   EARNED_DATE_IS_REQUIRED: 'Earn date is required.',
   EARNED_DATE_IS_INVALID: 'Earn date is invalid.',
 };
+
+export const SMOKING_HABITS_MESSAGES = {
+  HABIT_ALREADY_EXISTS: 'User already has a smoking habit profile',
+  CANNOT_CREATE_WITH_ACTIVE_PLAN: 'Cannot create smoking habit while having an active quit plan',
+  CANNOT_UPDATE_WITH_ACTIVE_PLAN: 'Cannot update smoking habit while having an active quit plan',
+  CANNOT_DELETE_WITH_ACTIVE_PLAN: 'Cannot delete smoking habit while having an active quit plan',
+  HABIT_NOT_FOUND: 'Smoking habit not found',
+  USER_HABIT_NOT_FOUND: 'Smoking habit for user not found',
+} as const;

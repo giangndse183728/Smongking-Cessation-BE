@@ -105,12 +105,24 @@ export class UserAchievementService {
           isMet = streak >= Number(threshold_value);
           break;
         }
+
+        case 'abstinence_days': {
+          const abstinenceDays = records.filter(
+            (record) =>
+              !record.cigarette_smoke || Number(record.cigarette_smoke) === 0,
+          ).length;
+
+          isMet = abstinenceDays >= Number(threshold_value);
+          break;
+        }
       }
 
       if (isMet) {
+        console.log(achievement);
         await this.userAchievementsRepository.addNewUserAchievement(
           {
             achievement_id: achievement.id,
+            points_earned: achievement.point as number,
           },
           userId,
         );

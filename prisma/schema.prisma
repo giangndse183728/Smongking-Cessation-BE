@@ -14,6 +14,7 @@ model achievements {
   image_url         String              @db.VarChar
   achievement_type  String              @db.VarChar
   threshold_value   Decimal             @db.Decimal
+  point             Int?                @default(0)
   created_at        DateTime?           @default(now()) @db.Timestamp(6)
   created_by        String?             @db.Uuid
   updated_at        DateTime?           @updatedAt @db.Timestamp(6)
@@ -114,12 +115,14 @@ model leaderboard {
   rank             Int?
   score            Int?
   created_at       DateTime? @default(now()) @db.Timestamp(6)
-  created_by       String?   @db.Uuid
+  created_by       String?
   updated_at       DateTime? @updatedAt @db.Timestamp(6)
   updated_by       String?   @db.Uuid
   deleted_at       DateTime? @db.Timestamp(6)
   deleted_by       String?   @db.Uuid
   users            users     @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@unique([user_id, achievement_type], name: "user_id_achievement_type")
 }
 
 model membership_plans {
@@ -317,6 +320,7 @@ model user_achievements {
   user_id        String       @db.Uuid
   achievement_id String       @db.Uuid
   earned_date    DateTime     @default(now()) @db.Timestamp(6)
+  points_earned  Int?         @default(0)
   created_at     DateTime?    @default(now()) @db.Timestamp(6)
   created_by     String?      @db.Uuid
   updated_at     DateTime?    @updatedAt @db.Timestamp(6)

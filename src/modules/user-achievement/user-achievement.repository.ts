@@ -14,8 +14,9 @@ export class UserAchievementsRepository {
       data: {
         user_id,
         achievement_id: data.achievement_id,
+        points_earned: data.points_earned,
         created_at: new Date(),
-        created_by: user_id,
+        created_by: 'system',
         updated_at: new Date(),
         updated_by: user_id,
       },

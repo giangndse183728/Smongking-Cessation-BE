@@ -1,10 +1,20 @@
 import { Injectable } from '@nestjs/common';
 import { AddUserAchievementDto } from './dto/add-user-achievement.dto';
 import { UserAchievementsRepository } from './user-achievement.repository';
+import { Cron, CronExpression } from '@nestjs/schedule';
+import { AchievementsService } from '@modules/achievements/achievements.service';
+import { QuitPlanRecordRepository } from '@modules/plan-record/plan-record.repository';
+import { quit_plan_records } from '@prisma/client';
+import { UsersService } from '@modules/users/users.service';
 
 @Injectable()
 export class UserAchievementService {
-  constructor(private userAchievementsRepository: UserAchievementsRepository) {}
+  constructor(
+    private userAchievementsRepository: UserAchievementsRepository,
+    private achievementsService: AchievementsService,
+    private quitPlanRecordRepository: QuitPlanRecordRepository,
+    private usersService: UsersService,
+  ) {}
 
   async addUserAchievement(data: AddUserAchievementDto, user_id: string) {
     const userAchievement =
@@ -27,5 +37,84 @@ export class UserAchievementService {
     const userAchievement =
       await this.userAchievementsRepository.getUserAchievements(user_id);
     return userAchievement;
+  }
+  @Cron(CronExpression.EVERY_10_SECONDS)
+  async checkAndGrantAchievementsForAllUsers() {
+    console.log('Cronjob: Checking achievements for all users');
+
+    const users = await this.usersService.findAll();
+
+    for (const user of users) {
+      await this.checkAndGrantAchievementsForUser(user.id);
+    }
+
+    console.log('Done checking achievements for all users.');
+  }
+  // @Cron(CronExpression.EVERY_10_SECONDS)
+  @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
+  async checkAndGrantAchievementsForUser(userId: string) {
+    console.log('check and grand achievement');
+    const [allAchievements, userAchievements, records] = await Promise.all([
+      this.achievementsService.getAchievements(), // Lấy tất cả thành tích
+      this.userAchievementsRepository.getUserAchievements(userId), // Thành tích đã có
+      this.quitPlanRecordRepository.getRecordsByUserId(userId), // quit plan record
+    ]);
+
+    // Tạo set  kiểm tra achievement user đã đạt theo achivement type & threshold value
+    const achievedKeySet = new Set(
+      userAchievements.map(
+        (ua) => `${ua.achievement_type}_${ua.threshold_value.toString()}`,
+      ),
+    );
+
+    for (const achievement of allAchievements) {
+      const { achievement_type, threshold_value } = achievement;
+      const key = `${achievement_type}_${threshold_value.toString()}`;
+      if (achievedKeySet.has(key)) continue; // user đã có thành tích này
+
+      let isMet = false;
+
+      switch (achievement_type) {
+        case 'money_saved': {
+          const totalSaved = records.reduce(
+            (sum: number, r: quit_plan_records) => {
+              const moneySaved = r.money_saved ? Number(r.money_saved) : 0;
+              return sum + moneySaved;
+            },
+            0,
+          );
+
+          isMet = totalSaved >= Number(threshold_value);
+          break;
+        }
+
+        case 'relapse_free_streak': {
+          let streak = 0;
+
+          for (const record of records) {
+            if (
+              !record.cigarette_smoke ||
+              Number(record.cigarette_smoke) === 0
+            ) {
+              streak++;
+            } else {
+              break;
+            }
+          }
+
+          isMet = streak >= Number(threshold_value);
+          break;
+        }
+      }
+
+      if (isMet) {
+        await this.userAchievementsRepository.addNewUserAchievement(
+          {
+            achievement_id: achievement.id,
+          },
+          userId,
+        );
+      }
+    }
   }
 }

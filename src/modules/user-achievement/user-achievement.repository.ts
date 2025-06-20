@@ -12,8 +12,8 @@ export class UserAchievementsRepository {
   ): Promise<user_achievements> {
     return await this.prisma.user_achievements.create({
       data: {
-        ...data,
         user_id,
+        achievement_id: data.achievement_id,
         created_at: new Date(),
         created_by: user_id,
         updated_at: new Date(),
@@ -21,18 +21,30 @@ export class UserAchievementsRepository {
       },
     });
   }
-  async getUserAchievements(user_id: string): Promise<user_achievements[]> {
-    return await this.prisma.user_achievements.findMany({
+  async getUserAchievements(user_id: string) {
+    const userAchievements = await this.prisma.user_achievements.findMany({
       where: {
         user_id,
-
-        created_at: new Date(),
-        created_by: user_id,
-        updated_at: new Date(),
-        updated_by: user_id,
+        deleted_at: null,
+        deleted_by: null,
+      },
+      include: {
+        achievements: {
+          select: {
+            achievement_type: true,
+            threshold_value: true,
+          },
+        },
       },
     });
+
+    return userAchievements.map(({ achievements, ...rest }) => ({
+      ...rest,
+      achievement_type: achievements.achievement_type,
+      threshold_value: achievements.threshold_value,
+    }));
   }
+
   async getUserAchievement(
     achievement_id: string,
     user_id: string,

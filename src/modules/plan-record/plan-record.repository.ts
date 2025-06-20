@@ -1,18 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '@libs/prisma/prisma.service';
 import { QuitPlanRecord } from './entities/quit-plan-record.entity';
-import { Prisma } from '@prisma/client';
-import { AchievementsService } from '@modules/achievements/achievements.service';
-import { achievement_type } from '@common/constants/enum';
-import { UserAchievementService } from '@modules/user-achievement/user-achievement.service';
-
+import { Prisma, quit_plan_records } from '@prisma/client';
 @Injectable()
 export class QuitPlanRecordRepository {
-  constructor(
-    private prisma: PrismaService,
-    private achievementsService: AchievementsService,
-    private userAchievementsService: UserAchievementService,
-  ) {}
+  constructor(private prisma: PrismaService) {}
 
   async create(data: Partial<QuitPlanRecord>): Promise<QuitPlanRecord> {
     const dataForPrisma: Prisma.quit_plan_recordsCreateInput = {
@@ -23,42 +15,6 @@ export class QuitPlanRecordRepository {
     const result = await this.prisma.quit_plan_records.create({
       data: dataForPrisma,
     });
-    // step tracking user achievement type: RELAPSE_FREE_STREAK
-    const existingAchievements =
-      await this.achievementsService.getAchievements();
-
-    const relapseFreeAchievements = existingAchievements.filter(
-      (item) => item.achievement_type === achievement_type.RELAPSE_FREE_STREAK,
-    );
-
-    if (relapseFreeAchievements.length > 0) {
-      const recentRecords = await this.findAllByPlan(
-        data.plan_id as string,
-        data.user_id as string,
-      );
-
-      // Đếm streak liên tiếp
-      let streakCount = 0;
-      for (const record of recentRecords) {
-        if (record.cigarette_smoke === 0) {
-          streakCount++;
-        } else {
-          break;
-        }
-      }
-
-      for (const achievement of relapseFreeAchievements) {
-        if (streakCount >= Number(achievement.threshold_value)) {
-          await this.userAchievementsService.addUserAchievement(
-            {
-              achievement_id: achievement.id,
-              earned_date: new Date().toISOString(),
-            },
-            data.user_id as string,
-          );
-        }
-      }
-    }
 
     return new QuitPlanRecord(result);
   }
@@ -125,38 +81,7 @@ export class QuitPlanRecordRepository {
         updated_at: new Date(),
       },
     });
-    const existingAchievements =
-      await this.achievementsService.getAchievements();
 
-    const relapseFreeAchievements = existingAchievements.filter(
-      (item) => item.achievement_type === achievement_type.RELAPSE_FREE_STREAK,
-    );
-    if (relapseFreeAchievements.length > 0) {
-      const recentRecords = await this.findAllByPlan(
-        data.plan_id as string,
-        data.updated_by as string,
-      );
-      // Đếm streak liên tiếp
-      let streakCount = 0;
-      for (const record of recentRecords) {
-        if (record.cigarette_smoke === 0) {
-          streakCount++;
-        } else {
-          break;
-        }
-      }
-      for (const achievement of relapseFreeAchievements) {
-        if (streakCount >= Number(achievement.threshold_value)) {
-          await this.userAchievementsService.addUserAchievement(
-            {
-              achievement_id: achievement.id,
-              earned_date: new Date().toISOString(),
-            },
-            data.updated_by as string,
-          );
-        }
-      }
-    }
     return new QuitPlanRecord(result);
   }
 
@@ -166,5 +91,18 @@ export class QuitPlanRecordRepository {
       data: { deleted_at: new Date() },
     });
     return new QuitPlanRecord(result);
+  }
+
+  async getRecordsByUserId(userId: string): Promise<quit_plan_records[]> {
+    return this.prisma.quit_plan_records.findMany({
+      where: {
+        user_id: userId,
+        deleted_at: null,
+        deleted_by: null,
+      },
+      orderBy: {
+        record_date: 'desc',
+      },
+    });
   }
 }

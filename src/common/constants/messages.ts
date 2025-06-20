@@ -150,6 +150,8 @@ export const USER_ACHIEVEMENT_MESSAGE = {
   ACHIEVEMENT_NOT_FOUND: 'Achievement not found.',
   EARNED_DATE_IS_REQUIRED: 'Earn date is required.',
   EARNED_DATE_IS_INVALID: 'Earn date is invalid.',
+  POINTS_EARNED_IS_REQUIRED: 'Points earned is required.',
+  POINTS_EARNED_MUST_BE_NUMBER: 'Points earned must be number.',
 };
 
 export const SMOKING_HABITS_MESSAGES = {

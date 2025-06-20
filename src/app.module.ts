@@ -15,6 +15,7 @@ import { MembershipPlanModule } from '@modules/membership-plan/membership-plan.m
 import { SubscriptionModule } from '@modules/subscription/subscription.module';
 import { AchievementsModule } from './modules/achievements/achievements.module';
 import { UserAchievementModule } from './modules/user-achievement/user-achievement.module';
+import { LeaderboardModule } from '@modules/leaderboard/leaderboard.module';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { UserAchievementModule } from './modules/user-achievement/user-achieveme
     }),
     AchievementsModule,
     UserAchievementModule,
+    LeaderboardModule,
   ],
   controllers: [AppController],
   providers: [AppService],

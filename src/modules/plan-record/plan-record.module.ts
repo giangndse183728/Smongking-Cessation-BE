@@ -5,11 +5,9 @@ import { QuitPlanRecordRepository } from './plan-record.repository';
 import { QuitPlanRepository } from '../quit-plan/quit-plan.repository';
 import { PrismaService } from '@libs/prisma/prisma.service';
 import { SmokingHabitsModule } from '../smoking-habits/smoking-habits.module';
-import { UserAchievementModule } from '@modules/user-achievement/user-achievement.module';
-import { AchievementsModule } from '@modules/achievements/achievements.module';
 
 @Module({
-  imports: [SmokingHabitsModule, UserAchievementModule, AchievementsModule],
+  imports: [SmokingHabitsModule],
   controllers: [PlanRecordController],
   providers: [
     PlanRecordService,
@@ -17,6 +15,6 @@ import { AchievementsModule } from '@modules/achievements/achievements.module';
     QuitPlanRepository,
     PrismaService,
   ],
-  exports: [PlanRecordService],
+  exports: [PlanRecordService, QuitPlanRecordRepository],
 })
 export class PlanRecordModule {}

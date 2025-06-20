@@ -10,7 +10,12 @@ export class UsersService {
   constructor(private prisma: PrismaService) {}
 
   async findAll() {
-    return this.prisma.users.findMany();
+    return this.prisma.users.findMany({
+      where: {
+        deleted_at: null,
+        deleted_by: null,
+      },
+    });
   }
 
   async findOne(id: string) {

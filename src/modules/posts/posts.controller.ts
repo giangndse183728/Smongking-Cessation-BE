@@ -29,16 +29,12 @@ import { UpdatePostDto } from './dto/update-post.dto';
 import { updatePostSchema } from './schema/update-post.schema';
 import { getPostSchema } from './schema/get-post.schema';
 import { POSTS_MESSAGES } from '@common/constants/messages';
-import { UserAchievementService } from '@modules/user-achievement/user-achievement.service';
 import { POST_STATUS } from '@common/constants/enum';
 
 @Controller('posts')
 @ApiBearerAuth('access-token')
 export class PostsController {
-  constructor(
-    private readonly postsService: PostsService,
-    private readonly userAchievementService: UserAchievementService,
-  ) {}
+  constructor(private readonly postsService: PostsService) {}
 
   @UseGuards(AccessTokenGuard)
   @Post()

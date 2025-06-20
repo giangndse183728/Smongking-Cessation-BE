@@ -38,7 +38,7 @@ export class UserAchievementService {
       await this.userAchievementsRepository.getUserAchievements(user_id);
     return userAchievement;
   }
-  @Cron(CronExpression.EVERY_10_SECONDS)
+  @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
   async checkAndGrantAchievementsForAllUsers() {
     console.log('Cronjob: Checking achievements for all users');
 

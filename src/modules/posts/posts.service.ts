@@ -74,4 +74,9 @@ export class PostsService {
     const result = await this.postsRepository.deletePost(post_id, user_id);
     return result;
   }
+
+  async getOwnPosts(user_id: string, status?: string) {
+    const result = await this.postsRepository.getOwnPosts(user_id, status);
+    return result;
+  }
 }

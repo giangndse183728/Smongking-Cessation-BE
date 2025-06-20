@@ -99,6 +99,8 @@ export const POSTS_MESSAGES = {
   POST_ID_IS_REQUIRED: 'Post id is required.',
   USER_NOT_ALLOWED: 'User not allowed.',
   POST_NOT_FOUND: 'Post not found.',
+  POST_NOT_APPROVED:
+    'This post has not been approved yet and cannot be updated.',
 };
 
 export const QUIT_PLAN_MESSAGES = {
@@ -152,9 +154,12 @@ export const USER_ACHIEVEMENT_MESSAGE = {
 
 export const SMOKING_HABITS_MESSAGES = {
   HABIT_ALREADY_EXISTS: 'User already has a smoking habit profile',
-  CANNOT_CREATE_WITH_ACTIVE_PLAN: 'Cannot create smoking habit while having an active quit plan',
-  CANNOT_UPDATE_WITH_ACTIVE_PLAN: 'Cannot update smoking habit while having an active quit plan',
-  CANNOT_DELETE_WITH_ACTIVE_PLAN: 'Cannot delete smoking habit while having an active quit plan',
+  CANNOT_CREATE_WITH_ACTIVE_PLAN:
+    'Cannot create smoking habit while having an active quit plan',
+  CANNOT_UPDATE_WITH_ACTIVE_PLAN:
+    'Cannot update smoking habit while having an active quit plan',
+  CANNOT_DELETE_WITH_ACTIVE_PLAN:
+    'Cannot delete smoking habit while having an active quit plan',
   HABIT_NOT_FOUND: 'Smoking habit not found',
   USER_HABIT_NOT_FOUND: 'Smoking habit for user not found',
 } as const;

@@ -27,10 +27,4 @@ export class UpdatePostDto extends createZodDto(updatePostSchema) {
       'https://smk-cessation-bucket.s3.us-east-1.amazonaws.com/avatar/default_avt.png',
   })
   thumbnail?: string;
-
-  @ApiProperty({
-    description: 'Post achivement',
-    example: 'bff9cf4c-9613-4091-870e-0b1a21d01f70',
-  })
-  achievement_id?: string;
 }

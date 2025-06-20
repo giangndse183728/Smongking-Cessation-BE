@@ -27,10 +27,10 @@ export const POST_TYPE = {
 };
 
 export const POST_STATUS = {
-  PENDING: 'pending',
-  APPROVED: 'approved',
-  REJECTED: 'rejected',
-  UPDATING: 'updating',
+  PENDING: 'PENDING',
+  APPROVED: 'APPROVED',
+  REJECTED: 'REJECTED',
+  UPDATING: 'UPDATING',
 };
 
 export const achievement_type = {

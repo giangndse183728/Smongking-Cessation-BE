@@ -32,6 +32,8 @@ export class UserAchievementsRepository {
         achievements: {
           select: {
             achievement_type: true,
+            description: true,
+            image_url: true,
             threshold_value: true,
           },
         },
@@ -42,6 +44,8 @@ export class UserAchievementsRepository {
       ...rest,
       achievement_type: achievements.achievement_type,
       threshold_value: achievements.threshold_value,
+      image_url: achievements.image_url,
+      description: achievements.description,
     }));
   }
 

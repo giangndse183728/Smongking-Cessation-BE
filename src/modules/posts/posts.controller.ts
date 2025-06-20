@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -29,6 +30,7 @@ import { updatePostSchema } from './schema/update-post.schema';
 import { getPostSchema } from './schema/get-post.schema';
 import { POSTS_MESSAGES } from '@common/constants/messages';
 import { UserAchievementService } from '@modules/user-achievement/user-achievement.service';
+import { POST_STATUS } from '@common/constants/enum';
 
 @Controller('posts')
 @ApiBearerAuth('access-token')
@@ -98,16 +100,6 @@ export class PostsController {
     @GetCurrentUser('id') userId: string,
     @Body(new ZodValidationPipe(createPostSchema)) body: CreatePostDto,
   ) {
-    if (body.user_achievement_id) {
-      const existingAchievement =
-        await this.userAchievementService.getUserAchievement(
-          body.user_achievement_id,
-          userId,
-        );
-      if (!existingAchievement) {
-        throw new NotFoundException('Achievement not found.');
-      }
-    }
     return this.postsService.createPost(body, userId);
   }
 
@@ -166,6 +158,19 @@ export class PostsController {
       },
     },
   })
+  @ApiResponse({
+    status: HttpStatus.BAD_REQUEST,
+    description: 'Bad request',
+    schema: {
+      example: {
+        statusCode: 400,
+        timestamp: '2025-06-20T00:29:09.057Z',
+        path: '/api/v1/posts/6bcb2b76-a3dc-4481-aa2c-7254ba68ecc9',
+        message: 'This post has not been approved yet and cannot be updated.',
+        errors: [],
+      },
+    },
+  })
   @ApiParam({
     name: 'id',
     type: String,
@@ -181,6 +186,9 @@ export class PostsController {
     const existingPost = await this.postsService.getPostDetail(params.id);
     if (!existingPost) {
       throw new NotFoundException(POSTS_MESSAGES.POST_NOT_FOUND);
+    }
+    if (existingPost.status !== POST_STATUS.APPROVED) {
+      throw new BadRequestException(POSTS_MESSAGES.POST_NOT_APPROVED);
     }
     return await this.postsService.updatePost(body, params.id, userId);
   }

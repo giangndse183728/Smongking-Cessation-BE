@@ -99,4 +99,15 @@ export class PostsRepository {
       },
     });
   }
+
+  async getOwnPosts(user_id: string, status?: string) {
+    return await this.prisma.posts.findMany({
+      where: {
+        deleted_at: null,
+        deleted_by: null,
+        user_id,
+        ...(status ? { status } : {}),
+      },
+    });
+  }
 }

@@ -8,5 +8,6 @@ import { UserAchievementModule } from '@modules/user-achievement/user-achievemen
   controllers: [PostsController],
   providers: [PostsService, PostsRepository],
   imports: [UserAchievementModule],
+  exports: [PostsService],
 })
 export class PostsModule {}

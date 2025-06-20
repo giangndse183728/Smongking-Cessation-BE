@@ -36,13 +36,6 @@ export const updatePostSchema = z
       })
       .url({ message: POSTS_MESSAGES.THUMBNAIL_IS_INVALID_URL })
       .optional(),
-
-    user_achievement_id: z
-      .string({
-        invalid_type_error: POSTS_MESSAGES.USER_ACHIEVEMENT_IS_INVALID,
-      })
-      .uuid(POSTS_MESSAGES.USER_ACHIEVEMENT_IS_INVALID)
-      .optional(),
   })
   .strict();
 

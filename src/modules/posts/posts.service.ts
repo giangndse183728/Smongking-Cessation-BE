@@ -9,6 +9,7 @@ import { plainToInstance } from 'class-transformer';
 import { PostResponseDto } from './dto/res-posts.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { POSTS_MESSAGES } from '@common/constants/messages';
+import { VerifyPostDto } from './dto/verify-post.dto';
 
 @Injectable()
 export class PostsService {
@@ -77,6 +78,19 @@ export class PostsService {
 
   async getOwnPosts(user_id: string, status?: string) {
     const result = await this.postsRepository.getOwnPosts(user_id, status);
+    return result;
+  }
+
+  async verifyPost(payload: VerifyPostDto, post_id: string, user_id: string) {
+    const existingPost = await this.postsRepository.getPost({ id: post_id });
+    if (!existingPost) {
+      throw new NotFoundException(POSTS_MESSAGES.POST_NOT_FOUND);
+    }
+    const result = await this.postsRepository.verifyPost(
+      payload,
+      post_id,
+      user_id,
+    );
     return result;
   }
 }

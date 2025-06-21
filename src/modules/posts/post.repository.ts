@@ -4,6 +4,7 @@ import { posts, Prisma } from '@prisma/client';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { POST_STATUS } from '@common/constants/enum';
 import { Injectable } from '@nestjs/common';
+import { VerifyPostDto } from './dto/verify-post.dto';
 
 @Injectable()
 export class PostsRepository {
@@ -107,6 +108,21 @@ export class PostsRepository {
         deleted_by: null,
         user_id,
         ...(status ? { status } : {}),
+      },
+    });
+  }
+
+  async verifyPost(payload: VerifyPostDto, post_id: string, user_id: string) {
+    return await this.prisma.posts.update({
+      where: {
+        id: post_id,
+        deleted_at: null,
+        deleted_by: null,
+      },
+      data: {
+        ...payload,
+        created_by: user_id,
+        updated_by: user_id,
       },
     });
   }

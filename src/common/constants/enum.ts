@@ -33,6 +33,11 @@ export const POST_STATUS = {
   UPDATING: 'UPDATING',
 };
 
+export const POST_VERIFY_STATUS = {
+  APPROVED: 'APPROVED',
+  REJECTED: 'REJECTED',
+};
+
 export const achievement_type = {
   ABSTINENCE_DAYS: 'abstinence_days',
   MONEY_SAVED: 'money_saved',

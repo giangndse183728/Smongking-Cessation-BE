@@ -29,7 +29,11 @@ import { UpdatePostDto } from './dto/update-post.dto';
 import { updatePostSchema } from './schema/update-post.schema';
 import { getPostSchema } from './schema/get-post.schema';
 import { POSTS_MESSAGES } from '@common/constants/messages';
-import { POST_STATUS } from '@common/constants/enum';
+import { POST_STATUS, UserRole } from '@common/constants/enum';
+import { Roles } from '@common/decorators/roles.decorator';
+import { VerifyPostDto } from './dto/verify-post.dto';
+import { RolesGuard } from '@modules/auth/guards/roles.guard';
+import { verifyPostSchema } from './schema/verify-post.schema';
 
 @Controller('posts')
 @ApiBearerAuth('access-token')
@@ -348,5 +352,116 @@ export class PostsController {
     @Param(new ZodValidationPipe(getPostSchema)) params: { id: string },
   ) {
     return await this.postsService.deletePost(params.id, userId);
+  }
+
+  @UseGuards(AccessTokenGuard, RolesGuard)
+  @Post('/:id/verify')
+  @Roles(UserRole.ADMIN)
+  @ApiOperation({
+    summary: 'Admin approves/rejects post.',
+  })
+  @ApiBody({
+    type: VerifyPostDto,
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Verify Successfully',
+    schema: {
+      example: {
+        statusCode: 201,
+        msg: 'Success!',
+        data: {
+          id: 'b19a20e6-a834-4aa8-ba3b-ff39ce23eef7',
+          user_id: 'dc0ef526-ec2b-4ff4-8aa0-308d0c8e499e',
+          type: 'tools_and_tips',
+          title: 'Medications Can Help You Quit',
+          content: 'Medications Can Help You Quit',
+          status: 'REJECTED',
+          reason: 'no relevant content included.',
+          thumbnail:
+            'https://smk-cessation-bucket.s3.us-east-1.amazonaws.com/avatar/default_avt.png',
+          achievement_id: null,
+          created_at: '2025-06-19T06:36:40.593Z',
+          created_by: '50289579-f828-466e-a266-f81adaeb77b9',
+          updated_at: '2025-06-21T13:31:57.020Z',
+          updated_by: '50289579-f828-466e-a266-f81adaeb77b9',
+          deleted_at: null,
+          deleted_by: null,
+        },
+        timestamp: '2025-06-21T13:31:57.117Z',
+      },
+    },
+  })
+  @ApiResponse({
+    status: HttpStatus.UNPROCESSABLE_ENTITY,
+    description: 'Validation failed.',
+    schema: {
+      example: {
+        statusCode: 422,
+        timestamp: '2025-06-21T13:36:32.051Z',
+        path: '/api/v1/posts/497b793a-6546-48a7-b822-145c02e16020/verify',
+        message: [
+          {
+            path: 'status',
+            message: 'Status is invalid.',
+          },
+        ],
+        errors: [],
+      },
+    },
+  })
+  @ApiResponse({
+    status: HttpStatus.UNAUTHORIZED,
+    description: 'Unauthorized',
+    schema: {
+      example: {
+        statusCode: 401,
+        timestamp: '2025-06-21T13:12:10.877Z',
+        path: '/api/v1/posts/09b314be-1a19-4c31-9b06-898bfb9cd2b5/verify',
+        message: 'Unauthorized',
+        errors: [],
+      },
+    },
+  })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'Not found',
+    schema: {
+      example: {
+        statusCode: 400,
+        timestamp: '2025-06-20T00:29:09.057Z',
+        path: '/api/v1/posts/6bcb2b76-a3dc-4481-aa2c-7254ba68ecc9',
+        message: 'This post has not been approved yet and cannot be updated.',
+        errors: [],
+      },
+    },
+  })
+  @ApiResponse({
+    status: HttpStatus.FORBIDDEN,
+    description: 'Access denied.',
+    schema: {
+      example: {
+        statusCode: 403,
+        timestamp: '2025-06-21T13:28:17.614Z',
+        path: '/api/v1/posts/b19a20e6-a834-4aa8-ba3b-ff39ce23eef7/verify',
+        message: 'Access denied. Requiring a special role',
+        errors: [],
+      },
+    },
+  })
+  @ApiParam({
+    name: 'id',
+    description: 'post id to verify',
+    type: 'string',
+    format: 'uuid',
+    example: '09b314be-1a19-4c31-9b06-898bfb9cd2b5',
+  })
+  verify(
+    @Body(new ZodValidationPipe(verifyPostSchema))
+    body: VerifyPostDto,
+    @GetCurrentUser('id') userId: string,
+    @Param(new ZodValidationPipe(getPostSchema)) params: { id: string },
+  ) {
+    return this.postsService.verifyPost(body, params.id, userId);
   }
 }

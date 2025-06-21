@@ -101,6 +101,9 @@ export const POSTS_MESSAGES = {
   POST_NOT_FOUND: 'Post not found.',
   POST_NOT_APPROVED:
     'This post has not been approved yet and cannot be updated.',
+  STATUS_IS_INVALID: 'Status is invalid.',
+  STATUS_IS_REQUIRED: 'Status is required.',
+  REASON_IS_REQUIRED_WHEN_REJECTED: 'Reason is required when rejection.',
 };
 
 export const QUIT_PLAN_MESSAGES = {

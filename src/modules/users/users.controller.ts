@@ -22,12 +22,14 @@ import { plainToInstance } from 'class-transformer';
 import {
   ApiBearerAuth,
   ApiOperation,
+  ApiParam,
   ApiQuery,
   ApiResponse,
 } from '@nestjs/swagger';
 import { ZodValidationPipe } from '@common/pipe/zod-validation.pipe';
 import { PostsService } from '@modules/posts/posts.service';
 import { POST_STATUS } from '@common/constants/enum';
+import { getUserSchema } from './dto/get-user.schema';
 
 @Controller('users')
 @ApiBearerAuth('access-token')
@@ -49,10 +51,123 @@ export class UsersController {
   }
 
   @Get(':id')
-  async findOne(@Param('id') id: string) {
-    const user = await this.usersService.findOne(id);
+  @ApiParam({
+    name: 'id',
+    description: 'user id',
+    type: 'string',
+    format: 'uuid',
+    example: '09b314be-1a19-4c31-9b06-898bfb9cd2b5',
+  })
+  @ApiOperation({ summary: 'Get user by user id' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Get own posts by status Successfully',
+    schema: {
+      example: {
+        statusCode: 200,
+        msg: 'Success!',
+        data: {
+          id: 'dc0ef526-ec2b-4ff4-8aa0-308d0c8e499e',
+          first_name: 'Gia Mỹ',
+          last_name: 'Phạm',
+          username: 'pgm',
+          email: 'pgm@gmail.com',
+          password:
+            '$2b$10$usBZOrPs7lqvE0Gt7C6.WOtFHp9tCKeNSPcEUgei99bxbctmoiU5K',
+          phone_number: '0949309132',
+          dob: '2004-10-14T00:00:00.000Z',
+          role: 'user',
+          created_at: '2025-06-17T05:11:22.120Z',
+          created_by: null,
+          updated_at: '2025-06-17T05:11:22.120Z',
+          updated_by: null,
+          deleted_at: null,
+          deleted_by: null,
+          avatar: '',
+          isMember: false,
+          user_achievements: [
+            {
+              id: '9fce7f36-16a8-4c66-b980-1da77b4c4714',
+              user_id: 'dc0ef526-ec2b-4ff4-8aa0-308d0c8e499e',
+              achievement_id: '87172fea-e7a6-4542-8ead-9962735f33cf',
+              earned_date: '2025-06-23T09:41:51.203Z',
+              points_earned: 1,
+              created_at: '2025-06-23T09:41:51.201Z',
+              created_by: 'system',
+              updated_at: '2025-06-23T09:41:51.201Z',
+              updated_by: 'dc0ef526-ec2b-4ff4-8aa0-308d0c8e499e',
+              deleted_at: null,
+              deleted_by: null,
+            },
+            {
+              id: '9089b93d-6958-42c6-bf24-f3e5ca775ce2',
+              user_id: 'dc0ef526-ec2b-4ff4-8aa0-308d0c8e499e',
+              achievement_id: '9a6a3656-0816-4935-8185-9d62b5c5f75a',
+              earned_date: '2025-06-23T09:41:51.268Z',
+              points_earned: 5,
+              created_at: '2025-06-23T09:41:51.267Z',
+              created_by: 'system',
+              updated_at: '2025-06-23T09:41:51.267Z',
+              updated_by: 'dc0ef526-ec2b-4ff4-8aa0-308d0c8e499e',
+              deleted_at: null,
+              deleted_by: null,
+            },
+            {
+              id: '8212f613-5b6a-40a9-bb53-eb48ed6d95d1',
+              user_id: 'dc0ef526-ec2b-4ff4-8aa0-308d0c8e499e',
+              achievement_id: '60cc5512-5bdc-4039-9728-bb2a55b75861',
+              earned_date: '2025-06-23T09:41:51.299Z',
+              points_earned: 8,
+              created_at: '2025-06-23T09:41:51.298Z',
+              created_by: 'system',
+              updated_at: '2025-06-23T09:41:51.298Z',
+              updated_by: 'dc0ef526-ec2b-4ff4-8aa0-308d0c8e499e',
+              deleted_at: null,
+              deleted_by: null,
+            },
+          ],
+        },
+        timestamp: '2025-06-23T14:49:01.444Z',
+      },
+    },
+  })
+  @ApiResponse({
+    status: HttpStatus.UNPROCESSABLE_ENTITY,
+    description: 'User id is invalid',
+    schema: {
+      example: {
+        statusCode: 422,
+        timestamp: '2025-06-23T14:49:50.065Z',
+        path: '/api/v1/users/dc0ef526-ec2b-4ff4-8aa0-308d0c8e499',
+        message: [
+          {
+            path: 'id',
+            message: 'User id is invalid.',
+          },
+        ],
+        errors: [],
+      },
+    },
+  })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'User not found',
+    schema: {
+      example: {
+        statusCode: 404,
+        timestamp: '2025-06-23T14:50:34.088Z',
+        path: '/api/v1/users/dc0ef526-ec2b-4ff4-8aa0-308d0c8e4911',
+        message: 'User with ID dc0ef526-ec2b-4ff4-8aa0-308d0c8e4911 not found',
+        errors: [],
+      },
+    },
+  })
+  async findOne(
+    @Param(new ZodValidationPipe(getUserSchema)) params: { id: string },
+  ) {
+    const user = await this.usersService.findOne(params.id);
     if (!user) {
-      throw new NotFoundException(`User with ID ${id} not found`);
+      throw new NotFoundException(`User with ID ${params.id} not found`);
     }
     return user;
   }

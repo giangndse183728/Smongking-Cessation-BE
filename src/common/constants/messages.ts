@@ -79,6 +79,8 @@ export const USERS_MESSAGES = {
   PHONE_NUMBER_MUST_BE_STRING: 'Phone number must be string.',
   INVALID_PHONE_NUMBER_FORMAT: 'Invalid Vietnamese phone number format.',
   AVATAR_IS_INVALID_URL: 'Invalid avatar url.',
+  USER_ID_IS_REQUIRED: 'User id is required.',
+  USER_ID_IS_INVALID: 'User id is invalid.',
 };
 
 export const POSTS_MESSAGES = {

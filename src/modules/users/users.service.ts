@@ -20,7 +20,10 @@ export class UsersService {
 
   async findOne(id: string) {
     return this.prisma.users.findUnique({
-      where: { id },
+      where: { id, deleted_at: null, deleted_by: null },
+      include: {
+        user_achievements: true,
+      },
     });
   }
 

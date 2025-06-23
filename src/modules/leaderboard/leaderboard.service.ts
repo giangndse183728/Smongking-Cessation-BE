@@ -62,4 +62,8 @@ export class LeaderboardService {
       }
     }
   }
+
+  async getLeaderBoards() {
+    return this.leaderboardsRepository.getLeaderboard();
+  }
 }

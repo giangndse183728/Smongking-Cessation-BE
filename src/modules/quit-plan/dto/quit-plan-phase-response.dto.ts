@@ -44,10 +44,6 @@ export class QuitPlanPhaseResponseDto {
 
   @Expose()
   @ApiProperty()
-  isActive: boolean;
-
-  @Expose()
-  @ApiProperty()
   isPending: boolean;
 
   @Expose()
@@ -68,14 +64,13 @@ export class QuitPlanPhaseResponseDto {
 
   @Expose()
   @ApiProperty()
-  isOverdue: boolean;
-
-  @Expose()
-  @ApiProperty()
   statistics: {
-    totalCigarettesSmoked: number;
-    totalMoneySaved: number;
-    averageCravingLevel: number;
-    successRate: number;
+    totalExpectedDays: number;
+    recordedDays: number;
+    missedDays: number;
+    passedDays: number;
+    failedDays: number;
+    failureRate: number;
+    shouldBeFailed: boolean;
   };
 } 

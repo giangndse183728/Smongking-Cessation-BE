@@ -23,7 +23,6 @@ export class QuitPlan implements quit_plans {
     Object.assign(this, partial);
   }
 
-  // Business logic methods
   calculateProgress(phases: QuitPlanPhase[], records: QuitPlanRecord[]) {
     const totalPhases = phases.length;
     const completedPhases = phases.filter(
@@ -63,20 +62,6 @@ export class QuitPlan implements quit_plans {
       totalDaysRecorded,
       averageCigarettesPerDay,
     };
-  }
-
-  isActive(): boolean {
-    return this.status === 'ACTIVE' && !this.deleted_at;
-  }
-
-  isCompleted(): boolean {
-    return this.status === 'COMPLETED';
-  }
-
-  isDue(): boolean {
-    if (!this.expected_end_date) return false;
-    const currentDate = new Date();
-    return currentDate > this.expected_end_date;
   }
 
   getCurrentPhase(phases: QuitPlanPhase[]): QuitPlanPhase | null {

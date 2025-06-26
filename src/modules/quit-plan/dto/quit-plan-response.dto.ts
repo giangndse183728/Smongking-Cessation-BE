@@ -55,5 +55,18 @@ export class QuitPlanResponseDto {
 
   @Expose()
   @ApiProperty()
+  statistics: {
+    totalCigarettesSmoked: number;
+    totalMoneySaved: number;
+    averageCravingLevel: number;
+    successRate: number;
+  };
+
+  @Expose()
+  @ApiProperty()
+  progress:{}
+
+  @Expose()
+  @ApiProperty()
   ai_generated: boolean;
 } 

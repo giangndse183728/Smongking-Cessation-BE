@@ -45,6 +45,7 @@ export class QuitPlanService {
       };
 
       const startDate = new Date();
+      startDate.setDate(startDate.getDate() + 1);
       startDate.setHours(0, 0, 0, 0);
       
       const aiPhases = await this.aiService.generateQuitPlanPhases(
@@ -142,50 +143,31 @@ export class QuitPlanService {
         phases.map(async (phase) => {
           const phaseRecords = await this.planRecordService.getRecordsByPlanAndPhase(userId, planId, phase.id);
           const phaseStats = phase.getPhaseStatistics(phaseRecords);
+          const calculatedStatus = phase.getCalculatedStatus(phaseRecords);
 
           return plainToInstance(QuitPlanPhaseResponseDto, {
             ...phase,
-            isActive: phase.isActive(),
-            isPending: phase.isPending(),
-            isCompleted: phase.isCompleted(),
-            isFailed: phase.isFailed(),
+            status: calculatedStatus,
             duration: phase.getDuration(),
             remainingDays: phase.getRemainingDays(),
-            isOverdue: phase.isOverdue(),
             statistics: phaseStats,
           }, { excludeExtraneousValues: true });
         })
       );
 
-      const enhancedRecords = records.map(record => {
-        const recordDto = plainToInstance(QuitPlanRecordResponseDto, {
-          ...record,
-          money_saved: record.getMoneySavedAmount(),
-          craving_level_text: record.getCravingLevelText(),
-          health_status_text: record.getHealthStatusText(),
-          isToday: record.isToday(),
-          isValid: record.isValid(),
-          isPassing: record.isPassing(),
-          isFailing: record.isFailing(),
-        }, { excludeExtraneousValues: true });
-        return recordDto;
-      });
 
       return plainToInstance(QuitPlanResponseDto, {
         ...quitPlan,
         phases: enhancedPhases,
         currentPhase: currentPhase ? plainToInstance(QuitPlanPhaseResponseDto, {
           ...currentPhase,
-          isActive: currentPhase.isActive(),
-          isPending: currentPhase.isPending(),
+          isPending: currentPhase.isProgress(),
           isCompleted: currentPhase.isCompleted(),
           isFailed: currentPhase.isFailed(),
           duration: currentPhase.getDuration(),
           remainingDays: currentPhase.getRemainingDays(),
-          isOverdue: currentPhase.isOverdue(),
           statistics: currentPhase.getPhaseStatistics(records),
         }, { excludeExtraneousValues: true }) : null,
-        records: enhancedRecords,
         progress,
         statistics,
       }, { excludeExtraneousValues: true });
@@ -211,21 +193,6 @@ export class QuitPlanService {
         throw error;
       }
       throw new BadRequestException(QUIT_PLAN_MESSAGES.FAILED_TO_DELETE_PLAN);
-    }
-  }
-
-  async updatePhaseStatuses(userId: string, planId: string): Promise<void> {
-    try {
-      const phases = await this.quitPlanRepository.findQuitPlanPhases(planId, userId);
-      
-      for (const phase of phases) {
-        if (phase.status !== 'COMPLETED' && phase.status !== 'FAILED') {
-          await this.updatePhaseStatuses(phase.id, userId);
-        }
-      }
-    } catch (error) {
-      this.logger.error('Error updating phase statuses:', error);
-      throw new BadRequestException(QUIT_PLAN_MESSAGES.FAILED_TO_UPDATE_PHASE_STATUSES);
     }
   }
 

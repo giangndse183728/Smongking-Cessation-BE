@@ -251,7 +251,7 @@ Rules:
                 'Generate a motivational message for someone trying to quit smoking.',
             },
           ],
-          max_tokens: 80,
+          max_tokens: 60,
           temperature: 0.7,
         },
         {

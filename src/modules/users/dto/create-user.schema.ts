@@ -6,7 +6,8 @@ export const createUserSchema = z
     username: z.string().min(3).max(50),
     email: z.string().email(),
     password: z.string().min(6),
-    full_name: z.string().optional(),
+    first_name: z.string().optional(),
+    last_name: z.string().optional(),
     birth_date: z.date().optional(),
     phone_number: z
       .string()

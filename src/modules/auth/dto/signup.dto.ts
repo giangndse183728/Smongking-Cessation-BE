@@ -30,7 +30,8 @@ export const signupSchema = z
         invalid_type_error: AUTH_MESSAGES.FIRST_NAME_MUST_BE_STRING,
       })
       .min(3, AUTH_MESSAGES.FIRST_NAME_MUST_BE_BETWEEN_3_AND_50_CHARACTERS)
-      .max(50, AUTH_MESSAGES.FIRST_NAME_MUST_BE_BETWEEN_3_AND_50_CHARACTERS),
+      .max(50, AUTH_MESSAGES.FIRST_NAME_MUST_BE_BETWEEN_3_AND_50_CHARACTERS)
+      .optional(),
 
     last_name: z
       .string({
@@ -38,7 +39,8 @@ export const signupSchema = z
         invalid_type_error: AUTH_MESSAGES.LAST_NAME_MUST_BE_STRING,
       })
       .min(3, AUTH_MESSAGES.LAST_NAME_MUST_BE_BETWEEN_3_AND_50_CHARACTERS)
-      .max(50, AUTH_MESSAGES.LAST_NAME_MUST_BE_BETWEEN_3_AND_50_CHARACTERS),
+      .max(50, AUTH_MESSAGES.LAST_NAME_MUST_BE_BETWEEN_3_AND_50_CHARACTERS)
+      .optional(),
 
     dob: z
       .string({

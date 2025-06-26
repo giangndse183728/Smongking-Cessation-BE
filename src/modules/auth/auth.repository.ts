@@ -2,10 +2,13 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '@libs/prisma/prisma.service';
 import { SignupDto } from './dto/signup.dto';
 import { users } from '@prisma/client';
+import { UserRole } from '@common/constants/enum';
 
 type CreateUserInput = Partial<SignupDto> & {
   avatar?: string;
+  role?: string;
 };
+
 @Injectable()
 export class AuthRepository {
   constructor(private prisma: PrismaService) {}
@@ -21,6 +24,7 @@ export class AuthRepository {
         dob: data.dob ? new Date(data.dob) : null,
         phone_number: data.phone_number ?? null,
         avatar: data.avatar ?? '',
+        role: data.role || UserRole.USER,
       },
     });
   }

@@ -33,6 +33,7 @@ export class UserAchievementsRepository {
         achievements: {
           select: {
             achievement_type: true,
+            name: true,
             description: true,
             image_url: true,
             threshold_value: true,
@@ -59,6 +60,7 @@ export class UserAchievementsRepository {
         id: achievement_id,
         user_id: user_id,
       },
+      include: { achievements: true },
     });
   }
 }

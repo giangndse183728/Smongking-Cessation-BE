@@ -6,6 +6,8 @@ import { AchievementsService } from '@modules/achievements/achievements.service'
 import { QuitPlanRecordRepository } from '@modules/plan-record/plan-record.repository';
 import { quit_plan_records } from '@prisma/client';
 import { UsersService } from '@modules/users/users.service';
+import { PostsService } from '@modules/posts/posts.service';
+import { POST_STATUS } from '@common/constants/enum';
 
 @Injectable()
 export class UserAchievementService {
@@ -14,6 +16,7 @@ export class UserAchievementService {
     private achievementsService: AchievementsService,
     private quitPlanRecordRepository: QuitPlanRecordRepository,
     private usersService: UsersService,
+    private postsService: PostsService,
   ) {}
 
   async addUserAchievement(data: AddUserAchievementDto, user_id: string) {
@@ -43,15 +46,12 @@ export class UserAchievementService {
     console.log('Cronjob: Checking achievements for all users');
 
     const users = await this.usersService.findAll();
-
     for (const user of users) {
       await this.checkAndGrantAchievementsForUser(user.id);
     }
 
     console.log('Done checking achievements for all users.');
   }
-  // @Cron(CronExpression.EVERY_10_SECONDS)
-  @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
   async checkAndGrantAchievementsForUser(userId: string) {
     console.log('check and grand achievement');
     const [allAchievements, userAchievements, records] = await Promise.all([
@@ -115,10 +115,17 @@ export class UserAchievementService {
           isMet = abstinenceDays >= Number(threshold_value);
           break;
         }
+        case 'community_support': {
+          const posts = await this.postsService.getOwnPosts(
+            userId,
+            POST_STATUS.APPROVED,
+          );
+          isMet = posts.length >= Number(threshold_value);
+          break;
+        }
       }
 
       if (isMet) {
-        console.log(achievement);
         await this.userAchievementsRepository.addNewUserAchievement(
           {
             achievement_id: achievement.id,

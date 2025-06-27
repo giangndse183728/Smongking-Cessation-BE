@@ -43,9 +43,11 @@ export class PlanRecordService {
       }
 
       const recordDate = new Date(data.record_date);
+      recordDate.setDate(recordDate.getDate() + 1);
       recordDate.setHours(0, 0, 0, 0);
 
       const currentDate = new Date();
+      currentDate.setDate(currentDate.getDate() + 1);
       currentDate.setHours(0, 0, 0, 0);
 
       if (recordDate > currentDate) {

@@ -27,6 +27,9 @@ export class UserEntity {
   phone_number: string;
 
   @Expose()
+  role: string;
+
+  @Expose()
   @Type(() => Date)
   dob?: Date;
 

@@ -247,11 +247,10 @@ Rules:
             },
             {
               role: 'user',
-              content:
-                'Generate a motivational message for someone trying to quit smoking.',
+              content: 'Give me a short motivational message for someone quitting smoking.'
             },
           ],
-          max_tokens: 60,
+          max_tokens: 80,
           temperature: 0.7,
         },
         {

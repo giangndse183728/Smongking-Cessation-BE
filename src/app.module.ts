@@ -17,6 +17,7 @@ import { AchievementsModule } from './modules/achievements/achievements.module';
 import { UserAchievementModule } from './modules/user-achievement/user-achievement.module';
 import { LeaderboardModule } from '@modules/leaderboard/leaderboard.module';
 import { CoachModule } from '@modules/coach/coach.module';
+import { ChatModule } from '@modules/chat/chat.module';
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { CoachModule } from '@modules/coach/coach.module';
     SmokingHabitsModule,
     MediaModule,
     PostsModule,
+    ChatModule,
     ConfigModule.forRoot({
       isGlobal: true,
     }),

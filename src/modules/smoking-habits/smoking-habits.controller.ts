@@ -45,27 +45,16 @@ export class SmokingHabitsController {
     return this.smokingHabitsService.create(createSmokingHabitDto, userId);
   }
 
-  @Delete(':id')
-  @ApiOperation({ summary: 'Delete a smoking habit' })
-  @ApiResponse({
-    status: 200,
-    description: 'The smoking habit has been successfully deleted.',
-  })
-  @ApiResponse({ status: 404, description: 'Smoking habit not found.' })
-  @ApiResponse({ status: 401, description: 'Unauthorized.' })
-  remove(@Param('id') id: string) {
-    return this.smokingHabitsService.remove(id);
-  }
 
   @Get('me')
-  @ApiOperation({ summary: 'Get all smoking habits for current user' })
+  @ApiOperation({ summary: 'Get smoking habits for current user' })
   @ApiResponse({
     status: 200,
-    description: 'Returns all smoking habits for the current user.',
+    description: 'Returns smoking habits for the current user.',
     type: [SmokingHabitResponseDto],
   })
   @ApiResponse({ status: 401, description: 'Unauthorized.' })
   getAllCurrentUserHabits(@GetCurrentUser('id') userId: string) {
-    return this.smokingHabitsService.findAllByUserId(userId);
+    return this.smokingHabitsService.findByUserId(userId);
   }
 }

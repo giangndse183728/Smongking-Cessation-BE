@@ -156,7 +156,7 @@ export class ChatService {
   async getCoachChatRoomsForUser(
     userId: string,
   ): Promise<CoachChatRoomResponseDto[]> {
-    const coach = await this.prisma.coaches.findUnique({
+    const coach = await this.prisma.coaches.findFirst({
       where: { user_id: userId },
     });
     if (!coach) {

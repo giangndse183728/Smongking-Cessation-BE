@@ -6,6 +6,8 @@ import { CreateCoachDto } from './dto/create-coach.dto';
 import { PrismaService } from '@libs/prisma/prisma.service';
 import { AuthService } from '@modules/auth/auth.service';
 import { UserRole } from '@common/constants/enum';
+import { CoachResponseDto } from './dto/coach-response.dto';
+import { plainToInstance } from 'class-transformer';
 
 
 @Injectable()
@@ -80,5 +82,17 @@ export class CoachService {
     return {
       accessToken: tokens.accessToken,
     };
+  }
+
+  async getAllCoaches(): Promise<CoachResponseDto[]> {
+    try {
+      const coaches = await this.coachRepository.findAllCoaches();
+      return plainToInstance(CoachResponseDto, coaches, {
+        excludeExtraneousValues: true,
+      });
+    } catch (error) {
+      console.error('Error in getAllCoaches:', error);
+      throw error;
+    }
   }
 }

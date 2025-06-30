@@ -7,10 +7,12 @@ import { ChatRepository } from './chat.repository';
 import { ChatController } from './chat.controller';
 import { WsJwtGuard } from './guards/ws-jwt.guard';
 import { PrismaModule } from '@libs/prisma/prisma.module';
+import { AuthModule } from '@modules/auth/auth.module';
 
 @Module({
   imports: [
     PrismaModule,
+    AuthModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => ({

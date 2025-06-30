@@ -1,97 +1,96 @@
-import { Controller, Post, Get, Body, Param, UseGuards, Request } from '@nestjs/common';
+import { Controller, Post, Get, Body, Param, UseGuards, Request, NotFoundException } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { ChatService } from './chat.service';
 import { AccessTokenGuard } from '@modules/auth/guards/access-token.guard';
 import { GetCurrentUser } from '@common/decorators/user.decorator';
+import { CoachChatRoomResponseDto } from './dto/coach-chat-room-response.dto';
+import { CreateChatRoomResponseDto } from './dto/create-chat-room-response.dto';
+import { UserChatRoomResponseDto } from './dto/user-chat-room-response.dto';
+import { ChatMessageResponseDto } from './dto/chat-message-response.dto';
+import { EndChatRoomResponseDto } from './dto/end-chat-room-response.dto';
+import { RolesGuard } from '@modules/auth/guards/roles.guard';
+import { Roles } from '@common/decorators/roles.decorator';
+import { UserRole } from '@common/constants/enum';
 
 @ApiTags('Chat')
 @Controller('chat')
 @ApiBearerAuth('access-token')
-@UseGuards(AccessTokenGuard)
+@UseGuards(AccessTokenGuard, RolesGuard)
 export class ChatController {
-  constructor(private readonly chatService: ChatService) {}
+  constructor(
+    private readonly chatService: ChatService,
+  ) {}
 
   @Post('rooms')
   @ApiOperation({ summary: 'Create a new chat room with a coach' })
-  @ApiResponse({ status: 201, description: 'Chat room created successfully' })
+  @ApiResponse({
+    status: 201,
+    description: 'Chat room created successfully',
+    type: CreateChatRoomResponseDto,
+  })
   @ApiResponse({ status: 400, description: 'Bad request' })
   async createChatRoom(
     @GetCurrentUser('id') userId: string,
     @Body() body: { coach_id: string },
-  ) {
-    const chatRoom = await this.chatService.createOrGetChatRoom(userId, body.coach_id);
-    return {
-      success: true,
-      message: 'Chat room created successfully',
-      data: {
-        chat_room_id: chatRoom.id,
-        user_id: chatRoom.user_id,
-        coach_id: chatRoom.coach_id,
-        status: chatRoom.status,
-        started_at: chatRoom.started_at,
-      },
-    };
+  ): Promise<CreateChatRoomResponseDto> {
+    return this.chatService.createOrGetChatRoom(userId, body.coach_id);
   }
 
   @Get('rooms')
+  @Roles(UserRole.USER)
   @ApiOperation({ summary: 'Get all chat rooms for the current user' })
-  @ApiResponse({ status: 200, description: 'Chat rooms retrieved successfully' })
-  async getUserChatRooms(@GetCurrentUser('id') userId: string) {
-    const chatRooms = await this.chatService.getUserChatRooms(userId);
-    return {
-      success: true,
-      message: 'Chat rooms retrieved successfully',
-      data: chatRooms.map(room => ({
-        id: room.id,
-        user_id: room.user_id,
-        coach_id: room.coach_id,
-        status: room.status,
-        started_at: room.started_at,
-        ended_at: room.ended_at,
-      })),
-    };
+  @ApiResponse({
+    status: 200,
+    description: 'Chat rooms retrieved successfully',
+    type: [UserChatRoomResponseDto],
+  })
+  async getUserChatRooms(
+    @GetCurrentUser('id') userId: string,
+  ): Promise<UserChatRoomResponseDto[]> {
+    return this.chatService.getUserChatRooms(userId);
+  }
+
+  @Get('rooms/coach')
+  @Roles(UserRole.COACH)
+  @ApiOperation({ summary: 'Get all chat rooms for the current coach' })
+  @ApiResponse({
+    status: 200,
+    description: 'Chat rooms retrieved successfully',
+    type: [CoachChatRoomResponseDto],
+  })
+  async getCoachChatRooms(
+    @GetCurrentUser('id') userId: string,
+  ): Promise<CoachChatRoomResponseDto[]> {
+    return this.chatService.getCoachChatRoomsForUser(userId);
   }
 
   @Get('rooms/:chatRoomId/messages')
   @ApiOperation({ summary: 'Get chat messages for a specific room' })
-  @ApiResponse({ status: 200, description: 'Messages retrieved successfully' })
+  @ApiResponse({
+    status: 200,
+    description: 'Messages retrieved successfully',
+    type: [ChatMessageResponseDto],
+  })
   @ApiResponse({ status: 404, description: 'Chat room not found' })
   async getChatMessages(
     @GetCurrentUser('id') userId: string,
     @Param('chatRoomId') chatRoomId: string,
-  ) {
-    const messages = await this.chatService.getChatMessages(chatRoomId, userId);
-    return {
-      success: true,
-      message: 'Messages retrieved successfully',
-      data: messages.map(msg => ({
-        id: msg.id,
-        sender_id: msg.sender_id,
-        sender_type: msg.sender_type,
-        message: msg.message,
-        sent_at: msg.sent_at,
-        is_read: msg.is_read,
-      })),
-    };
+  ): Promise<ChatMessageResponseDto[]> {
+    return this.chatService.getChatMessages(chatRoomId, userId);
   }
 
   @Post('rooms/:chatRoomId/end')
   @ApiOperation({ summary: 'End a chat room' })
-  @ApiResponse({ status: 200, description: 'Chat room ended successfully' })
+  @ApiResponse({
+    status: 200,
+    description: 'Chat room ended successfully',
+    type: EndChatRoomResponseDto,
+  })
   @ApiResponse({ status: 404, description: 'Chat room not found' })
   async endChatRoom(
     @GetCurrentUser('id') userId: string,
     @Param('chatRoomId') chatRoomId: string,
-  ) {
-    const chatRoom = await this.chatService.endChatRoom(chatRoomId, userId);
-    return {
-      success: true,
-      message: 'Chat room ended successfully',
-      data: {
-        id: chatRoom.id,
-        status: chatRoom.status,
-        ended_at: chatRoom.ended_at,
-      },
-    };
+  ): Promise<EndChatRoomResponseDto> {
+    return this.chatService.endChatRoom(chatRoomId, userId);
   }
 } 

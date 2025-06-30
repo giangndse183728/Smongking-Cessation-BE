@@ -1,11 +1,14 @@
-import { Body, Controller, Post, UsePipes, Get } from '@nestjs/common';
+import { Body, Controller, Post, UsePipes, Get, UseGuards } from '@nestjs/common';
 import { CoachService } from './coach.service';
 import { SendCodeDto } from './dto/send-code.dto';
 import { CreateCoachDto } from './dto/create-coach.dto';
 import { ZodValidationPipe } from '@common/pipe/zod-validation.pipe';
 import { createCoachSchema } from './schemas/create-coach.schema';
-import { ApiOperation, ApiResponse, ApiTags, ApiBody } from '@nestjs/swagger';
+import { ApiOperation, ApiResponse, ApiTags, ApiBody, ApiBearerAuth } from '@nestjs/swagger';
 import { CoachResponseDto } from './dto/coach-response.dto';
+import { AccessTokenGuard } from '../auth/guards/access-token.guard';
+import { GetCurrentUser } from '@common/decorators/user.decorator';
+import { users } from '@prisma/client';
 
 @ApiTags('Coach')
 @Controller('coach')
@@ -21,6 +24,19 @@ export class CoachController {
   })
   async getAllCoaches(): Promise<CoachResponseDto[]> {
     return this.coachService.getAllCoaches();
+  }
+
+  @Get('profile')
+  @ApiBearerAuth('access-token')
+  @UseGuards(AccessTokenGuard)
+  @ApiOperation({ summary: 'Get coach profile' })
+  @ApiResponse({
+    status: 200,
+    description: 'Coach profile retrieved successfully.',
+    type: CoachResponseDto,
+  })
+  async getProfile(@GetCurrentUser() user: users): Promise<CoachResponseDto> {
+    return this.coachService.getCoachProfile(user.id);
   }
 
   @Post('send-code')

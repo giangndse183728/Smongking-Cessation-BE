@@ -95,4 +95,14 @@ export class CoachService {
       throw error;
     }
   }
+
+  async getCoachProfile(userId: string): Promise<CoachResponseDto> {
+    const coach = await this.coachRepository.getCoachProfile(userId);
+    if (!coach) {
+      throw new NotFoundException('Coach profile not found.');
+    }
+    return plainToInstance(CoachResponseDto, coach, {
+      excludeExtraneousValues: true,
+    });
+  }
 }

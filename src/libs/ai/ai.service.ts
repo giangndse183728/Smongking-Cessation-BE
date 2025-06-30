@@ -100,12 +100,12 @@ Rules:
       const aiResponse = response.data.choices[0].message.content.trim();
       const phases = JSON.parse(aiResponse);
 
-      const currentStartDate = new Date(startDate);
+      let currentStartDate = new Date(startDate);
 
       return phases.map((phase: any, index: number) => {
         const phaseStartDate = new Date(currentStartDate);
         const phaseEndDate = new Date(currentStartDate);
-        phaseEndDate.setDate(phaseEndDate.getDate() + phase.duration_days);
+        phaseEndDate.setDate(phaseEndDate.getDate() + phase.duration_days - 1); 
 
         const result: QuitPlanPhaseAI = {
           phase_number: index + 1,
@@ -116,9 +116,8 @@ Rules:
           description: phase.description,
         };
 
-        currentStartDate.setDate(
-          currentStartDate.getDate() + phase.duration_days,
-        );
+        currentStartDate = new Date(phaseEndDate);
+        currentStartDate.setDate(currentStartDate.getDate() + 1);
 
         return result;
       });
@@ -139,7 +138,7 @@ Rules:
     planType: string,
   ): QuitPlanPhaseAI[] {
     const phases: QuitPlanPhaseAI[] = [];
-    const currentStartDate = new Date(startDate);
+    let currentStartDate = new Date(startDate);
 
     let reductionRates: number[];
     let phaseDurations: number[];
@@ -166,7 +165,7 @@ Rules:
       const duration = phaseDurations[index];
       const phaseStartDate = new Date(currentStartDate);
       const phaseEndDate = new Date(currentStartDate);
-      phaseEndDate.setDate(phaseEndDate.getDate() + duration);
+      phaseEndDate.setDate(phaseEndDate.getDate() + duration - 1); // End date is inclusive
 
       phases.push({
         phase_number: index + 1,
@@ -177,7 +176,9 @@ Rules:
         description: `Phase ${index + 1}: ${limit === 0 ? 'Complete quit - Stay smoke-free' : `Reduce to ${limit} cigarettes per day`}`,
       });
 
-      currentStartDate.setDate(currentStartDate.getDate() + duration);
+      // Set the start date for the next phase to be the day after this phase ends
+      currentStartDate = new Date(phaseEndDate);
+      currentStartDate.setDate(currentStartDate.getDate() + 1);
     });
 
     return phases;

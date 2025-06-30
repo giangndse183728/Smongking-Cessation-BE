@@ -36,4 +36,14 @@ export class CoachRepository {
     });
     return coaches;
   }
+
+  async getCoachProfile(userId: string) {
+    const coach = await this.prisma.coaches.findFirst({
+      where: {
+        user_id: userId,
+        is_active: true,
+      },
+    });
+    return coach;
+  }
 }

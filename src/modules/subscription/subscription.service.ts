@@ -40,9 +40,6 @@ export class SubscriptionService {
   async createPayment(userId: string, planId: string): Promise<PaymentLinkResponse> {
     try {
       const existingSubscription = await this.subscriptionRepository.findActiveByUserId(userId);
-      if (existingSubscription) {
-        throw new BadRequestException('User already has an active subscription');
-      }
 
       const plan = await this.prisma.membership_plans.findUnique({
         where: { id: planId },
@@ -66,11 +63,19 @@ export class SubscriptionService {
         callbackUrl: `${process.env.BACKEND_URL}/subscriptions/payment/callback`, 
       };
 
+      let startDate = new Date();
+      if (existingSubscription && existingSubscription.end_date) {
+        const now = new Date();
+        const currentEnd = new Date(existingSubscription.end_date);
+        startDate = currentEnd > now ? currentEnd : now;
+      }
+      const endDate = new Date(startDate.getTime() + plan.duration_days * 24 * 60 * 60 * 1000);
+
       await this.subscriptionRepository.create({
         user_id: userId,
         plan_id: planId,
-        start_date: new Date(),
-        end_date: new Date(Date.now() + plan.duration_days * 24 * 60 * 60 * 1000),
+        start_date: startDate,
+        end_date: endDate,
         payment_status: 'PENDING',
         order_code: orderCode.toString(),
       });

@@ -94,25 +94,51 @@ export class ChatRepository {
     return new ChatRoomEntity(chatRoom);
   }
 
-  async getUserChatRooms(userId: string): Promise<ChatRoomEntity[]> {
+  async getUserChatRooms(userId: string): Promise<any[]> {
     const chatRooms = await this.prisma.chat_rooms.findMany({
       where: { 
         user_id: userId, 
         deleted_at: null 
       },
+      include: {
+        coaches: {
+          include: {
+            users: {
+              select: {
+                id: true,
+                username: true,
+                avatar: true,
+                email: true,
+              }
+            }
+          }
+        }
+      },
+      
       orderBy: { updated_at: 'desc' },
     });
-    return chatRooms.map(room => new ChatRoomEntity(room));
+    return chatRooms;
   }
 
-  async getCoachChatRooms(coachId: string): Promise<ChatRoomEntity[]> {
+  async getCoachChatRooms(coachId: string): Promise<any[]> {
     const chatRooms = await this.prisma.chat_rooms.findMany({
       where: { 
         coach_id: coachId, 
         deleted_at: null 
       },
+      include: {
+        users: {
+          select: {
+            id: true,
+            username: true,
+            avatar: true,
+            email: true,
+          }
+        },
+   
+      },
       orderBy: { updated_at: 'desc' },
     });
-    return chatRooms.map(room => new ChatRoomEntity(room));
+    return chatRooms;
   }
 } 

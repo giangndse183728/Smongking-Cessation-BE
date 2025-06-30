@@ -4,6 +4,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ChatGateway } from './chat.gateway';
 import { ChatService } from './chat.service';
 import { ChatRepository } from './chat.repository';
+import { ChatController } from './chat.controller';
 import { WsJwtGuard } from './guards/ws-jwt.guard';
 import { PrismaModule } from '@libs/prisma/prisma.module';
 
@@ -21,6 +22,7 @@ import { PrismaModule } from '@libs/prisma/prisma.module';
       inject: [ConfigService],
     }),
   ],
+  controllers: [ChatController],
   providers: [ChatGateway, ChatService, ChatRepository, WsJwtGuard],
   exports: [ChatService],
 })

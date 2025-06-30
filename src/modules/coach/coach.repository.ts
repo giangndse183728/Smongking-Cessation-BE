@@ -24,4 +24,16 @@ export class CoachRepository {
     });
     return new CoachEntity(coach);
   }
+
+  async findAllCoaches() {
+    const coaches = await this.prisma.coaches.findMany({
+      include: {
+        users: true,
+      },
+      where: {
+        is_active: true,
+      },
+    });
+    return coaches;
+  }
 }

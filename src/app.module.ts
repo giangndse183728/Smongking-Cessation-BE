@@ -18,6 +18,10 @@ import { UserAchievementModule } from './modules/user-achievement/user-achieveme
 import { LeaderboardModule } from '@modules/leaderboard/leaderboard.module';
 import { CoachModule } from '@modules/coach/coach.module';
 import { ChatModule } from '@modules/chat/chat.module';
+import { NotificationSchedulesModule } from '@modules/notification-schedules/notification-schedules.module';
+import { QuitPlanPhasesController } from './modules/quit-plan-phases/quit-plan-phases.controller';
+import { QuitPlanPhasesService } from './modules/quit-plan-phases/quit-plan-phases.service';
+import { QuitPlanPhasesModule } from '@modules/quit-plan-phases/quit-plan-phases.module';
 
 @Module({
   imports: [
@@ -34,14 +38,16 @@ import { ChatModule } from '@modules/chat/chat.module';
     MediaModule,
     PostsModule,
     ChatModule,
+    QuitPlanPhasesModule,
     ConfigModule.forRoot({
       isGlobal: true,
     }),
     AchievementsModule,
     UserAchievementModule,
     LeaderboardModule,
+    NotificationSchedulesModule,
   ],
-  controllers: [AppController],
-  providers: [AppService],
+  controllers: [AppController, QuitPlanPhasesController],
+  providers: [AppService, QuitPlanPhasesService],
 })
 export class AppModule {}

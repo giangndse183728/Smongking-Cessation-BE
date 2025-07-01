@@ -1,4 +1,9 @@
-import { Injectable, BadRequestException, Logger, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  BadRequestException,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateQuitPlanRecordDto } from './dto/create-plan-record.dto';
 import { QuitPlanRecordRepository } from './plan-record.repository';
 import { QuitPlanRecord } from './entities/quit-plan-record.entity';
@@ -138,7 +143,10 @@ export class PlanRecordService {
       return result;
     } catch (error) {
       this.logger.error('Error creating plan record:', error);
-      if (error instanceof BadRequestException || error instanceof NotFoundException) {
+      if (
+        error instanceof BadRequestException ||
+        error instanceof NotFoundException
+      ) {
         throw error;
       }
       throw new BadRequestException('Failed to create plan record');
@@ -165,7 +173,10 @@ export class PlanRecordService {
       }));
     } catch (error) {
       this.logger.error('Error getting plan records:', error);
-      if (error instanceof BadRequestException || error instanceof NotFoundException) {
+      if (
+        error instanceof BadRequestException ||
+        error instanceof NotFoundException
+      ) {
         throw error;
       }
       throw new BadRequestException('Failed to retrieve plan records');
@@ -191,7 +202,10 @@ export class PlanRecordService {
       }));
     } catch (error) {
       this.logger.error('Error getting all plan records:', error);
-      if (error instanceof BadRequestException || error instanceof NotFoundException) {
+      if (
+        error instanceof BadRequestException ||
+        error instanceof NotFoundException
+      ) {
         throw error;
       }
       throw new BadRequestException('Failed to retrieve all plan records');
@@ -228,7 +242,10 @@ export class PlanRecordService {
       return records;
     } catch (error) {
       this.logger.error('Error getting all plan records:', error);
-      if (error instanceof BadRequestException || error instanceof NotFoundException) {
+      if (
+        error instanceof BadRequestException ||
+        error instanceof NotFoundException
+      ) {
         throw error;
       }
       throw new BadRequestException('Failed to retrieve all plan records');

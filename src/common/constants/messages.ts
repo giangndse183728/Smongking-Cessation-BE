@@ -170,3 +170,14 @@ export const SMOKING_HABITS_MESSAGES = {
   HABIT_NOT_FOUND: 'Smoking habit not found',
   USER_HABIT_NOT_FOUND: 'Smoking habit for user not found',
 } as const;
+
+export const NOTIFICATION_SCHEDULES_MESSAGES = {
+  USER_ID_IS_REQUIRED: 'User id is required.',
+  USER_ID_IS_INVALID: 'User id is invalid.',
+  TYPE_IS_INVALID: 'Type is invalid.',
+  TYPE_IS_REQUIRED: 'Type is required.',
+  FREQUENCY_IS_REQUIRED: 'Frequency is required.',
+  FREQUENCY_IS_INVALID: 'Frequency is invalid.',
+  PREFERRED_TIME_IS_REQUIRED: 'Preferred time is required.',
+  PREFERRED_TIME_IS_INVALID: 'Preferred time is invalid.',
+} as const;

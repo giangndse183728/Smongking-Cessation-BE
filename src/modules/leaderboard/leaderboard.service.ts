@@ -1,5 +1,4 @@
 import { UserAchievementService } from '@modules/user-achievement/user-achievement.service';
-import { UsersService } from '@modules/users/users.service';
 import { Injectable } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { LeaderboardsRepository } from './leaderboard.repository';
@@ -9,19 +8,11 @@ export class LeaderboardService {
   constructor(
     private userAchievementService: UserAchievementService,
     private leaderboardsRepository: LeaderboardsRepository,
-    private usersService: UsersService,
   ) {}
-  @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
-  async checkAndGrantAchievementsForAllUsers() {
-    console.log('Cronjob: Checking leaderboard.');
-    const users = await this.usersService.findAll();
-    for (const user of users) {
-      await this.calculateLeaderboard(user.id);
-    }
-    console.log('Done checking leaderboard.');
-  }
 
+  @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
   async calculateLeaderboard(user_id: string) {
+    console.log('Cronjob: Checking leaderboard.');
     const achievements =
       await this.userAchievementService.getUserAchievements(user_id);
 
@@ -50,7 +41,6 @@ export class LeaderboardService {
     }
     for (const [type, entries] of grouped.entries()) {
       const sorted = entries.sort((a, b) => b.score - a.score);
-
       for (let i = 0; i < sorted.length; i++) {
         await this.leaderboardsRepository.rankLeaderboard(
           {
@@ -61,6 +51,7 @@ export class LeaderboardService {
         );
       }
     }
+    console.log('Done checking leaderboard.');
   }
 
   async getLeaderBoards() {

@@ -16,8 +16,7 @@ import { QuitPlanPhaseResponseDto } from './dto/quit-plan-phase-response.dto';
 import { QuitPlanRecordResponseDto } from '../plan-record/dto/quit-plan-record-response.dto';
 import { plainToInstance } from 'class-transformer';
 import { QuitPlanRecord } from '../plan-record/entities/quit-plan-record.entity';
-import { Cron, CronExpression } from '@nestjs/schedule';
-import { QuitPlanPhasesService } from '@modules/quit-plan-phases/quit-plan-phases.service';
+
 
 @Injectable()
 export class QuitPlanService {
@@ -26,7 +25,6 @@ export class QuitPlanService {
   constructor(
     private readonly quitPlanRepository: QuitPlanRepository,
     private readonly planRecordService: PlanRecordService,
-    private readonly quitPlanPhasesService: QuitPlanPhasesService,
     private readonly aiService: AIService,
     private readonly smokingHabitsService: SmokingHabitsService,
   ) {}
@@ -279,47 +277,5 @@ export class QuitPlanService {
         QUIT_PLAN_MESSAGES.FAILED_TO_RETRIEVE_PLANS,
       );
     }
-  }
-
-  @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
-  async updatePlanPhaseStatus() {
-    console.log('đang update phase...');
-    const today = new Date();
-
-    const allPhases = await this.quitPlanPhasesService.getQuitPlanPhases();
-
-    // tìm phase đã hết hạn và đang ACTIVE
-    const expiredPhases = allPhases.filter(
-      (phase) =>
-        phase.expected_end_date &&
-        phase.expected_end_date < today &&
-        phase.status === 'ACTIVE' &&
-        !phase.deleted_at,
-    );
-
-    for (const phase of expiredPhases) {
-      const { id, user_id, plan_id, phase_number } = phase;
-
-      // Cập nhật phase hiện tại thành INACTIVE
-      await this.quitPlanPhasesService.updateQuitPlanPhases(id, 'INACTIVE');
-
-      // Tìm phase tiếp theo trong allPhases
-      const quitPhases = await this.quitPlanRepository.findQuitPlanPhases(
-        plan_id,
-        user_id,
-      );
-      const nextPhase = quitPhases.find(
-        (item) => item.phase_number === (phase_number ?? 0) + 1,
-      );
-
-      // Nếu có phase tiếp theo: chuyển sang ACTIVE
-      if (nextPhase) {
-        await this.quitPlanPhasesService.updateQuitPlanPhases(
-          nextPhase.id,
-          'ACTIVE',
-        );
-      }
-    }
-    console.log(`[Cron] Updated ${expiredPhases.length} quit plan phases.`);
   }
 }

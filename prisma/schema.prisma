@@ -204,7 +204,7 @@ model quit_plan_phases {
   limit_cigarettes_per_day Int?
   start_date               DateTime            @db.Date
   expected_end_date        DateTime?           @db.Date
-  status                   String?             @default("INPROGRESS") @db.VarChar
+  status                   String?             @default("IN-PROGRESS") @db.VarChar
   created_at               DateTime?           @default(now()) @db.Timestamp(6)
   created_by               String?             @db.Uuid
   updated_at               DateTime?           @updatedAt @db.Timestamp(6)

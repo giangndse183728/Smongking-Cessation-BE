@@ -12,7 +12,7 @@ import { QuitPlanRecordRepository } from '@modules/plan-record/plan-record.repos
 import { SmokingHabitsModule } from '@modules/smoking-habits/smoking-habits.module';
 import { AchievementsModule } from '@modules/achievements/achievements.module';
 import { UserAchievementModule } from '@modules/user-achievement/user-achievement.module';
-import { QuitPlanPhasesModule } from '@modules/quit-plan-phases/quit-plan-phases.module';
+
 
 @Module({
   imports: [
@@ -23,7 +23,6 @@ import { QuitPlanPhasesModule } from '@modules/quit-plan-phases/quit-plan-phases
     SmokingHabitsModule,
     AchievementsModule,
     UserAchievementModule,
-    QuitPlanPhasesModule,
   ],
   controllers: [QuitPlanController],
   providers: [

@@ -141,4 +141,12 @@ export class ChatRepository {
     });
     return chatRooms;
   }
+
+  async findCoachByUserId(userId: string) {
+    return this.prisma.coaches.findFirst({ where: { user_id: userId } });
+  }
+
+  async findUserById(userId: string) {
+    return this.prisma.users.findUnique({ where: { id: userId } });
+  }
 } 

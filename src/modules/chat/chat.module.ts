@@ -8,11 +8,13 @@ import { ChatController } from './chat.controller';
 import { WsJwtGuard } from './guards/ws-jwt.guard';
 import { PrismaModule } from '@libs/prisma/prisma.module';
 import { AuthModule } from '@modules/auth/auth.module';
+import { LiveKitModule } from '@libs/livekit/livekit.module';
 
 @Module({
   imports: [
     PrismaModule,
     AuthModule,
+    LiveKitModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => ({

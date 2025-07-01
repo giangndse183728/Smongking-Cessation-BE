@@ -19,9 +19,7 @@ import { LeaderboardModule } from '@modules/leaderboard/leaderboard.module';
 import { CoachModule } from '@modules/coach/coach.module';
 import { ChatModule } from '@modules/chat/chat.module';
 import { NotificationSchedulesModule } from '@modules/notification-schedules/notification-schedules.module';
-import { QuitPlanPhasesController } from './modules/quit-plan-phases/quit-plan-phases.controller';
-import { QuitPlanPhasesService } from './modules/quit-plan-phases/quit-plan-phases.service';
-import { QuitPlanPhasesModule } from '@modules/quit-plan-phases/quit-plan-phases.module';
+
 
 @Module({
   imports: [
@@ -38,7 +36,6 @@ import { QuitPlanPhasesModule } from '@modules/quit-plan-phases/quit-plan-phases
     MediaModule,
     PostsModule,
     ChatModule,
-    QuitPlanPhasesModule,
     ConfigModule.forRoot({
       isGlobal: true,
     }),
@@ -47,7 +44,7 @@ import { QuitPlanPhasesModule } from '@modules/quit-plan-phases/quit-plan-phases
     LeaderboardModule,
     NotificationSchedulesModule,
   ],
-  controllers: [AppController, QuitPlanPhasesController],
-  providers: [AppService, QuitPlanPhasesService],
+  controllers: [AppController],
+  providers: [AppService],
 })
 export class AppModule {}

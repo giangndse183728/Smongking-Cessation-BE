@@ -36,10 +36,25 @@ export class LeaderboardsRepository {
         deleted_at: null,
         deleted_by: null,
       },
+      include: {
+        users: true,
+      },
     });
-    const grouped: Record<string, typeof leaderboards> = {};
 
-    for (const item of leaderboards) {
+    const result = leaderboards.map((item) => {
+      const { users, ...rest } = item;
+      const { last_name, first_name, avatar, username } = users;
+      return {
+        ...rest,
+        last_name,
+        first_name,
+        avatar,
+        username,
+      };
+    });
+    const grouped: Record<string, typeof result> = {};
+
+    for (const item of result) {
       if (!grouped[item.achievement_type]) {
         grouped[item.achievement_type] = [];
       }

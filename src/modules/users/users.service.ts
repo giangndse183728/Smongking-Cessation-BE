@@ -2,7 +2,7 @@ import { Injectable, UnprocessableEntityException } from '@nestjs/common';
 import { PrismaService } from '@libs/prisma/prisma.service';
 import { CreateUserDto } from './dto/create-user.schema';
 import { UserRole } from '@common/constants/enum';
-import { Prisma } from '@prisma/client';
+import { Prisma, user_achievements } from '@prisma/client';
 import { UpdateMeDto } from './dto/update-user.schema';
 
 @Injectable()
@@ -19,12 +19,43 @@ export class UsersService {
   }
 
   async findOne(id: string) {
-    return this.prisma.users.findUnique({
-      where: { id, deleted_at: null, deleted_by: null },
+    const user = await this.prisma.users.findFirst({
+      where: {
+        id,
+        deleted_at: null,
+        deleted_by: null,
+      },
+      omit: { password: true },
       include: {
-        user_achievements: true,
+        user_achievements: {
+          include: {
+            achievements: true,
+          },
+        },
       },
     });
+
+    if (!user) return null;
+
+    const customUserAchievements = user.user_achievements.map(
+      (
+        user_achievements: user_achievements & {
+          achievements: { name: string; image_url: string };
+        },
+      ) => ({
+        id: user_achievements.id,
+        name: user_achievements.achievements.name,
+        earned_date: user_achievements.earned_date,
+        thumbnail: user_achievements.achievements.image_url,
+      }),
+    );
+
+    const { ...rest } = user;
+
+    return {
+      ...rest,
+      user_achievements: customUserAchievements,
+    };
   }
 
   async findByUsername(username: string) {

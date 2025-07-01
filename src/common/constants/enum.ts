@@ -46,3 +46,12 @@ export const achievement_type = {
   APP_USAGE: 'app_usage',
   RELAPSE_FREE_STREAK: 'relapse_free_streak',
 };
+
+export const notification_schedule_type = {
+  REMINDER: 'reminder',
+  MOTIVATION: 'motivation',
+};
+export const notification_schedule_reference_type = {
+  DAILY: 'daily',
+  WEEKLY: 'weekly',
+};

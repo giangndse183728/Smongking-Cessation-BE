@@ -1,4 +1,9 @@
-import { Injectable, BadRequestException, Logger, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  BadRequestException,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateQuitPlanDto } from './dto/create-quit-plan.dto';
 import { CreateQuitPlanRecordDto } from '../plan-record/dto/create-plan-record.dto';
 import { QuitPlanRepository } from './quit-plan.repository';
@@ -11,6 +16,8 @@ import { QuitPlanPhaseResponseDto } from './dto/quit-plan-phase-response.dto';
 import { QuitPlanRecordResponseDto } from '../plan-record/dto/quit-plan-record-response.dto';
 import { plainToInstance } from 'class-transformer';
 import { QuitPlanRecord } from '../plan-record/entities/quit-plan-record.entity';
+import { Cron, CronExpression } from '@nestjs/schedule';
+import { QuitPlanPhasesService } from '@modules/quit-plan-phases/quit-plan-phases.service';
 
 @Injectable()
 export class QuitPlanService {
@@ -19,20 +26,28 @@ export class QuitPlanService {
   constructor(
     private readonly quitPlanRepository: QuitPlanRepository,
     private readonly planRecordService: PlanRecordService,
+    private readonly quitPlanPhasesService: QuitPlanPhasesService,
     private readonly aiService: AIService,
     private readonly smokingHabitsService: SmokingHabitsService,
   ) {}
 
-  async createQuitPlan(userId: string, data: CreateQuitPlanDto): Promise<QuitPlanResponseDto> {
+  async createQuitPlan(
+    userId: string,
+    data: CreateQuitPlanDto,
+  ): Promise<QuitPlanResponseDto> {
     try {
-      const existingActivePlan = await this.quitPlanRepository.findActiveQuitPlanByUserId(userId);
+      const existingActivePlan =
+        await this.quitPlanRepository.findActiveQuitPlanByUserId(userId);
       if (existingActivePlan) {
         throw new BadRequestException(QUIT_PLAN_MESSAGES.ACTIVE_PLAN_EXISTS);
       }
 
-      const smokingHabits = await this.smokingHabitsService.findByUserId(userId);
+      const smokingHabits =
+        await this.smokingHabitsService.findByUserId(userId);
       if (!smokingHabits) {
-        throw new BadRequestException(QUIT_PLAN_MESSAGES.SMOKING_HABITS_REQUIRED);
+        throw new BadRequestException(
+          QUIT_PLAN_MESSAGES.SMOKING_HABITS_REQUIRED,
+        );
       }
 
       const smokingHabitsData = {
@@ -47,15 +62,17 @@ export class QuitPlanService {
       const startDate = new Date();
       startDate.setDate(startDate.getDate() + 1);
       startDate.setHours(0, 0, 0, 0);
-      
+
       const aiPhases = await this.aiService.generateQuitPlanPhases(
         data.plan_type,
         smokingHabitsData,
         startDate,
-      );  
+      );
 
       if (!aiPhases || aiPhases.length === 0) {
-        throw new BadRequestException(QUIT_PLAN_MESSAGES.FAILED_TO_GENERATE_PHASES);
+        throw new BadRequestException(
+          QUIT_PLAN_MESSAGES.FAILED_TO_GENERATE_PHASES,
+        );
       }
 
       const totalDays = aiPhases.reduce(
@@ -86,107 +103,159 @@ export class QuitPlanService {
             limit_cigarettes_per_day: phase.limit_cigarettes_per_day,
             start_date: phase.start_date,
             expected_end_date: phase.expected_end_date,
-            status: (phase.phase_number || index + 1) === 1 ? 'ACTIVE' : 'PENDING',
+            status:
+              (phase.phase_number || index + 1) === 1 ? 'ACTIVE' : 'PENDING',
           }),
         ),
       );
 
-      return plainToInstance(QuitPlanResponseDto, {
-        ...quitPlan,
-        phases: createdPhases,
-        ai_generated: true,
-      }, { excludeExtraneousValues: true });
+      return plainToInstance(
+        QuitPlanResponseDto,
+        {
+          ...quitPlan,
+          phases: createdPhases,
+          ai_generated: true,
+        },
+        { excludeExtraneousValues: true },
+      );
     } catch (error) {
       this.logger.error('Error creating quit plan:', error);
-      if (error instanceof BadRequestException || error instanceof NotFoundException) {
+      if (
+        error instanceof BadRequestException ||
+        error instanceof NotFoundException
+      ) {
         throw error;
       }
       throw new BadRequestException(QUIT_PLAN_MESSAGES.FAILED_TO_CREATE_PLAN);
     }
   }
 
-  async createQuitPlanRecord(userId: string, data: CreateQuitPlanRecordDto): Promise<QuitPlanRecordResponseDto> {
+  async createQuitPlanRecord(
+    userId: string,
+    data: CreateQuitPlanRecordDto,
+  ): Promise<QuitPlanRecordResponseDto> {
     try {
       const record = await this.planRecordService.createRecord(userId, data);
-      return plainToInstance(QuitPlanRecordResponseDto, record, { excludeExtraneousValues: true });
+      return plainToInstance(QuitPlanRecordResponseDto, record, {
+        excludeExtraneousValues: true,
+      });
     } catch (error) {
       this.logger.error('Error creating quit plan record:', error);
-      if (error instanceof BadRequestException || error instanceof NotFoundException) {
+      if (
+        error instanceof BadRequestException ||
+        error instanceof NotFoundException
+      ) {
         throw error;
       }
       throw new BadRequestException(QUIT_PLAN_MESSAGES.FAILED_TO_CREATE_RECORD);
     }
   }
 
-  async getQuitPlanById(userId: string, planId: string): Promise<QuitPlanResponseDto | null> {
+  async getQuitPlanById(
+    userId: string,
+    planId: string,
+  ): Promise<QuitPlanResponseDto | null> {
     try {
       const quitPlan = await this.quitPlanRepository.findById(planId);
-      
+
       if (!quitPlan) {
         return null;
       }
 
-      const phases = await this.quitPlanRepository.findQuitPlanPhases(planId, userId);
+      const phases = await this.quitPlanRepository.findQuitPlanPhases(
+        planId,
+        userId,
+      );
       const currentPhase = quitPlan.getCurrentPhase(phases);
 
       let records: QuitPlanRecord[] = [];
       if (currentPhase) {
-        records = await this.planRecordService.getRecordsByPlanAndPhase(userId, planId, currentPhase.id);
+        records = await this.planRecordService.getRecordsByPlanAndPhase(
+          userId,
+          planId,
+          currentPhase.id,
+        );
       }
 
-      const allRecords = await this.planRecordService.getAllRecordsByPlan(userId, planId);
+      const allRecords = await this.planRecordService.getAllRecordsByPlan(
+        userId,
+        planId,
+      );
 
       const statistics = quitPlan.calculateStatistics(allRecords);
       const progress = quitPlan.calculateProgress(phases, records);
 
       const enhancedPhases = await Promise.all(
         phases.map(async (phase) => {
-          const phaseRecords = await this.planRecordService.getRecordsByPlanAndPhase(userId, planId, phase.id);
+          const phaseRecords =
+            await this.planRecordService.getRecordsByPlanAndPhase(
+              userId,
+              planId,
+              phase.id,
+            );
           const phaseStats = phase.getPhaseStatistics(phaseRecords);
           const calculatedStatus = phase.getCalculatedStatus(phaseRecords);
 
-          return plainToInstance(QuitPlanPhaseResponseDto, {
-            ...phase,
-            status: calculatedStatus,
-            duration: phase.getDuration(),
-            remainingDays: phase.getRemainingDays(),
-            statistics: phaseStats,
-          }, { excludeExtraneousValues: true });
-        })
+          return plainToInstance(
+            QuitPlanPhaseResponseDto,
+            {
+              ...phase,
+              status: calculatedStatus,
+              duration: phase.getDuration(),
+              remainingDays: phase.getRemainingDays(),
+              statistics: phaseStats,
+            },
+            { excludeExtraneousValues: true },
+          );
+        }),
       );
 
-
-      return plainToInstance(QuitPlanResponseDto, {
-        ...quitPlan,
-        phases: enhancedPhases,
-        currentPhase: currentPhase ? plainToInstance(QuitPlanPhaseResponseDto, {
-          ...currentPhase,
-          isPending: currentPhase.isProgress(),
-          isCompleted: currentPhase.isCompleted(),
-          isFailed: currentPhase.isFailed(),
-          duration: currentPhase.getDuration(),
-          remainingDays: currentPhase.getRemainingDays(),
-          statistics: currentPhase.getPhaseStatistics(records),
-        }, { excludeExtraneousValues: true }) : null,
-        progress,
-        statistics,
-      }, { excludeExtraneousValues: true });
+      return plainToInstance(
+        QuitPlanResponseDto,
+        {
+          ...quitPlan,
+          phases: enhancedPhases,
+          currentPhase: currentPhase
+            ? plainToInstance(
+                QuitPlanPhaseResponseDto,
+                {
+                  ...currentPhase,
+                  isPending: currentPhase.isProgress(),
+                  isCompleted: currentPhase.isCompleted(),
+                  isFailed: currentPhase.isFailed(),
+                  duration: currentPhase.getDuration(),
+                  remainingDays: currentPhase.getRemainingDays(),
+                  statistics: currentPhase.getPhaseStatistics(records),
+                },
+                { excludeExtraneousValues: true },
+              )
+            : null,
+          progress,
+          statistics,
+        },
+        { excludeExtraneousValues: true },
+      );
     } catch (error) {
       this.logger.error('Error getting quit plan by id:', error);
       throw new BadRequestException(QUIT_PLAN_MESSAGES.FAILED_TO_RETRIEVE_PLAN);
     }
   }
 
-  async deleteQuitPlan(userId: string, planId: string): Promise<QuitPlanResponseDto> {
+  async deleteQuitPlan(
+    userId: string,
+    planId: string,
+  ): Promise<QuitPlanResponseDto> {
     try {
       const quitPlan = await this.quitPlanRepository.findById(planId);
-      
+
       if (!quitPlan) {
         throw new NotFoundException(QUIT_PLAN_MESSAGES.PLAN_NOT_FOUND);
       }
 
       const deletedPlan = await this.quitPlanRepository.softDelete(planId);
-      return plainToInstance(QuitPlanResponseDto, deletedPlan, { excludeExtraneousValues: true });
+      return plainToInstance(QuitPlanResponseDto, deletedPlan, {
+        excludeExtraneousValues: true,
+      });
     } catch (error) {
       this.logger.error('Error deleting quit plan:', error);
       if (error instanceof NotFoundException) {
@@ -199,10 +268,58 @@ export class QuitPlanService {
   async getAllQuitPlans(userId: string): Promise<QuitPlanResponseDto[]> {
     try {
       const quitPlans = await this.quitPlanRepository.findAllByUserId(userId);
-      return quitPlans.map(plan => plainToInstance(QuitPlanResponseDto, plan, { excludeExtraneousValues: true }));
+      return quitPlans.map((plan) =>
+        plainToInstance(QuitPlanResponseDto, plan, {
+          excludeExtraneousValues: true,
+        }),
+      );
     } catch (error) {
       this.logger.error('Error getting all quit plans:', error);
-      throw new BadRequestException(QUIT_PLAN_MESSAGES.FAILED_TO_RETRIEVE_PLANS);
+      throw new BadRequestException(
+        QUIT_PLAN_MESSAGES.FAILED_TO_RETRIEVE_PLANS,
+      );
     }
+  }
+
+  @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
+  async updatePlanPhaseStatus() {
+    console.log('đang update phase...');
+    const today = new Date();
+
+    const allPhases = await this.quitPlanPhasesService.getQuitPlanPhases();
+
+    // tìm phase đã hết hạn và đang ACTIVE
+    const expiredPhases = allPhases.filter(
+      (phase) =>
+        phase.expected_end_date &&
+        phase.expected_end_date < today &&
+        phase.status === 'ACTIVE' &&
+        !phase.deleted_at,
+    );
+
+    for (const phase of expiredPhases) {
+      const { id, user_id, plan_id, phase_number } = phase;
+
+      // Cập nhật phase hiện tại thành INACTIVE
+      await this.quitPlanPhasesService.updateQuitPlanPhases(id, 'INACTIVE');
+
+      // Tìm phase tiếp theo trong allPhases
+      const quitPhases = await this.quitPlanRepository.findQuitPlanPhases(
+        plan_id,
+        user_id,
+      );
+      const nextPhase = quitPhases.find(
+        (item) => item.phase_number === (phase_number ?? 0) + 1,
+      );
+
+      // Nếu có phase tiếp theo: chuyển sang ACTIVE
+      if (nextPhase) {
+        await this.quitPlanPhasesService.updateQuitPlanPhases(
+          nextPhase.id,
+          'ACTIVE',
+        );
+      }
+    }
+    console.log(`[Cron] Updated ${expiredPhases.length} quit plan phases.`);
   }
 }

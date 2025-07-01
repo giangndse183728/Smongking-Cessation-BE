@@ -11,6 +11,7 @@ import { EndChatRoomResponseDto } from './dto/end-chat-room-response.dto';
 import { RolesGuard } from '@modules/auth/guards/roles.guard';
 import { Roles } from '@common/decorators/roles.decorator';
 import { UserRole } from '@common/constants/enum';
+import { ChatGateway } from './chat.gateway';
 
 @ApiTags('Chat')
 @Controller('chat')
@@ -19,6 +20,7 @@ import { UserRole } from '@common/constants/enum';
 export class ChatController {
   constructor(
     private readonly chatService: ChatService,
+    private readonly chatGateway: ChatGateway,
   ) {}
 
   @Post('rooms')
@@ -92,5 +94,31 @@ export class ChatController {
     @Param('chatRoomId') chatRoomId: string,
   ): Promise<EndChatRoomResponseDto> {
     return this.chatService.endChatRoom(chatRoomId, userId);
+  }
+
+  @Post('rooms/:chatRoomId/video-token')
+  @ApiOperation({ summary: 'Get video call token' })
+  @ApiResponse({
+    status: 201,
+    description: 'Token generated successfully',
+  })
+  async getVideoCallToken(
+    @GetCurrentUser() user: any,
+    @Param('chatRoomId') chatRoomId: string,
+  ) {
+    const { token, otherUser } = await this.chatService.prepareVideoCall(
+      user.id,
+      user.username,
+      chatRoomId,
+    );
+
+    if (otherUser) {
+      this.chatGateway.sendToUser(otherUser.id, 'incoming-call', {
+        roomId: chatRoomId,
+        caller: user.username,
+      });
+    }
+
+    return { token };
   }
 } 

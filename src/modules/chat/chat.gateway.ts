@@ -90,7 +90,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       
       this.server.to(sendMessageDto.chat_room_id).emit('newMessage', {
         id: chatLine.id,
-        chat_room_id: chatLine.chat_room_id,
+        chat_room_id: sendMessageDto.chat_room_id,
         sender_id: chatLine.sender_id,
         sender_type: chatLine.sender_type,
         message: chatLine.message,
@@ -174,6 +174,62 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
         message: error.message,
       });
     }
+  }
+
+  @SubscribeMessage('start-call')
+  async handleStartCall(
+    @GetUser() user: any,
+    @MessageBody() data: { chatRoomId: string },
+  ) {
+    try {
+      const { token, otherParticipantUserId } =
+        await this.chatService.initiateVideoCall(user.id, user.username, data.chatRoomId);
+
+      this.sendToUser(otherParticipantUserId, 'incoming-call', {
+        roomId: data.chatRoomId,
+        caller: user,
+      });
+
+      return { event: 'call-started', data: { token } };
+    } catch (error) {
+      return { event: 'error', data: { message: error.message } };
+    }
+  }
+
+  @SubscribeMessage('accept-call')
+  async handleAcceptCall(
+    @GetUser() user: any,
+    @MessageBody() data: { chatRoomId: string; caller: any },
+  ) {
+    try {
+      const token = await this.chatService.getJoinCallToken(
+        user.username,
+        data.chatRoomId,
+      );
+
+      this.sendToUser(data.caller.id, 'call-accepted', {
+        callee: user,
+      });
+
+      return { event: 'call-accepted-token', data: { token } };
+    } catch (error) {
+      return { event: 'error', data: { message: error.message } };
+    }
+  }
+
+  @SubscribeMessage('reject-call')
+  async handleRejectCall(
+    @GetUser() user: any,
+    @MessageBody() data: { callerId: string },
+  ) {
+    this.sendToUser(data.callerId, 'call-rejected', {
+      callee: user,
+    });
+  }
+
+  @SubscribeMessage('end-call')
+  async handleEndCall(@MessageBody() data: { chatRoomId: string }) {
+    this.server.to(data.chatRoomId).emit('call-ended');
   }
 
   sendToUser(userId: string, event: string, data: any) {

@@ -142,7 +142,7 @@ export class QuitPlanRepository {
       where: {
         plan_id: planId,
         user_id: userId,
-        status: 'ACTIVE',
+        status: 'IN-PROGRESS',
         deleted_at: null,
       },
     });

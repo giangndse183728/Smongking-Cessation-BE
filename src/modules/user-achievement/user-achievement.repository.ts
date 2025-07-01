@@ -22,13 +22,21 @@ export class UserAchievementsRepository {
       },
     });
   }
-  async getUserAchievements(user_id: string) {
+  async getUserAchievements(user_id?: string) {
+    const whereClause: {
+      deleted_at: null;
+      deleted_by: null;
+      user_id?: string;
+    } = {
+      deleted_at: null,
+      deleted_by: null,
+    };
+
+    if (user_id) {
+      whereClause.user_id = user_id;
+    }
     const userAchievements = await this.prisma.user_achievements.findMany({
-      where: {
-        user_id,
-        deleted_at: null,
-        deleted_by: null,
-      },
+      where: whereClause,
       include: {
         achievements: {
           select: {

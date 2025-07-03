@@ -95,16 +95,32 @@ export class UserAchievementService {
 
         case 'relapse_free_streak': {
           let streak = 0;
+          let previousDate: Date | null = null;
 
-          for (const record of records) {
-            if (
-              !record.cigarette_smoke ||
-              Number(record.cigarette_smoke) === 0
-            ) {
-              streak++;
-            } else {
+          const sortedRecords = [...records].sort(
+            (a, b) =>
+              new Date(b.record_date).getTime() -
+              new Date(a.record_date).getTime(),
+          );
+
+          for (const record of sortedRecords) {
+            const currentDate = new Date(record.record_date);
+
+            if (!record.is_pass) {
               break;
             }
+
+            const ONE_DAY_MS = 24 * 60 * 60 * 1000;
+
+            if (previousDate) {
+              const diff = previousDate.getTime() - currentDate.getTime();
+              if (diff !== ONE_DAY_MS) {
+                break;
+              }
+            }
+
+            streak++;
+            previousDate = currentDate;
           }
 
           isMet = streak >= Number(threshold_value);

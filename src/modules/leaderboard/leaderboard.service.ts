@@ -17,7 +17,6 @@ export class LeaderboardService {
     const ALLOWED_TYPES = [
       achievement_type.COMMUNITY_SUPPORT,
       achievement_type.RELAPSE_FREE_STREAK,
-      achievement_type.MONEY_SAVED,
       'total_score',
     ];
     const achievements =

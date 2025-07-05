@@ -41,6 +41,7 @@ export class AuthService {
       user.id,
       user.email,
       user.role,
+      user.username,
     );
     return { ...tokens };
   }
@@ -56,6 +57,7 @@ export class AuthService {
       user.id,
       user.email,
       user.role,
+      user.username,
     );
     return { ...tokens };
   }
@@ -72,7 +74,7 @@ export class AuthService {
       throw new UnauthorizedException('User not found');
     }
 
-    return this.tokenService.generateTokens(user.id, user.email, user.role);
+    return this.tokenService.generateTokens(user.id, user.email, user.role, user.username);
   }
 
   async logout(userId: string) {
@@ -138,6 +140,7 @@ export class AuthService {
       dbUser.id,
       dbUser.email,
       dbUser.role,
+      dbUser.username,
     );
     return tokens;
   }

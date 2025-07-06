@@ -464,4 +464,66 @@ export class PostsController {
   ) {
     return this.postsService.verifyPost(body, params.id, userId);
   }
+
+  @Get('/:id/reactions')
+  @ApiOperation({
+    summary: 'Get post reactions.',
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Get post reactions Successfully',
+    schema: {
+      example: {
+        statusCode: 200,
+        msg: 'Success!',
+        data: [
+          {
+            id: 'a730cf57-45f2-4773-945e-7771bb874ced',
+            ref_id: '007456f9-5d43-4346-a02b-ca83ca4c7f40',
+            ref_type: 'POST',
+            user_id: 'dc0ef526-ec2b-4ff4-8aa0-308d0c8e499e',
+            type: 'LOVE',
+            created_at: '2025-07-06T11:22:13.225Z',
+            created_by: 'dc0ef526-ec2b-4ff4-8aa0-308d0c8e499e',
+            updated_at: '2025-07-06T11:22:40.326Z',
+            updated_by: 'dc0ef526-ec2b-4ff4-8aa0-308d0c8e499e',
+            deleted_at: null,
+            deleted_by: null,
+            users: {
+              first_name: 'gmm',
+              last_name: 'phm',
+              avatar:
+                'https://smk-cessation-bucket.s3.us-east-1.amazonaws.com/avatar/e2bd5ed1c4629d9ff41c73b7955f16dfeec86e3c-de6zq18hjorrojh3mi38rk739pg',
+            },
+          },
+        ],
+        timestamp: '2025-07-06T12:29:58.148Z',
+      },
+    },
+  })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'Not found',
+    schema: {
+      example: {
+        statusCode: 404,
+        timestamp: '2025-07-06T12:30:50.995Z',
+        path: '/api/v1/posts/007456f9-5d43-4346-a02b-ca83ca4c7f41/reactions',
+        message: 'Post not found.',
+        errors: [],
+      },
+    },
+  })
+  @ApiParam({
+    name: 'id',
+    description: 'post id',
+    type: 'string',
+    format: 'uuid',
+    example: '007456f9-5d43-4346-a02b-ca83ca4c7f40',
+  })
+  getReactions(
+    @Param(new ZodValidationPipe(getPostSchema)) params: { id: string },
+  ) {
+    return this.postsService.getPostReactions(params.id);
+  }
 }

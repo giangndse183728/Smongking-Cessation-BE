@@ -1,5 +1,7 @@
 import { CreatePostDto } from '@modules/posts/dto/create-post.dto';
 import {
+  forwardRef,
+  Inject,
   Injectable,
   NotFoundException,
   UnauthorizedException,
@@ -10,10 +12,15 @@ import { PostResponseDto } from './dto/res-posts.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { POSTS_MESSAGES } from '@common/constants/messages';
 import { VerifyPostDto } from './dto/verify-post.dto';
+import { ReactionsService } from '@modules/reactions/reactions.service';
 
 @Injectable()
 export class PostsService {
-  constructor(private postsRepository: PostsRepository) {}
+  constructor(
+    private postsRepository: PostsRepository,
+    @Inject(forwardRef(() => ReactionsService))
+    private readonly reactionsService: ReactionsService,
+  ) {}
   async createPost(
     createPostDto: CreatePostDto,
     userId: string,
@@ -91,6 +98,14 @@ export class PostsService {
       post_id,
       user_id,
     );
+    return result;
+  }
+  async getPostReactions(post_id: string) {
+    const existingPost = await this.postsRepository.getPost({ id: post_id });
+    if (!existingPost) {
+      throw new NotFoundException(POSTS_MESSAGES.POST_NOT_FOUND);
+    }
+    const result = await this.reactionsService.getReactions(post_id);
     return result;
   }
 }

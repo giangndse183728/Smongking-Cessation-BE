@@ -181,3 +181,12 @@ export const NOTIFICATION_SCHEDULES_MESSAGES = {
   PREFERRED_TIME_IS_REQUIRED: 'Preferred time is required.',
   PREFERRED_TIME_IS_INVALID: 'Preferred time is invalid.',
 } as const;
+
+export const NOTIFICATION_MESSAGES = {
+  TITLE_IS_REQUIRED: 'Title is required.',
+  TITLE_MUST_BE_STRING: 'Title must be string.',
+  CONTENT_IS_REQUIRED: 'Content is required.',
+  CONTENT_MUST_BE_STRING: 'Content must be string.',
+  TYPE_IS_REQUIRED: 'Type must be string.',
+  TYPE_IS_INVALID: 'Type is invalid.',
+} as const;

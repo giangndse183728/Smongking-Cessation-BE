@@ -5,10 +5,17 @@ import { NotificationScheduleRepository } from './notification-schedules.reposit
 import { RedisModule } from '@libs/redis/redis.module';
 import { UsersModule } from '@modules/users/users.module';
 import { PlanRecordModule } from '@modules/plan-record/plan-record.module';
+import { NotificationsModule } from '@modules/notifications/notifications.module';
 
 @Module({
   controllers: [NotificationSchedulesController],
   providers: [NotificationSchedulesService, NotificationScheduleRepository],
-  imports: [RedisModule, UsersModule, PlanRecordModule, PlanRecordModule],
+  imports: [
+    RedisModule,
+    UsersModule,
+    PlanRecordModule,
+    PlanRecordModule,
+    NotificationsModule,
+  ],
 })
 export class NotificationSchedulesModule {}

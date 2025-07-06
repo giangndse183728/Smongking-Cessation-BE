@@ -55,3 +55,7 @@ export const notification_schedule_reference_type = {
   DAILY: 'DAILY',
   WEEKLY: 'WEEKLY',
 };
+export const notification_type = {
+  REMINDER: 'REMINDER',
+  MOTIVATION: 'MOTIVATION',
+};

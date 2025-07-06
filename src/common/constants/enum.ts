@@ -59,3 +59,7 @@ export const notification_type = {
   REMINDER: 'REMINDER',
   MOTIVATION: 'MOTIVATION',
 };
+export const reaction_type = {
+  LIKE: 'LIKE',
+  LOVE: 'LOVE',
+};

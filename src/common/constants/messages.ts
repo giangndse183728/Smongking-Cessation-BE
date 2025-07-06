@@ -190,3 +190,11 @@ export const NOTIFICATION_MESSAGES = {
   TYPE_IS_REQUIRED: 'Type must be string.',
   TYPE_IS_INVALID: 'Type is invalid.',
 } as const;
+
+export const REACTION_MESSAGES = {
+  POST_ID_IS_REQUIRED: 'Post id is required.',
+  POST_ID_IS_INVALID: 'Post id is invalid.',
+  POST_NOT_FOUND: 'Post not found.',
+  REACTION_TYPE_IS_REQUIRED: 'Reaction type is required.',
+  REACTION_TYPE_IS_INVALID: 'Reaction type is invalid.',
+} as const;

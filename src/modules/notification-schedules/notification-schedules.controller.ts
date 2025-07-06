@@ -21,7 +21,7 @@ import { addNotificationScheduleDto } from './dto/add-notification-schedule.dto'
 
 @Controller('notification-schedules')
 @ApiBearerAuth('access-token')
-@ApiTags('notification-schedules')
+@ApiTags('Notification Schedules')
 export class NotificationSchedulesController {
   constructor(
     private readonly notificationSchedulesService: NotificationSchedulesService,

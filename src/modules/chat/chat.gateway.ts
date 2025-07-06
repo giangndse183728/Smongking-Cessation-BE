@@ -26,30 +26,47 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
   server: Server;
 
-  private connectedUsers = new Map<string, Socket>();
+  private connectedUsers = new Map<string, Set<Socket>>();
 
   constructor(private readonly chatService: ChatService) {}
 
   async handleConnection(client: Socket) {
     try {
-      const userId = client.data.user?.id;
-      if (userId) {
-        this.connectedUsers.set(userId, client);
-        console.log(`User ${userId} connected to chat`);
-      }
+      console.log('Client connected:', client.id);
+      
+      // Note: JWT verification will be handled by WsJwtGuard
+      // We'll track user online status when they send their first message
+      
     } catch (error) {
       console.error('Connection error:', error);
       client.disconnect();
     }
   }
 
-  handleDisconnect(client: Socket) {
-    const userId = client.data.user?.id;
-    if (userId) {
-      this.connectedUsers.delete(userId);
-      console.log(`User ${userId} disconnected from chat`);
+  async handleDisconnect(client: Socket) {
+    // Find and remove the disconnected socket from all users
+    for (const [userId, sockets] of this.connectedUsers.entries()) {
+      // Check if this client socket is in the user's socket set
+      const socketFound = Array.from(sockets).some(socket => socket.id === client.id);
+      if (socketFound) {
+        // Remove the specific socket from the set
+        const socketsArray = Array.from(sockets);
+        const targetSocket = socketsArray.find(socket => socket.id === client.id);
+        if (targetSocket) {
+          sockets.delete(targetSocket);
+        }
+        
+        // If user has no more connections, mark them as offline
+        if (sockets.size === 0) {
+          this.connectedUsers.delete(userId);
+          this.server.emit('user-offline', { userId });
+        }
+        break;
+      }
     }
   }
+
+
 
   @SubscribeMessage('joinRoom')
   async handleJoinRoom(
@@ -58,6 +75,9 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @GetUser() user: any,
   ) {
     try {
+      // Track user online (leveraging WsJwtGuard's user data)
+      this.trackUserOnline(client, user.id);
+      
       const chatRoom = await this.chatService.joinChatRoom(user.id, joinRoomDto);
 
       await client.join(joinRoomDto.chat_room_id);
@@ -86,6 +106,8 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @GetUser() user: any,
   ) {
     try {
+      this.trackUserOnline(client, user.id);
+      
       const chatLine = await this.chatService.sendMessage(user.id, sendMessageDto);
       
       this.server.to(sendMessageDto.chat_room_id).emit('newMessage', {
@@ -119,7 +141,6 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     try {
       await client.leave(joinRoomDto.chat_room_id);
       
-      // Notify other users in the room
       client.to(joinRoomDto.chat_room_id).emit('userLeft', {
         userId: user.id,
         message: 'User left the chat',
@@ -155,44 +176,35 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
   }
 
-  @SubscribeMessage('markAsRead')
-  async handleMarkAsRead(
-    @MessageBody() data: { chat_room_id: string },
-    @ConnectedSocket() client: Socket,
-    @GetUser() user: any,
-  ) {
-    try {
-      await this.chatService.getChatMessages(data.chat_room_id, user.id, 1, 0);
-      
-      client.to(data.chat_room_id).emit('messagesRead', {
-        userId: user.id,
-        chatRoomId: data.chat_room_id,
-      });
-
-    } catch (error) {
-      client.emit('error', {
-        message: error.message,
-      });
-    }
-  }
-
   @SubscribeMessage('start-call')
   async handleStartCall(
     @GetUser() user: any,
     @MessageBody() data: { chatRoomId: string },
+    @ConnectedSocket() client: Socket,
+    callback?: (response: any) => void,
   ) {
     try {
       const { token, otherParticipantUserId } =
         await this.chatService.initiateVideoCall(user.id, user.username, data.chatRoomId);
+      
+      const targetUserSockets = this.connectedUsers.get(otherParticipantUserId);
+      if (!targetUserSockets || targetUserSockets.size === 0) {
+        const response = { event: 'error', data: { message: 'The other user is not online' } };
+        if (callback) callback(response);
+        return;
+      }
 
       this.sendToUser(otherParticipantUserId, 'incoming-call', {
         roomId: data.chatRoomId,
         caller: user,
       });
 
-      return { event: 'call-started', data: { token } };
+      const response = { event: 'call-started', data: { token } };
+      if (callback) callback(response);
+      
     } catch (error) {
-      return { event: 'error', data: { message: error.message } };
+      const response = { event: 'error', data: { message: error.message } };
+      if (callback) callback(response);
     }
   }
 
@@ -200,20 +212,58 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   async handleAcceptCall(
     @GetUser() user: any,
     @MessageBody() data: { chatRoomId: string; caller: any },
+    @ConnectedSocket() client: Socket,
+    callback?: (response: any) => void,
   ) {
     try {
-      const token = await this.chatService.getJoinCallToken(
+      const accepterToken = await this.chatService.getJoinCallToken(
         user.username,
         data.chatRoomId,
       );
 
-      this.sendToUser(data.caller.id, 'call-accepted', {
-        callee: user,
+      const callerToken = await this.chatService.getJoinCallToken(
+        data.caller.username,
+        data.chatRoomId,
+      );
+
+      const callStartMessage = {
+        chat_room_id: data.chatRoomId,
+        message: `📞 Video call started between ${data.caller.username} and ${user.username}`,
+        sender_type: 'SYSTEM' as const,
+      };
+
+      const chatLine = await this.chatService.sendMessage(user.id, callStartMessage);
+      
+      this.server.to(data.chatRoomId).emit('newMessage', {
+        id: chatLine.id,
+        chat_room_id: data.chatRoomId,
+        sender_id: chatLine.sender_id,
+        sender_type: chatLine.sender_type,
+        message: chatLine.message,
+        sent_at: chatLine.sent_at,
+        is_read: chatLine.is_read,
       });
 
-      return { event: 'call-accepted-token', data: { token } };
+      this.sendToUser(data.caller.id, 'call-accepted', {
+        callee: user,
+        token: callerToken,
+      });
+
+      const response = { event: 'call-accepted-token', data: { token: accepterToken } };
+      
+      if (callback) {
+        callback(response);
+      } else {
+        client.emit('call-accepted-token', { token: accepterToken });
+      }
+      
     } catch (error) {
-      return { event: 'error', data: { message: error.message } };
+      const response = { event: 'error', data: { message: error.message } };
+      if (callback) {
+        callback(response);
+      } else {
+        client.emit('error', { message: error.message });
+      }
     }
   }
 
@@ -232,14 +282,56 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     this.server.to(data.chatRoomId).emit('call-ended');
   }
 
+  @SubscribeMessage('check-user-online')
+  async handleCheckUserOnline(
+    @MessageBody() data: { userId: string },
+    @ConnectedSocket() client: Socket,
+  ) {
+    const isOnline = this.connectedUsers.has(data.userId);
+    client.emit('user-online-status', { 
+      userId: data.userId, 
+      isOnline 
+    });
+  }
+
+  
+  @SubscribeMessage('get-online-users')
+  async handleGetOnlineUsers(@ConnectedSocket() client: Socket) {
+    const onlineUserIds = Array.from(this.connectedUsers.keys());
+    client.emit('online-users-list', { onlineUsers: onlineUserIds });
+  }
+
+  @SubscribeMessage('get-online-count')
+  async handleGetOnlineCount(@ConnectedSocket() client: Socket) {
+    const onlineCount = this.connectedUsers.size;
+    client.emit('online-users-count', { count: onlineCount });
+  }
+
   sendToUser(userId: string, event: string, data: any) {
-    const userSocket = this.connectedUsers.get(userId);
-    if (userSocket) {
-      userSocket.emit(event, data);
+    const userSockets = this.connectedUsers.get(userId);
+    if (userSockets) {
+      // Send to all connected sockets for this user
+      userSockets.forEach(socket => {
+        socket.emit(event, data);
+      });
     }
   }
 
   sendToAll(event: string, data: any) {
     this.server.emit(event, data);
   }
-} 
+
+  private trackUserOnline(client: Socket, userId: string) {
+    if (!this.connectedUsers.has(userId)) {
+      this.connectedUsers.set(userId, new Set([client]));
+      this.server.emit('user-online', { userId });
+    } else {
+      const userSockets = this.connectedUsers.get(userId);
+      if (userSockets) {
+        userSockets.add(client);
+      }
+    }
+  }
+
+
+}

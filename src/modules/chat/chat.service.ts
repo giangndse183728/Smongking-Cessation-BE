@@ -229,10 +229,21 @@ export class ChatService {
       throw new WsException('You are not a participant in this chat room.');
     }
 
-    const otherParticipantUserId =
-      userId === chatRoom.user_id
-        ? (await this.prisma.coaches.findUnique({ where: { id: chatRoom.coach_id } }))?.user_id
-        : chatRoom.user_id;
+    let otherParticipantUserId: string;
+    
+    if (userId === chatRoom.user_id) {
+      const coachUser = await this.prisma.coaches.findUnique({
+        where: { id: chatRoom.coach_id },
+      });
+      
+      if (!coachUser) {
+        throw new WsException('Coach not found for this chat room');
+      }
+      
+      otherParticipantUserId = coachUser.user_id; 
+    } else {
+      otherParticipantUserId = chatRoom.user_id;
+    }
 
     if (!otherParticipantUserId) {
       throw new WsException('Could not find the other participant in the room.');
@@ -243,7 +254,7 @@ export class ChatService {
     return { token, otherParticipantUserId };
   }
 
-  async getJoinCallToken(username: string, chatRoomId: string) {
+  async getJoinCallToken( username: string, chatRoomId: string) {
     return this.livekitService.createToken(chatRoomId, username);
   }
-} 
+}

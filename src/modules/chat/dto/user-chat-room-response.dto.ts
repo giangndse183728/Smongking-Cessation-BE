@@ -33,6 +33,10 @@ export class UserChatRoomResponseDto {
 
   @ApiProperty()
   @Expose()
+  coach_id: string;
+
+  @ApiProperty()
+  @Expose()
   status: string;
 
   @ApiProperty()

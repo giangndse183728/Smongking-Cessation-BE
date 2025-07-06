@@ -23,7 +23,8 @@ export class WsJwtGuard implements CanActivate {
       client.data.user = {
         id: payload.sub, 
         email: payload.email,
-        role: payload.role
+        role: payload.role,
+        username: payload.username
       };
       
       return true;

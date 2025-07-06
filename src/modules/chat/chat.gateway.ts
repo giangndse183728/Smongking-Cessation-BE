@@ -26,13 +26,17 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
   server: Server;
 
-  private connectedUsers = new Map<string, Socket>();
+  private connectedUsers = new Map<string, Set<Socket>>();
 
   constructor(private readonly chatService: ChatService) {}
 
   async handleConnection(client: Socket) {
     try {
       console.log('Client connected:', client.id);
+      
+      // Note: JWT verification will be handled by WsJwtGuard
+      // We'll track user online status when they send their first message
+      
     } catch (error) {
       console.error('Connection error:', error);
       client.disconnect();
@@ -40,15 +44,29 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   async handleDisconnect(client: Socket) {
-    for (const [userId, socket] of this.connectedUsers.entries()) {
-      if (socket.id === client.id) {
-        this.connectedUsers.delete(userId);
+    // Find and remove the disconnected socket from all users
+    for (const [userId, sockets] of this.connectedUsers.entries()) {
+      // Check if this client socket is in the user's socket set
+      const socketFound = Array.from(sockets).some(socket => socket.id === client.id);
+      if (socketFound) {
+        // Remove the specific socket from the set
+        const socketsArray = Array.from(sockets);
+        const targetSocket = socketsArray.find(socket => socket.id === client.id);
+        if (targetSocket) {
+          sockets.delete(targetSocket);
+        }
         
-        this.server.emit('user-offline', { userId });
+        // If user has no more connections, mark them as offline
+        if (sockets.size === 0) {
+          this.connectedUsers.delete(userId);
+          this.server.emit('user-offline', { userId });
+        }
         break;
       }
     }
   }
+
+
 
   @SubscribeMessage('joinRoom')
   async handleJoinRoom(
@@ -57,11 +75,8 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @GetUser() user: any,
   ) {
     try {
-      if (!this.connectedUsers.has(user.id)) {
-        this.connectedUsers.set(user.id, client);
-        
-        this.server.emit('user-online', { userId: user.id });
-      }
+      // Track user online (leveraging WsJwtGuard's user data)
+      this.trackUserOnline(client, user.id);
       
       const chatRoom = await this.chatService.joinChatRoom(user.id, joinRoomDto);
 
@@ -91,6 +106,8 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @GetUser() user: any,
   ) {
     try {
+      this.trackUserOnline(client, user.id);
+      
       const chatLine = await this.chatService.sendMessage(user.id, sendMessageDto);
       
       this.server.to(sendMessageDto.chat_room_id).emit('newMessage', {
@@ -170,8 +187,8 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       const { token, otherParticipantUserId } =
         await this.chatService.initiateVideoCall(user.id, user.username, data.chatRoomId);
       
-      const targetUserSocket = this.connectedUsers.get(otherParticipantUserId);
-      if (!targetUserSocket) {
+      const targetUserSockets = this.connectedUsers.get(otherParticipantUserId);
+      if (!targetUserSockets || targetUserSockets.size === 0) {
         const response = { event: 'error', data: { message: 'The other user is not online' } };
         if (callback) callback(response);
         return;
@@ -291,13 +308,30 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   sendToUser(userId: string, event: string, data: any) {
-    const userSocket = this.connectedUsers.get(userId);
-    if (userSocket) {
-      userSocket.emit(event, data);
+    const userSockets = this.connectedUsers.get(userId);
+    if (userSockets) {
+      // Send to all connected sockets for this user
+      userSockets.forEach(socket => {
+        socket.emit(event, data);
+      });
     }
   }
 
   sendToAll(event: string, data: any) {
     this.server.emit(event, data);
   }
+
+  private trackUserOnline(client: Socket, userId: string) {
+    if (!this.connectedUsers.has(userId)) {
+      this.connectedUsers.set(userId, new Set([client]));
+      this.server.emit('user-online', { userId });
+    } else {
+      const userSockets = this.connectedUsers.get(userId);
+      if (userSockets) {
+        userSockets.add(client);
+      }
+    }
+  }
+
+
 }

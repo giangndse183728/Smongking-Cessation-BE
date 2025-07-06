@@ -52,6 +52,6 @@ export const notification_schedule_type = {
   MOTIVATION: 'motivation',
 };
 export const notification_schedule_reference_type = {
-  DAILY: 'daily',
-  WEEKLY: 'weekly',
+  DAILY: 'DAILY',
+  WEEKLY: 'WEEKLY',
 };

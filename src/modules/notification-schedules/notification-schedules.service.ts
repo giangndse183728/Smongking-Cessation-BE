@@ -6,6 +6,9 @@ import { QuitPlanRecordRepository } from '@modules/plan-record/plan-record.repos
 import { addNotificationScheduleDto } from './dto/add-notification-schedule.dto';
 import { NotificationSchedule } from './dto/notification-schedule-responses.dto';
 import { plainToInstance } from 'class-transformer';
+import { NotificationsService } from '@modules/notifications/notifications.service';
+import { notification_type } from '@common/constants/enum';
+import { RedisService } from '@libs/redis/redis.service';
 
 @Injectable()
 export class NotificationSchedulesService {
@@ -13,15 +16,21 @@ export class NotificationSchedulesService {
     private readonly notificationScheduleRepository: NotificationScheduleRepository,
     private readonly usersService: UsersService,
     private readonly quitPlanRecordRepository: QuitPlanRecordRepository,
+    private readonly notificationsService: NotificationsService,
+    private readonly redisService: RedisService,
   ) {}
   async addNotificationSchedule(
     user_id: string,
     payload: addNotificationScheduleDto,
   ) {
-    return await this.notificationScheduleRepository.addNotificationSchedule(
-      user_id,
-      payload,
-    );
+    const notiSchedule =
+      await this.notificationScheduleRepository.addNotificationSchedule(
+        user_id,
+        payload,
+      );
+    return plainToInstance(NotificationSchedule, notiSchedule, {
+      excludeExtraneousValues: true,
+    });
   }
 
   // gửi noti reminder
@@ -71,6 +80,20 @@ export class NotificationSchedulesService {
         previousDate = currentDate;
         if (hour === currentHour && minute === currentMinute) {
           const msg = `Great job! You've maintained your cigarette limit streak for ${streak} days in a row. Stay strong, and don’t forget to fill in today’s record!`;
+          const body = {
+            content: msg,
+            title: 'Quick check-in: Have you recorded today’s cigarettes?',
+            type: notification_type.REMINDER,
+          };
+          await this.notificationsService.createNotification(
+            body,
+            schedule.user_id,
+            'system',
+          );
+          await this.redisService.publish(
+            `notifications:${schedule.user_id}`,
+            JSON.stringify({ title: body.title, content: msg }),
+          );
           return msg;
         }
       }

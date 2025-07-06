@@ -19,7 +19,7 @@ import { LeaderboardModule } from '@modules/leaderboard/leaderboard.module';
 import { CoachModule } from '@modules/coach/coach.module';
 import { ChatModule } from '@modules/chat/chat.module';
 import { NotificationSchedulesModule } from '@modules/notification-schedules/notification-schedules.module';
-
+import { NotificationsModule } from './modules/notifications/notifications.module';
 
 @Module({
   imports: [
@@ -43,6 +43,7 @@ import { NotificationSchedulesModule } from '@modules/notification-schedules/not
     UserAchievementModule,
     LeaderboardModule,
     NotificationSchedulesModule,
+    NotificationsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

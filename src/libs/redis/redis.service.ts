@@ -5,6 +5,7 @@ import { Redis } from 'ioredis';
 @Injectable()
 export class RedisService implements OnModuleDestroy {
   private readonly redis: Redis;
+  private readonly subscriber: Redis;
 
   constructor(private configService: ConfigService) {
     const host = this.configService.get<string>('REDIS_HOST');
@@ -68,6 +69,36 @@ export class RedisService implements OnModuleDestroy {
 
   async del(key: string): Promise<void> {
     await this.redis.del(key);
+  }
+
+  async publish(channel: string, message: string): Promise<void> {
+    await this.redis.publish(channel, message);
+  }
+
+  async subscribe(
+    channel: string,
+    handler: (message: string) => void,
+  ): Promise<void> {
+    await this.subscriber.subscribe(channel);
+    this.subscriber.on('message', (ch, msg) => {
+      if (ch === channel) {
+        handler(msg);
+      }
+    });
+  }
+
+  async subscribeToPattern(
+    pattern: string,
+    handler: (channel: string, message: string) => void,
+  ) {
+    await this.subscriber.psubscribe(pattern);
+    this.subscriber.on('pmessage', (pattern, channel, message) => {
+      handler(channel, message);
+    });
+  }
+
+  getRedisClient(): Redis {
+    return this.redis;
   }
 
   onModuleDestroy() {

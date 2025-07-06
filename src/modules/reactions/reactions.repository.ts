@@ -36,4 +36,22 @@ export class ReactionRepository {
       });
     }
   }
+  async getReactions(post_id: string) {
+    return await this.prisma.reactions.findMany({
+      where: {
+        ref_id: post_id,
+        deleted_at: null,
+        deleted_by: null,
+      },
+      include: {
+        users: {
+          select: {
+            first_name: true,
+            last_name: true,
+            avatar: true,
+          },
+        },
+      },
+    });
+  }
 }

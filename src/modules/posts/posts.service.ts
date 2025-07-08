@@ -13,6 +13,7 @@ import { UpdatePostDto } from './dto/update-post.dto';
 import { POSTS_MESSAGES } from '@common/constants/messages';
 import { VerifyPostDto } from './dto/verify-post.dto';
 import { ReactionsService } from '@modules/reactions/reactions.service';
+import { CommentsService } from '@modules/comments/comments.service';
 
 @Injectable()
 export class PostsService {
@@ -20,6 +21,8 @@ export class PostsService {
     private postsRepository: PostsRepository,
     @Inject(forwardRef(() => ReactionsService))
     private readonly reactionsService: ReactionsService,
+    @Inject(forwardRef(() => CommentsService))
+    private readonly commentsService: CommentsService,
   ) {}
   async createPost(
     createPostDto: CreatePostDto,
@@ -106,6 +109,14 @@ export class PostsService {
       throw new NotFoundException(POSTS_MESSAGES.POST_NOT_FOUND);
     }
     const result = await this.reactionsService.getReactions(post_id);
+    return result;
+  }
+  async getPostComments(post_id: string) {
+    const existingPost = await this.postsRepository.getPost({ id: post_id });
+    if (!existingPost) {
+      throw new NotFoundException(POSTS_MESSAGES.POST_NOT_FOUND);
+    }
+    const result = await this.commentsService.getPostComments(post_id);
     return result;
   }
 }

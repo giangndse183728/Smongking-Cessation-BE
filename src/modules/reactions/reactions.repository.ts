@@ -54,4 +54,29 @@ export class ReactionRepository {
       },
     });
   }
+  async getReaction(reaction_id: string) {
+    return await this.prisma.reactions.findUnique({
+      where: {
+        id: reaction_id,
+        deleted_at: null,
+        deleted_by: null,
+      },
+    });
+  }
+  async deleteReaction(user_id: string, reaction_id: string) {
+    return await this.prisma.reactions.update({
+      where: {
+        id: reaction_id,
+        user_id,
+        deleted_at: null,
+        deleted_by: null,
+      },
+      data: {
+        deleted_at: new Date(),
+        deleted_by: user_id,
+        updated_at: new Date(),
+        updated_by: user_id,
+      },
+    });
+  }
 }

@@ -197,4 +197,7 @@ export const REACTION_MESSAGES = {
   POST_NOT_FOUND: 'Post not found.',
   REACTION_TYPE_IS_REQUIRED: 'Reaction type is required.',
   REACTION_TYPE_IS_INVALID: 'Reaction type is invalid.',
+  REACTION_ID_IS_REQUIRED: 'Reaction id is required.',
+  REACTION_ID_IS_INVALID: 'Reaction id is invalid.',
+  REACTION_NOT_FOUND: 'Reaction not found.',
 } as const;

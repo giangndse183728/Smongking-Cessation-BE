@@ -26,4 +26,15 @@ export class ReactionsService {
   async getReactions(post_id: string) {
     return await this.reactionRepository.getReactions(post_id);
   }
+  async deleteReaction(user_id: string, reaction_id: string) {
+    const existingReaction =
+      await this.reactionRepository.getReaction(reaction_id);
+    if (!existingReaction) {
+      throw new NotFoundException(REACTION_MESSAGES.REACTION_NOT_FOUND);
+    }
+    if (existingReaction.user_id !== user_id) {
+      throw new NotFoundException(REACTION_MESSAGES.REACTION_NOT_FOUND);
+    }
+    return await this.reactionRepository.deleteReaction(user_id, reaction_id);
+  }
 }

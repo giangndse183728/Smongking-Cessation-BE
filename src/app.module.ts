@@ -21,6 +21,7 @@ import { ChatModule } from '@modules/chat/chat.module';
 import { NotificationSchedulesModule } from '@modules/notification-schedules/notification-schedules.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
 import { ReactionsModule } from '@modules/reactions/reactions.module';
+import { CommentsModule } from '@modules/comments/comments.module';
 
 @Module({
   imports: [
@@ -46,6 +47,7 @@ import { ReactionsModule } from '@modules/reactions/reactions.module';
     NotificationSchedulesModule,
     NotificationsModule,
     ReactionsModule,
+    CommentsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -514,6 +514,24 @@ export class PostsController {
       },
     },
   })
+  @ApiResponse({
+    status: HttpStatus.UNPROCESSABLE_ENTITY,
+    description: 'Unprocessable Entity',
+    schema: {
+      example: {
+        statusCode: 422,
+        timestamp: '2025-07-08T09:03:35.742Z',
+        path: '/api/v1/posts/007456f9-5d43-4346-a02b-ca83ca4c7f4/comments',
+        message: [
+          {
+            path: 'id',
+            message: 'Post id is invalid.',
+          },
+        ],
+        errors: [],
+      },
+    },
+  })
   @ApiParam({
     name: 'id',
     description: 'post id',
@@ -525,5 +543,84 @@ export class PostsController {
     @Param(new ZodValidationPipe(getPostSchema)) params: { id: string },
   ) {
     return this.postsService.getPostReactions(params.id);
+  }
+
+  @Get('/:id/comments')
+  @ApiOperation({
+    summary: 'Get post comments.',
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Get post comments Successfully',
+    schema: {
+      example: {
+        statusCode: 200,
+        msg: 'Success!',
+        data: [
+          {
+            id: '872cda96-de17-483f-a162-09aff7e626d5',
+            post_id: '007456f9-5d43-4346-a02b-ca83ca4c7f40',
+            user_id: 'dc0ef526-ec2b-4ff4-8aa0-308d0c8e499e',
+            content: 'great post',
+            created_at: '2025-07-08T05:24:49.476Z',
+            created_by: 'dc0ef526-ec2b-4ff4-8aa0-308d0c8e499e',
+            updated_at: '2025-07-08T05:24:49.476Z',
+            updated_by: 'dc0ef526-ec2b-4ff4-8aa0-308d0c8e499e',
+            deleted_at: null,
+            deleted_by: null,
+            users: {
+              first_name: 'gmm',
+              last_name: 'phm',
+              avatar:
+                'https://smk-cessation-bucket.s3.us-east-1.amazonaws.com/avatar/e2bd5ed1c4629d9ff41c73b7955f16dfeec86e3c-de6zq18hjorrojh3mi38rk739pg',
+            },
+          },
+        ],
+        timestamp: '2025-07-08T09:02:44.416Z',
+      },
+    },
+  })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'Not found',
+    schema: {
+      example: {
+        statusCode: 404,
+        timestamp: '2025-07-06T12:30:50.995Z',
+        path: '/api/v1/posts/007456f9-5d43-4346-a02b-ca83ca4c7f41/reactions',
+        message: 'Post not found.',
+        errors: [],
+      },
+    },
+  })
+  @ApiResponse({
+    status: HttpStatus.UNPROCESSABLE_ENTITY,
+    description: 'Unprocessable Entity',
+    schema: {
+      example: {
+        statusCode: 422,
+        timestamp: '2025-07-08T09:03:35.742Z',
+        path: '/api/v1/posts/007456f9-5d43-4346-a02b-ca83ca4c7f4/comments',
+        message: [
+          {
+            path: 'id',
+            message: 'Post id is invalid.',
+          },
+        ],
+        errors: [],
+      },
+    },
+  })
+  @ApiParam({
+    name: 'id',
+    description: 'post id',
+    type: 'string',
+    format: 'uuid',
+    example: '007456f9-5d43-4346-a02b-ca83ca4c7f40',
+  })
+  getComments(
+    @Param(new ZodValidationPipe(getPostSchema)) params: { id: string },
+  ) {
+    return this.postsService.getPostComments(params.id);
   }
 }

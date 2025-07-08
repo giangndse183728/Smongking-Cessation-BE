@@ -201,3 +201,11 @@ export const REACTION_MESSAGES = {
   REACTION_ID_IS_INVALID: 'Reaction id is invalid.',
   REACTION_NOT_FOUND: 'Reaction not found.',
 } as const;
+
+export const COMMENTS_MESSAGES = {
+  POST_ID_IS_REQUIRED: 'Post id is required.',
+  POST_ID_IS_INVALID: 'Post id is invalid.',
+  POST_NOT_FOUND: 'Post not found.',
+  CONTENT_IS_REQUIRED: 'Content is required.',
+  CONTENT_IS_INVALID: 'Content must be a string.',
+} as const;

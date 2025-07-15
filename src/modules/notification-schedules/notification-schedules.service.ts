@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { NotificationScheduleRepository } from './notification-schedules.repository';
-import { Cron } from '@nestjs/schedule';
+import { Cron, CronExpression } from '@nestjs/schedule';
 import { UsersService } from '@modules/users/users.service';
 import { QuitPlanRecordRepository } from '@modules/plan-record/plan-record.repository';
 import { addNotificationScheduleDto } from './dto/add-notification-schedule.dto';
@@ -9,6 +9,7 @@ import { plainToInstance } from 'class-transformer';
 import { NotificationsService } from '@modules/notifications/notifications.service';
 import { notification_type } from '@common/constants/enum';
 import { RedisService } from '@libs/redis/redis.service';
+import { MotivationService } from '@modules/motivation/motivation.service';
 
 @Injectable()
 export class NotificationSchedulesService {
@@ -16,6 +17,7 @@ export class NotificationSchedulesService {
     private readonly notificationScheduleRepository: NotificationScheduleRepository,
     private readonly usersService: UsersService,
     private readonly quitPlanRecordRepository: QuitPlanRecordRepository,
+    private readonly motivationService: MotivationService,
     private readonly notificationsService: NotificationsService,
     private readonly redisService: RedisService,
   ) {}
@@ -107,5 +109,25 @@ export class NotificationSchedulesService {
     return plainToInstance(NotificationSchedule, noti, {
       excludeExtraneousValues: true,
     });
+  }
+  @Cron(CronExpression.EVERY_DAY_AT_10AM)
+  async handleScheduledMotivations() {
+    for (const user of await this.usersService.findAll()) {
+      const msg = await this.motivationService.getCurrentMotivationalMessage();
+      const body = {
+        content: msg.message,
+        title: 'Daily Motivation',
+        type: notification_type.MOTIVATION,
+      };
+      await this.notificationsService.createNotification(
+        body,
+        user.id,
+        'system',
+      );
+      await this.redisService.publish(
+        `notifications:${user.id}`,
+        JSON.stringify({ title: body.title, content: msg.message }),
+      );
+    }
   }
 }

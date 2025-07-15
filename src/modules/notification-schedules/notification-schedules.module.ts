@@ -6,6 +6,7 @@ import { RedisModule } from '@libs/redis/redis.module';
 import { UsersModule } from '@modules/users/users.module';
 import { PlanRecordModule } from '@modules/plan-record/plan-record.module';
 import { NotificationsModule } from '@modules/notifications/notifications.module';
+import { MotivationModule } from '@modules/motivation/motivation.module';
 
 @Module({
   controllers: [NotificationSchedulesController],
@@ -16,6 +17,7 @@ import { NotificationsModule } from '@modules/notifications/notifications.module
     PlanRecordModule,
     PlanRecordModule,
     NotificationsModule,
+    MotivationModule,
   ],
 })
 export class NotificationSchedulesModule {}

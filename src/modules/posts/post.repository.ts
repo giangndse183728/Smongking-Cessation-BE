@@ -1,6 +1,6 @@
 import { PrismaService } from '@libs/prisma/prisma.service';
 import { CreatePostDto } from '@modules/posts/dto/create-post.dto';
-import { posts, Prisma } from '@prisma/client';
+import { posts, Prisma, UserRole, users } from '@prisma/client';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { POST_STATUS } from '@common/constants/enum';
 import { Injectable } from '@nestjs/common';
@@ -9,15 +9,19 @@ import { VerifyPostDto } from './dto/verify-post.dto';
 @Injectable()
 export class PostsRepository {
   constructor(private prisma: PrismaService) {}
-  async createPost(data: CreatePostDto, user_id: string): Promise<posts> {
+  async createPost(data: CreatePostDto, user: users): Promise<posts> {
     return await this.prisma.posts.create({
       data: {
         ...data,
-        user_id,
+        user_id: user.id,
+        status:
+          user.role !== UserRole.user
+            ? POST_STATUS.APPROVED
+            : POST_STATUS.PENDING,
         created_at: new Date(),
-        created_by: user_id,
+        created_by: user.id,
         updated_at: new Date(),
-        updated_by: user_id,
+        updated_by: user.id,
       },
     });
   }

@@ -14,6 +14,7 @@ import { POSTS_MESSAGES } from '@common/constants/messages';
 import { VerifyPostDto } from './dto/verify-post.dto';
 import { ReactionsService } from '@modules/reactions/reactions.service';
 import { CommentsService } from '@modules/comments/comments.service';
+import { users } from '@prisma/client';
 
 @Injectable()
 export class PostsService {
@@ -26,9 +27,9 @@ export class PostsService {
   ) {}
   async createPost(
     createPostDto: CreatePostDto,
-    userId: string,
+    user: users,
   ): Promise<CreatePostDto> {
-    const result = await this.postsRepository.createPost(createPostDto, userId);
+    const result = await this.postsRepository.createPost(createPostDto, user);
     return plainToInstance(PostResponseDto, result, {
       excludeExtraneousValues: true,
     });

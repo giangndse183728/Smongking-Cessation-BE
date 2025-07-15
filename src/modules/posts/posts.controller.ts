@@ -34,6 +34,7 @@ import { Roles } from '@common/decorators/roles.decorator';
 import { VerifyPostDto } from './dto/verify-post.dto';
 import { RolesGuard } from '@modules/auth/guards/roles.guard';
 import { verifyPostSchema } from './schema/verify-post.schema';
+import { users } from '@prisma/client';
 
 @Controller('posts')
 @ApiBearerAuth('access-token')
@@ -97,10 +98,10 @@ export class PostsController {
   })
   @ApiBody({ type: CreatePostDto })
   async createPost(
-    @GetCurrentUser('id') userId: string,
+    @GetCurrentUser() user: users,
     @Body(new ZodValidationPipe(createPostSchema)) body: CreatePostDto,
   ) {
-    return this.postsService.createPost(body, userId);
+    return this.postsService.createPost(body, user);
   }
 
   @UseGuards(AccessTokenGuard)

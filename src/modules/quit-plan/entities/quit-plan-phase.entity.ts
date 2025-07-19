@@ -1,5 +1,6 @@
 import { quit_plan_phases } from '@prisma/client';
 import { QuitPlanRecord } from '../../plan-record/entities/quit-plan-record.entity';
+import { getCurrentDateInVietnam } from '@common/utils/timezone.utils';
 
 export class QuitPlanPhase implements quit_plan_phases {
   id: string;
@@ -25,7 +26,7 @@ export class QuitPlanPhase implements quit_plan_phases {
   isCurrentPhase(): boolean {
     if (this.deleted_at) return false;
     
-    const currentDate = new Date();
+    const currentDate = getCurrentDateInVietnam();
     const startDate = new Date(this.start_date);
     const endDate = this.expected_end_date ? new Date(this.expected_end_date) : null;
     
@@ -45,7 +46,7 @@ export class QuitPlanPhase implements quit_plan_phases {
   }
 
   getCalculatedStatus(records: QuitPlanRecord[]): string {
-    const today = new Date();
+    const today = getCurrentDateInVietnam();
     today.setHours(0, 0, 0, 0);
 
     const startDate = new Date(this.start_date);
@@ -56,12 +57,14 @@ export class QuitPlanPhase implements quit_plan_phases {
       endDate.setHours(23, 59, 59, 999);
     }
 
-    if (endDate && today > endDate && this.shouldBeFailed(records)) {
-      return 'FAILED';
-    }
-
+    // Check if phase has ended
     if (endDate && today > endDate) {
-      return 'COMPLETED';
+      // If phase has ended, check if it should be failed
+      if (this.shouldBeFailed(records)) {
+        return 'FAILED';
+      } else {
+        return 'COMPLETED';
+      }
     }
 
     if (today < startDate) {
@@ -87,7 +90,7 @@ export class QuitPlanPhase implements quit_plan_phases {
   getRemainingDays(): number {
     if (!this.expected_end_date || this.isCompleted()) return 0;
     
-    const currentDate = new Date();
+    const currentDate = getCurrentDateInVietnam();
     const endDate = new Date(this.expected_end_date);
     
     if (currentDate > endDate) return 0;
@@ -99,10 +102,10 @@ export class QuitPlanPhase implements quit_plan_phases {
   getExpectedRecordDates(): Date[] {
     const dates: Date[] = [];
     const startDate = new Date(this.start_date);
-    const today = new Date();
+    const today = getCurrentDateInVietnam();
     today.setHours(0, 0, 0, 0);
   
-    const rawEndDate = this.expected_end_date ? new Date(this.expected_end_date) : new Date();
+    const rawEndDate = this.expected_end_date ? new Date(this.expected_end_date) : getCurrentDateInVietnam();
     const endDate = rawEndDate > today ? today : rawEndDate;
   
     let currentDateIter = new Date(startDate);

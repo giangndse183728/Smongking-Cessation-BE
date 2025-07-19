@@ -194,6 +194,14 @@ export class QuitPlanService {
           const phaseStats = phase.getPhaseStatistics(phaseRecords);
           const calculatedStatus = phase.getCalculatedStatus(phaseRecords);
 
+          // Update phase status in database if it has changed
+          if (phase.status !== calculatedStatus) {
+            await this.quitPlanRepository.updateQuitPlanPhase(phase.id, {
+              status: calculatedStatus,
+            });
+            phase.status = calculatedStatus;
+          }
+
           return plainToInstance(
             QuitPlanPhaseResponseDto,
             {

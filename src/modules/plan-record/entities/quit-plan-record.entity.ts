@@ -1,5 +1,6 @@
 import { quit_plan_records } from '@prisma/client';
 import { Decimal } from '@prisma/client/runtime/library';
+import { getCurrentDateInVietnam } from '@common/utils/timezone.utils';
 
 export class QuitPlanRecord implements quit_plan_records {
   id: string;
@@ -54,7 +55,7 @@ export class QuitPlanRecord implements quit_plan_records {
   }
 
   isToday(): boolean {
-    const today = new Date();
+    const today = getCurrentDateInVietnam();
     today.setHours(0, 0, 0, 0);
 
     const recordDate = new Date(this.record_date);
@@ -64,7 +65,7 @@ export class QuitPlanRecord implements quit_plan_records {
   }
 
   isFutureDate(): boolean {
-    const currentDate = new Date();
+    const currentDate = getCurrentDateInVietnam();
     currentDate.setHours(0, 0, 0, 0);
 
     const recordDate = new Date(this.record_date);

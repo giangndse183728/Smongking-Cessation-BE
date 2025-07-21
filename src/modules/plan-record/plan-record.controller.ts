@@ -12,13 +12,15 @@ import {
   ApiParam,
 } from '@nestjs/swagger';
 import { QuitPlanRecordResponseDto } from './dto/quit-plan-record-response.dto';
+import { UserRole } from '@common/constants/enum';
+import { Roles } from '@common/decorators/roles.decorator';
 
 @ApiTags('Plan Records')
 @Controller('plan-records')
 @ApiBearerAuth('access-token')
 @UseGuards(AccessTokenGuard)
 export class PlanRecordController {
-  constructor(private readonly planRecordService: PlanRecordService) {}
+  constructor(private readonly planRecordService: PlanRecordService) { }
 
   @Get(':planId/:phaseId')
   @ApiOperation({ summary: 'Get records for a specific phase in a quit plan' })
@@ -31,6 +33,25 @@ export class PlanRecordController {
   })
   async getRecords(
     @GetCurrentUser('id') userId: string,
+    @Param('planId') planId: string,
+    @Param('phaseId') phaseId: string,
+  ) {
+    return this.planRecordService.getRecords(userId, planId, phaseId);
+  }
+
+  @Roles(UserRole.COACH, UserRole.ADMIN)
+  @Get('admin/:userId/:planId/:phaseId')
+  @ApiOperation({ summary: 'Get records for a specific phase in a quit plan [Coach]' })
+  @ApiParam({ name: 'userId', description: 'ID of the user' })
+  @ApiParam({ name: 'planId', description: 'ID of the quit plan' })
+  @ApiParam({ name: 'phaseId', description: 'ID of the phase' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Records retrieved successfully',
+    type: [QuitPlanRecordResponseDto],
+  })
+  async getRecordsForCoach(
+    @Param('userId') userId: string,
     @Param('planId') planId: string,
     @Param('phaseId') phaseId: string,
   ) {

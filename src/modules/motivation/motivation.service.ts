@@ -16,7 +16,7 @@ export class MotivationService {
     private readonly aiService: AIService,
   ) {}
 
-  @Cron('0 */2 * * *')
+  @Cron('0 */4 * * *')
   async updateMotivationalMessage() {
     try {
       const message = await this.aiService.generateMotivationalMessage();

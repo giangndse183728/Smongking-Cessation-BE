@@ -32,6 +32,8 @@ import {
 import { QuitPlanResponseDto } from './dto/quit-plan-response.dto';
 import { QuitPlanRecordResponseDto } from '../plan-record/dto/quit-plan-record-response.dto';
 import { QUIT_PLAN_MESSAGES } from '@common/constants/messages';
+import { Roles } from '@common/decorators/roles.decorator';
+import { UserRole } from '@common/constants/enum';
 
 @ApiTags('Quit Plans')
 @Controller('quit-plans')
@@ -188,7 +190,7 @@ export class QuitPlanController {
   }
 
   @Get(':id')
-  @ApiOperation({ summary: 'Get a quit plan by ID' })
+  @ApiOperation({ summary: 'Get a detail quit plan by ID [Current User]' })
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Quit plan retrieved successfully',
@@ -271,6 +273,38 @@ export class QuitPlanController {
     return {
       success: true,
       message: 'Quit plan deleted successfully',
+    };
+  }
+
+  @Roles(UserRole.COACH, UserRole.ADMIN)
+  @Get(':userId/:planId')
+  @ApiOperation({ summary: 'Get a quit plan by userId and planId [Coach]' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Quit plan retrieved successfully',
+    type: QuitPlanResponseDto,
+  })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'Quit plan not found',
+  })
+  async getQuitPlanByUserAndPlan(
+    @Param('userId') userId: string,
+    @Param('planId') planId: string,
+  ) {
+    const result = await this.quitPlanService.getQuitPlanById(userId, planId);
+    if (!result) {
+      throw new HttpException(
+        {
+          success: false,
+          message: 'Quit plan not found',
+        },
+        HttpStatus.NOT_FOUND,
+      );
+    }
+    return {
+      success: true,
+      data: result,
     };
   }
 }

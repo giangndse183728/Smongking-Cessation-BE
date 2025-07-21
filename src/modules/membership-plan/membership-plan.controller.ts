@@ -13,7 +13,7 @@ import { CreateMembershipPlanDto } from './dto/create-membership-plan.dto';
 import { UpdateMembershipPlanDto } from './dto/update-membership-plan.dto';
 import { MembershipPlanResponseDto } from './dto/membership-plan-response.dto';
 import { AccessTokenGuard } from '@modules/auth/guards/access-token.guard';
-import { RolesGuard } from '@modules/auth/guards/roles.guard';
+import { RolesGuard } from '@common/guards/roles.guard';
 import { Roles } from '@common/decorators/roles.decorator';
 import { UserRole } from '@common/constants/enum';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiParam, ApiBody } from '@nestjs/swagger';

@@ -32,7 +32,7 @@ import { POSTS_MESSAGES } from '@common/constants/messages';
 import { POST_STATUS, UserRole } from '@common/constants/enum';
 import { Roles } from '@common/decorators/roles.decorator';
 import { VerifyPostDto } from './dto/verify-post.dto';
-import { RolesGuard } from '@modules/auth/guards/roles.guard';
+import { RolesGuard } from '@common/guards/roles.guard';
 import { verifyPostSchema } from './schema/verify-post.schema';
 import { users } from '@prisma/client';
 

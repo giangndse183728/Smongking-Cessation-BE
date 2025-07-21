@@ -22,14 +22,14 @@ export interface SmokingHabitsData {
 @Injectable()
 export class AIService {
   private readonly logger = new Logger(AIService.name);
-  private readonly openaiApiKey: string;
-  private readonly openaiApiUrl: string;
-  private readonly modelAi: string;
+  private readonly geminiApiKey: string;
+  private readonly geminiApiUrl: string;
+  private readonly geminiModel: string;
 
   constructor() {
-    this.openaiApiKey = process.env.OPENAI_API_KEY || '';
-    this.openaiApiUrl = process.env.OPENAI_API_URL || '';
-    this.modelAi = process.env.OPENAI_MODEL || '';
+    this.geminiApiKey = process.env.GEMINI_API_KEY || '';
+    this.geminiApiUrl = process.env.GEMINI_API_URL || '';
+    this.geminiModel = process.env.GEMINI_MODEL || '';
   }
 
   async generateQuitPlanPhases(
@@ -72,32 +72,34 @@ Rules:
 10. Address specific triggers mentioned in description
 11. Return only valid JSON array, no extra text`;
 
+      const prompt = `${systemPrompt}\n\nCreate a ${planType} quit smoking plan for someone with these smoking habits: ${smokingHabits.cigarettes_per_day} cigarettes/day for ${smokingHabits.smoking_years} years, triggers: ${smokingHabits.triggers.join(', ')}, health issues: ${smokingHabits.health_issues}`;
+
       const response = await axios.post(
-        this.openaiApiUrl,
+        `${this.geminiApiUrl}/v1beta/models/${this.geminiModel}:generateContent`,
         {
-          model: this.modelAi,
-          messages: [
-            {
-              role: 'system',
-              content: systemPrompt,
-            },
+          contents: [
             {
               role: 'user',
-              content: `Create a ${planType} quit smoking plan for someone with these smoking habits: ${smokingHabits.cigarettes_per_day} cigarettes/day for ${smokingHabits.smoking_years} years, triggers: ${smokingHabits.triggers.join(', ')}, health issues: ${smokingHabits.health_issues}`,
-            },
+              parts: [
+                { text: prompt }
+              ]
+            }
           ],
-          max_tokens: 800,
-          temperature: 0.3,
+          generationConfig: {
+            maxOutputTokens: 800,
+            temperature: 0.3,
+          },
         },
         {
           headers: {
-            Authorization: `Bearer ${this.openaiApiKey}`,
             'Content-Type': 'application/json',
+            'x-goog-api-key': this.geminiApiKey,
           },
         },
       );
 
-      const aiResponse = response.data.choices[0].message.content.trim();
+
+      const aiResponse = response.data.candidates[0].content.parts[0].text.trim();
       const phases = JSON.parse(aiResponse);
 
       let currentStartDate = new Date(startDate);
@@ -198,33 +200,34 @@ Rules:
       
       Please provide personalized advice and encouragement to help quit smoking, including financial and health benefits.`;
 
+
       const response = await axios.post(
-        this.openaiApiUrl,
+        `${this.geminiApiUrl}/v1beta/models/${this.geminiModel}:generateContent`,
         {
-          model: this.modelAi,
-          messages: [
-            {
-              role: 'system',
-              content:
-                'You are a supportive AI coach helping people quit smoking. Provide empathetic, practical advice and encouragement based on their detailed smoking habits.',
-            },
+          contents: [
             {
               role: 'user',
-              content: prompt,
-            },
+              parts: [
+                { text: prompt }
+              ]
+            }
           ],
-          max_tokens: 100,
-          temperature: 0.7,
+          generationConfig: {
+            maxOutputTokens: 100,
+            temperature: 0.7,
+          },
         },
         {
           headers: {
-            Authorization: `Bearer ${this.openaiApiKey}`,
             'Content-Type': 'application/json',
+            'x-goog-api-key': this.geminiApiKey,
           },
         },
       );
 
-      return response.data.choices[0].message.content.trim();
+      
+      const aiResponse = response.data.candidates[0].content.parts[0].text.trim();
+      return aiResponse;
     } catch (error) {
       this.logger.error(
         'Failed to generate smoking habits feedback',
@@ -236,33 +239,35 @@ Rules:
 
   async generateMotivationalMessage(): Promise<string> {
     try {
+  
       const response = await axios.post(
-        this.openaiApiUrl,
+        `${this.geminiApiUrl}/v1beta/models/${this.geminiModel}:generateContent`,
         {
-          model: this.modelAi,
-          messages: [
-            {
-              role: 'system',
-              content:
-                'You are a motivational coach helping people quit smoking. Generate a short, encouraging message.',
-            },
+          contents: [
             {
               role: 'user',
-              content: 'Give me a short motivational message for someone quitting smoking.'
-            },
+              parts: [
+                { text: 'Give me a short motivational message for someone quitting smoking.' }
+              ]
+            }
           ],
-          max_tokens: 80,
-          temperature: 0.7,
+          generationConfig: {
+            maxOutputTokens: 80,
+            temperature: 0.7,
+          },
         },
         {
           headers: {
-            Authorization: `Bearer ${this.openaiApiKey}`,
             'Content-Type': 'application/json',
+            'x-goog-api-key': this.geminiApiKey,
           },
         },
       );
 
-      return response.data.choices[0].message.content.trim();
+      // Gemini's response format
+      // The text is in response.data.candidates[0].content.parts[0].text
+      const aiResponse = response.data.candidates[0].content.parts[0].text.trim();
+      return aiResponse;
     } catch (error) {
       this.logger.error(
         'Failed to generate message from AI service',
@@ -274,33 +279,35 @@ Rules:
 
   async generateChatResponse(userMessage: string): Promise<string> {
     try {
+      // Gemini API call (using generativeLanguage API)
       const response = await axios.post(
-        this.openaiApiUrl,
+        `${this.geminiApiUrl}/v1beta/models/${this.geminiModel}:generateContent`,
         {
-          model: this.modelAi,
-          messages: [
-            {
-              role: 'system',
-              content:
-                'You are a supportive AI coach helping people quit smoking. Provide empathetic, practical advice and encouragement.',
-            },
+          contents: [
             {
               role: 'user',
-              content: userMessage,
-            },
+              parts: [
+                { text: userMessage }
+              ]
+            }
           ],
-          max_tokens: 150,
-          temperature: 0.7,
+          generationConfig: {
+            maxOutputTokens: 150,
+            temperature: 0.7,
+          },
         },
         {
           headers: {
-            Authorization: `Bearer ${this.openaiApiKey}`,
             'Content-Type': 'application/json',
+            'x-goog-api-key': this.geminiApiKey,
           },
         },
       );
 
-      return response.data.choices[0].message.content.trim();
+      // Gemini's response format
+      // The text is in response.data.candidates[0].content.parts[0].text
+      const aiResponse = response.data.candidates[0].content.parts[0].text.trim();
+      return aiResponse;
     } catch (error) {
       this.logger.error('Failed to generate chat response', error.message);
       throw error;

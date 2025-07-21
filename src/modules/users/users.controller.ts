@@ -28,11 +28,14 @@ import {
 } from '@nestjs/swagger';
 import { ZodValidationPipe } from '@common/pipe/zod-validation.pipe';
 import { PostsService } from '@modules/posts/posts.service';
-import { POST_STATUS } from '@common/constants/enum';
+import { POST_STATUS, UserRole } from '@common/constants/enum';
 import { getUserSchema } from './dto/get-user.schema';
+import { RolesGuard } from '@common/guards/roles.guard';
+import { Roles } from '@common/decorators/roles.decorator';
 
 @Controller('users')
 @ApiBearerAuth('access-token')
+@UseGuards(AccessTokenGuard, RolesGuard)
 export class UsersController {
   constructor(
     private readonly usersService: UsersService,
@@ -50,6 +53,7 @@ export class UsersController {
     return plainToInstance(UserEntity, user);
   }
 
+  @Roles(UserRole.COACH, UserRole.ADMIN)
   @Get(':id')
   @ApiParam({
     name: 'id',

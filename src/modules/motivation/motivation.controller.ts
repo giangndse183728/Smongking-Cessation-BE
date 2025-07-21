@@ -1,8 +1,9 @@
-import { Controller, Get, Post, Body } from '@nestjs/common';
+import { Controller, Get, Post, Body, UseGuards } from '@nestjs/common';
 import { MotivationService } from './motivation.service';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { MotivationResponseDto } from './dto/motivation-response.dto';
 import { SendMessageDto, ChatResponseDto } from './dto/chat-message.dto';
+import { MemberGuard } from '@common/guards/member.guard';
 
 @ApiTags('Motivation')
 @Controller('motivation')
@@ -20,6 +21,7 @@ export class MotivationController {
     return this.motivationService.getCurrentMotivationalMessage();
   }
 
+  @UseGuards(MemberGuard)
   @Post('chat')
   @ApiOperation({ summary: 'Send a message to the AI coach' })
   @ApiResponse({

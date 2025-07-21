@@ -103,4 +103,15 @@ export class SmokingHabitsService {
       excludeExtraneousValues: true,
     });
   }
+
+  async hasActiveQuitPlan(userId: string): Promise<boolean> {
+    const activePlan = await this.prisma.quit_plans.findFirst({
+      where: {
+        user_id: userId,
+        status: 'ACTIVE',
+        deleted_at: null,
+      },
+    });
+    return !!activePlan;
+  }
 }

@@ -32,6 +32,8 @@ export class UsersService {
             achievements: true,
           },
         },
+        smoking_habits: true,
+        quit_plans: true,
       },
     });
 

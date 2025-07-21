@@ -12,7 +12,7 @@ import { RefreshTokenStrategy } from './strategies/refresh-token.strategy';
 import { UsersModule } from '@modules/users/users.module';
 import { GoogleStrategy } from './strategies/google.strategy';
 import { AuthRepository } from './auth.repository';
-import { RolesGuard } from './guards/roles.guard';
+import { RolesGuard } from '../../common/guards/roles.guard';
 
 @Module({
   imports: [

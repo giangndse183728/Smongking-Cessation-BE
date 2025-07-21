@@ -24,7 +24,7 @@ import {
 } from './dto/create-achievement.dto';
 import { GetCurrentUser } from '@common/decorators/user.decorator';
 import { ZodValidationPipe } from '@common/pipe/zod-validation.pipe';
-import { RolesGuard } from '@modules/auth/guards/roles.guard';
+import { RolesGuard } from '@common/guards/roles.guard';
 import { Roles } from '@common/decorators/roles.decorator';
 import { UserRole } from '@common/constants/enum';
 import {

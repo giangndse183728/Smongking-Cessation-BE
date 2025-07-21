@@ -57,4 +57,17 @@ export class SmokingHabitsController {
   getAllCurrentUserHabits(@GetCurrentUser('id') userId: string) {
     return this.smokingHabitsService.findByUserId(userId);
   }
+
+  @Get('me/has-active-quitplan')
+  @ApiOperation({ summary: 'Check if current user has an active quit plan' })
+  @ApiResponse({
+    status: 200,
+    description: 'Returns true if the user has an active quit plan.',
+    schema: { example: { hasActiveQuitPlan: true } },
+  })
+  getHasActiveQuitPlan(@GetCurrentUser('id') userId: string) {
+    return this.smokingHabitsService.hasActiveQuitPlan(userId).then(hasActiveQuitPlan => ({
+      hasActiveQuitPlan,
+    }));
+  }
 }

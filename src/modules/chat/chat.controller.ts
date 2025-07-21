@@ -8,7 +8,7 @@ import { CreateChatRoomResponseDto } from './dto/create-chat-room-response.dto';
 import { UserChatRoomResponseDto } from './dto/user-chat-room-response.dto';
 import { ChatMessageResponseDto } from './dto/chat-message-response.dto';
 import { EndChatRoomResponseDto } from './dto/end-chat-room-response.dto';
-import { RolesGuard } from '@modules/auth/guards/roles.guard';
+import { RolesGuard } from '@common/guards/roles.guard';
 import { Roles } from '@common/decorators/roles.decorator';
 import { UserRole } from '@common/constants/enum';
 import { ChatGateway } from './chat.gateway';

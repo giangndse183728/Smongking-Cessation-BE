@@ -96,9 +96,9 @@ model feedbacks {
   id          String    @id @default(uuid()) @db.Uuid
   user_id     String    @db.Uuid
   ref_type    String    @db.VarChar(20)
-  ref_id      String?   @db.Uuid
-  rating_star Int?
-  comment     String?
+  ref_id      String    @db.Uuid
+  rating_star Int
+  comment     String
   created_at  DateTime? @default(now()) @db.Timestamp(6)
   created_by  String?   @db.Uuid
   updated_at  DateTime? @updatedAt @db.Timestamp(6)
@@ -106,6 +106,8 @@ model feedbacks {
   deleted_at  DateTime? @db.Timestamp(6)
   deleted_by  String?   @db.Uuid
   users       users     @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@unique([user_id, ref_type, ref_id], name: "user_id_ref_type_ref_id")
 }
 
 model leaderboard {

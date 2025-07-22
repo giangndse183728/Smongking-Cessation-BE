@@ -46,4 +46,24 @@ export class CoachRepository {
     });
     return coach;
   }
+
+  async updateCoach(coachId: string, data: Partial<Omit<CreateCoachProfileType, 'user_id'>>): Promise<CoachEntity> {
+    const coach = await this.prisma.coaches.update({
+      where: { id: coachId },
+      data: {
+        specialization: data.specialization,
+        experience_years: data.experience_years,
+        bio: data.bio,
+        working_hours: data.working_hours,
+      },
+      include: {
+        users: true,
+      },
+    });
+    return new CoachEntity(coach);
+  }
+
+  async findActiveCoachByUserId(userId: string) {
+    return this.prisma.coaches.findFirst({ where: { user_id: userId, is_active: true } });
+  }
 }

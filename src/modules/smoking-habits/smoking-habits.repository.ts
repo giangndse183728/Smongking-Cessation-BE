@@ -86,7 +86,7 @@ export class SmokingHabitsRepository {
     id: string,
     data: Partial<SmokingHabitEntity>,
   ): Promise<SmokingHabitEntity> {
-    // Convert price_per_pack to Decimal if it exists in the update data
+
     const updateData = { ...data };
     if (updateData.price_per_pack !== undefined) {
       updateData.price_per_pack = new Prisma.Decimal(updateData.price_per_pack) as any;

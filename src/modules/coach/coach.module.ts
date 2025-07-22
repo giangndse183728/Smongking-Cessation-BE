@@ -6,9 +6,10 @@ import { PrismaModule } from '@libs/prisma/prisma.module';
 import { MailModule } from '@libs/mail/mail.module';
 import { RedisModule } from '@libs/redis/redis.module';
 import { AuthModule } from '@modules/auth/auth.module';
+import { FeedbackModule } from '@modules/feedback/feedback.module';
 
 @Module({
-  imports: [PrismaModule, MailModule, RedisModule, AuthModule],
+  imports: [PrismaModule, MailModule, RedisModule, AuthModule, FeedbackModule],
   controllers: [CoachController],
   providers: [CoachService, CoachRepository],
   exports: [CoachService],

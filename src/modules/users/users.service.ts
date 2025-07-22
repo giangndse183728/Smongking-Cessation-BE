@@ -4,7 +4,6 @@ import { CreateUserDto } from './dto/create-user.schema';
 import { UserRole } from '@common/constants/enum';
 import { Prisma, user_achievements } from '@prisma/client';
 import { UpdateMeDto } from './dto/update-user.schema';
-
 @Injectable()
 export class UsersService {
   constructor(private prisma: PrismaService) {}
@@ -19,6 +18,13 @@ export class UsersService {
   }
 
   async findOne(id: string) {
+    const activePlan = await this.prisma.quit_plans.findFirst({
+      where: {
+        user_id: id,
+        status: 'ACTIVE',
+        deleted_at: null,
+      },
+    });
     const user = await this.prisma.users.findFirst({
       where: {
         id,
@@ -33,30 +39,90 @@ export class UsersService {
           },
         },
         smoking_habits: true,
-        quit_plans: true,
+        quit_plans: {
+          where: {
+            status: 'ACTIVE',
+            deleted_at: null,
+            deleted_by: null,
+          },
+        },
+        quit_plan_records: {
+          where: {
+            plan_id: activePlan?.id,
+            deleted_at: null,
+            deleted_by: null,
+          },
+        },
       },
     });
 
     if (!user) return null;
 
+    // get ra streak day pass
+    let streak = 0;
+    let previousDate: Date | null = null;
+
+    const sortedRecords = [...user.quit_plan_records].sort(
+      (a, b) =>
+        new Date(b.record_date).getTime() - new Date(a.record_date).getTime(),
+    );
+    for (const record of sortedRecords) {
+      const currentDate = new Date(record.record_date);
+
+      if (!record.is_pass) {
+        break;
+      }
+
+      const ONE_DAY_MS = 24 * 60 * 60 * 1000;
+      if (previousDate) {
+        const diff = previousDate.getTime() - currentDate.getTime();
+        if (diff !== ONE_DAY_MS) {
+          break;
+        }
+      }
+
+      streak++;
+      previousDate = currentDate;
+    }
+
+    // get ra total score của user từ user achievement
+    let point: number = 0;
     const customUserAchievements = user.user_achievements.map(
       (
         user_achievements: user_achievements & {
           achievements: { name: string; image_url: string };
         },
-      ) => ({
-        id: user_achievements.id,
-        name: user_achievements.achievements.name,
-        earned_date: user_achievements.earned_date,
-        thumbnail: user_achievements.achievements.image_url,
-      }),
+      ) => {
+        point += user_achievements?.points_earned ?? 0;
+        return {
+          id: user_achievements.id,
+          name: user_achievements.achievements.name,
+          earned_date: user_achievements.earned_date,
+          thumbnail: user_achievements.achievements.image_url,
+          point: user_achievements.points_earned,
+        };
+      },
     );
+    // get ra rank trên leaderboard
+    const userRank = await this.prisma.leaderboard.findMany({
+      where: {
+        deleted_at: null,
+        deleted_by: null,
+        user_id: id,
+      },
+    });
 
-    const { ...rest } = user;
-
+    const { quit_plans, quit_plan_records, smoking_habits, ...rest } = user;
+    const leaderboard = userRank.map((item) => ({
+      rank: item.rank || 0,
+      rank_type: item.achievement_type || '',
+    }));
     return {
       ...rest,
       user_achievements: customUserAchievements,
+      streak,
+      point,
+      leaderboard,
     };
   }
 

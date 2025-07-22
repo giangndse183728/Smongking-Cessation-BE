@@ -5,7 +5,7 @@ import { Injectable } from '@nestjs/common';
 export class LeaderboardsRepository {
   constructor(private prisma: PrismaService) {}
   async rankLeaderboard(
-    data: { user_id: string; score: number; rank: number },
+    data: { user_id: string; score: number; rank: number; value: number },
     type: string,
   ) {
     await this.prisma.leaderboard.upsert({
@@ -19,6 +19,7 @@ export class LeaderboardsRepository {
         score: data.score,
         rank: data.rank,
         updated_at: new Date(),
+        value: data.value,
       },
       create: {
         user_id: data.user_id,
@@ -26,6 +27,7 @@ export class LeaderboardsRepository {
         achievement_type: type,
         score: data.score,
         rank: data.rank,
+        value: data.value,
       },
     });
   }

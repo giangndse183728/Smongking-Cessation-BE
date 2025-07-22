@@ -114,6 +114,7 @@ model leaderboard {
   achievement_type String    @db.VarChar
   rank             Int?
   score            Int?
+  value            Float?
   created_at       DateTime? @default(now()) @db.Timestamp(6)
   created_by       String?
   updated_at       DateTime? @updatedAt @db.Timestamp(6)

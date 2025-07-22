@@ -49,8 +49,8 @@ export class UsersController {
 
   @UseGuards(AccessTokenGuard)
   @Get('me')
-  getProfile(@GetCurrentUser() user: users) {
-    return plainToInstance(UserEntity, user);
+  async getProfile(@GetCurrentUser() user: users) {
+    return await this.usersService.findOne(user.id);
   }
 
   @Roles(UserRole.COACH, UserRole.ADMIN)

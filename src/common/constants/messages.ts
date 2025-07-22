@@ -145,8 +145,9 @@ export const ACHIEVEMENTS_MESSAGES = {
   ACHIEVEMENT_ID_IS_REQUIRED: 'Achievement id is required.',
   ACHIEVEMENT_ID_IS_INVALID: 'Achievement id is invalid.',
   ACHIEVEMENT_NOT_FOUND: 'Achievement not found.',
+  POINT_IS_REQUIRED: 'Achievement point is required.',
+  POINT_IS_INVALID: 'Point must be valid positive number',
 };
-
 export const USER_ACHIEVEMENT_MESSAGE = {
   USER_ID_IS_REQUIRED: 'User id is required.',
   USER_ID_IS_INVALID: 'User id is invalid.',

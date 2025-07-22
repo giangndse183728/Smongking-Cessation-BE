@@ -23,6 +23,7 @@ import { NotificationsModule } from './modules/notifications/notifications.modul
 import { ReactionsModule } from '@modules/reactions/reactions.module';
 import { CommentsModule } from '@modules/comments/comments.module';
 import { StatisticsModule } from '@modules/statistics/statistics.module';
+import { FeedbackModule } from '@modules/feedback/feedback.module';
 
 @Module({
   imports: [
@@ -40,6 +41,7 @@ import { StatisticsModule } from '@modules/statistics/statistics.module';
     PostsModule,
     ChatModule,
     StatisticsModule,
+    FeedbackModule,
     ConfigModule.forRoot({
       isGlobal: true,
     }),

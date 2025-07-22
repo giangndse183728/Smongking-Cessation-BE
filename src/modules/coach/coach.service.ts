@@ -8,7 +8,9 @@ import { AuthService } from '@modules/auth/auth.service';
 import { UserRole } from '@common/constants/enum';
 import { CoachResponseDto } from './dto/coach-response.dto';
 import { plainToInstance } from 'class-transformer';
-
+import { UpdateCoachDto } from './dto/update-coach.dto';
+import { FeedbackResponseDto } from '../feedback/dto/feedback-response.dto';
+import { FeedbackService } from '../feedback/feedback.service';
 
 @Injectable()
 export class CoachService {
@@ -18,6 +20,7 @@ export class CoachService {
     private readonly coachRepository: CoachRepository,
     private readonly prisma: PrismaService,
     private readonly authService: AuthService,
+    private readonly feedbackService: FeedbackService,
   ) {}
 
   async sendVerificationCode(email: string, callbackUrl?: string) {
@@ -84,12 +87,49 @@ export class CoachService {
     };
   }
 
+  private calcAverageStars(feedbacks: any[]): { averageStars: { [key: string]: number }, averageRating: number } {
+    const averageStars: { [key: string]: number } = { '1': 0, '2': 0, '3': 0, '4': 0, '5': 0 };
+    let total = 0;
+    let count = 0;
+    for (const fb of feedbacks) {
+      const star = String(fb.rating_star);
+      if (averageStars[star] !== undefined) {
+        averageStars[star] += 1;
+        total += fb.rating_star;
+        count += 1;
+      }
+    }
+    const averageRating = count ? Number((total / count).toFixed(2)) : 0;
+    return { averageStars, averageRating };
+  }
+
+  private transformFeedbacks(feedbacks: any[]): FeedbackResponseDto[] {
+    return plainToInstance(FeedbackResponseDto, feedbacks, { excludeExtraneousValues: true });
+  }
+
   async getAllCoaches(): Promise<CoachResponseDto[]> {
     try {
       const coaches = await this.coachRepository.findAllCoaches();
-      return plainToInstance(CoachResponseDto, coaches, {
-        excludeExtraneousValues: true,
+      const coachIds = coaches.map((c: any) => c.id);
+      const allFeedbacks = await this.feedbackService.getFeedbacksForCoaches(coachIds);
+      const feedbacksByCoach: { [coachId: string]: any[] } = {};
+      for (const fb of allFeedbacks) {
+        if (!feedbacksByCoach[fb.ref_id]) feedbacksByCoach[fb.ref_id] = [];
+        feedbacksByCoach[fb.ref_id].push(fb);
+      }
+      const result = coaches.map((coach: any) => {
+        const feedbacks = feedbacksByCoach[coach.id] || [];
+        const { averageStars, averageRating } = this.calcAverageStars(feedbacks);
+        return {
+          ...coach,
+          feedbacks: this.transformFeedbacks(feedbacks),
+          averageStars,
+          averageRating,
+        };
       });
+      const transformed = plainToInstance(CoachResponseDto, result, { excludeExtraneousValues: true });
+      console.log('DEBUG transformed coaches:', JSON.stringify(transformed, null, 2));
+      return transformed;
     } catch (error) {
       console.error('Error in getAllCoaches:', error);
       throw error;
@@ -101,7 +141,23 @@ export class CoachService {
     if (!coach) {
       throw new NotFoundException('Coach profile not found.');
     }
-    return plainToInstance(CoachResponseDto, coach, {
+    const feedbacksRaw = await this.feedbackService.getFeedbacksForCoaches([coach.id]);
+    const { averageStars, averageRating } = this.calcAverageStars(feedbacksRaw);
+    return plainToInstance(CoachResponseDto, {
+      ...coach,
+      feedbacks: this.transformFeedbacks(feedbacksRaw),
+      averageStars,
+      averageRating,
+    }, { excludeExtraneousValues: true });
+  }
+
+  async updateCoachByUserId(userId: string, data: UpdateCoachDto): Promise<CoachResponseDto> {
+    const coach = await this.coachRepository.findActiveCoachByUserId(userId);
+    if (!coach) {
+      throw new NotFoundException('Coach profile not found.');
+    }
+    const updatedCoach = await this.coachRepository.updateCoach(coach.id, data);
+    return plainToInstance(CoachResponseDto, updatedCoach, {
       excludeExtraneousValues: true,
     });
   }

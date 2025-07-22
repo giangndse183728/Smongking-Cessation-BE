@@ -1,4 +1,4 @@
-import { Body, Controller, Post, UsePipes, Get, UseGuards } from '@nestjs/common';
+import { Body, Controller, Post, UsePipes, Get, UseGuards, Patch, Param } from '@nestjs/common';
 import { CoachService } from './coach.service';
 import { SendCodeDto } from './dto/send-code.dto';
 import { CreateCoachDto } from './dto/create-coach.dto';
@@ -9,6 +9,8 @@ import { CoachResponseDto } from './dto/coach-response.dto';
 import { AccessTokenGuard } from '../auth/guards/access-token.guard';
 import { GetCurrentUser } from '@common/decorators/user.decorator';
 import { users } from '@prisma/client';
+import { UpdateCoachDto } from './dto/update-coach.dto';
+import { updateCoachProfileSchema } from './schemas/create-coach-profile.schema';
 
 @ApiTags('Coach')
 @Controller('coach')
@@ -83,5 +85,19 @@ export class CoachController {
   @UsePipes(new ZodValidationPipe(createCoachSchema))
   async createCoach(@Body() createCoachDto: CreateCoachDto) {
     return this.coachService.createCoach(createCoachDto);
+  }
+
+
+  @Patch('profile')
+  @ApiBearerAuth('access-token')
+  @UseGuards(AccessTokenGuard)
+  @ApiOperation({ summary: 'Update current coach profile' })
+  @ApiResponse({ status: 200, description: 'Coach profile updated successfully.', type: CoachResponseDto })
+  @ApiResponse({ status: 404, description: 'Coach not found.' })
+  async updateCurrentCoachProfile(
+    @GetCurrentUser() user: users,
+    @Body(new ZodValidationPipe(updateCoachProfileSchema)) body: UpdateCoachDto,
+  ): Promise<CoachResponseDto> {
+    return this.coachService.updateCoachByUserId(user.id, body);
   }
 }

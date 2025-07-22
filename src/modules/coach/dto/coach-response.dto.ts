@@ -1,5 +1,6 @@
 import { Exclude, Expose, Type, Transform } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
+import { FeedbackResponseDto } from '../../feedback/dto/feedback-response.dto';
 
 @Exclude()
 export class CoachUserResponseDto {
@@ -84,4 +85,29 @@ export class CoachResponseDto {
   @ApiProperty({ description: 'User information', type: CoachUserResponseDto })
   @Type(() => CoachUserResponseDto)
   users?: CoachUserResponseDto;
+
+  @Expose()
+  @ApiProperty({
+    description: 'All feedbacks for this coach',
+    type: [FeedbackResponseDto],
+    required: false,
+  })
+  @Type(() => FeedbackResponseDto)
+  feedbacks?: FeedbackResponseDto[];
+
+  @Expose()
+  @ApiProperty({
+    description: 'Average star for each rating 1-5',
+    example: { '1': 0, '2': 0, '3': 0, '4': 0, '5': 0 },
+    required: false,
+  })
+  averageStars?: { [key: string]: number };
+
+  @Expose()
+  @ApiProperty({
+    description: 'Average rating',
+    example: 0,
+    required: false,
+  })
+  averageRating?: number;
 } 

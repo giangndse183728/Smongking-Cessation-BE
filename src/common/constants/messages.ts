@@ -209,3 +209,14 @@ export const COMMENTS_MESSAGES = {
   CONTENT_IS_REQUIRED: 'Content is required.',
   CONTENT_IS_INVALID: 'Content must be a string.',
 } as const;
+
+export const FEEDBACK_MESSAGES = {
+  COACH_ID_IS_REQUIRED: 'Coach id is required.',
+  COACH_ID_IS_INVALID: 'Coach id is invalid.',
+  RATING_STAR_IS_REQUIRED: 'Rating star is required.',
+  RATING_STAR_MUST_BE_BETWEEN_1_AND_5: 'Rating star must be between 1 and 5.',
+  COMMENT_IS_STRING: 'Comment must be a string.',
+  FEEDBACK_NOT_FOUND: 'Feedback not found.',
+  USER_ID_IS_REQUIRED: 'User id is required.',
+  USER_ID_IS_INVALID: 'User id is invalid.',
+};

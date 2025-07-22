@@ -45,6 +45,19 @@ export const createAchievementSchema = z.object({
         message: ACHIEVEMENTS_MESSAGES.THRESHOLD_MUST_BE_POSITIVE,
       },
     ),
+  point: z
+    .number({
+      required_error: ACHIEVEMENTS_MESSAGES.POINT_IS_REQUIRED,
+      invalid_type_error: ACHIEVEMENTS_MESSAGES.POINT_IS_INVALID,
+    })
+    .refine(
+      (value: number) => {
+        return !isNaN(value) && value >= 0;
+      },
+      {
+        message: ACHIEVEMENTS_MESSAGES.THRESHOLD_MUST_BE_POSITIVE,
+      },
+    ),
 });
 
 export class CreateAchievementDto extends createZodDto(
@@ -76,4 +89,9 @@ export class CreateAchievementDto extends createZodDto(
     description: 'Achievement threshold value',
   })
   threshold_value: string;
+  @ApiProperty({
+    example: 12,
+    description: 'Achievement point',
+  })
+  point: number;
 }

@@ -66,6 +66,12 @@ export class QuitPlanController {
           plan_type: 'slow',
         },
       },
+      coldTurkey: {
+        value: {
+          reason: 'I want to quit immediately with no reduction',
+          plan_type: 'cold_turkey',
+        },
+      },
     },
   })
   @ApiResponse({

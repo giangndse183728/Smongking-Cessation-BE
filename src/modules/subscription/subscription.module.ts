@@ -7,11 +7,12 @@ import { PrismaService } from '@libs/prisma/prisma.service';
 import { PrismaModule } from '@libs/prisma/prisma.module';
 import { UsersModule } from '@modules/users/users.module';
 import { AuthModule } from '@modules/auth/auth.module';
+import { UsersService } from '@modules/users/users.service';
 
 @Module({
   imports: [PrismaModule, UsersModule, AuthModule],
   controllers: [SubscriptionController],
-  providers: [SubscriptionService, SubscriptionRepository, PayOsService, PrismaService],
+  providers: [SubscriptionService, SubscriptionRepository, PayOsService, PrismaService, UsersService],
   exports: [SubscriptionService],
 })
 export class SubscriptionModule {} 

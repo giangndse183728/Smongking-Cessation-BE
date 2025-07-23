@@ -109,4 +109,11 @@ export class UpdateMeDto extends createZodDto(updateMeSchema) {
   @IsOptional()
   @IsUrl({}, { message: 'Avatar must be a valid URL' })
   avatar?: string;
+
+  @ApiPropertyOptional({
+    example: true,
+    description: 'Membership status',
+    required: false,
+  })
+  isMember?: boolean;
 }

@@ -6,8 +6,8 @@ export const createQuitPlanSchema = z.object({
     required_error: 'Plan type is required',
     invalid_type_error: 'Plan type must be a string'
   }).refine(
-    (val) => val && ['standard', 'aggressive', 'slow'].includes(val.toLowerCase()),
-    { message: 'Plan type must be one of: standard, aggressive, slow' }
+    (val) => val && ['standard', 'aggressive', 'slow', 'cold_turkey'].includes(val.toLowerCase()),
+    { message: 'Plan type must be one of: standard, aggressive, slow, cold_turkey' }
   ),
 });
 

@@ -41,6 +41,7 @@ export class AIService {
       const systemPrompt = `You are an expert smoking cessation coach. Generate a structured quit smoking plan with multiple phases based on detailed smoking habits.
 
 Plan Type: ${planType}
+- If plan type is 'cold turkey', the user wants to quit immediately with no gradual reduction. The plan should have a single phase with 0 cigarettes per day, starting from the start date, and a description encouraging immediate cessation.
 Current cigarettes per day: ${smokingHabits.cigarettes_per_day}
 Smoking years: ${smokingHabits.smoking_years}
 Cigarettes per pack: ${smokingHabits.cigarettes_per_pack}
@@ -70,7 +71,8 @@ Rules:
 8. Total phases should be 3-5 phases based on smoking intensity
 9. Each phase duration should be realistic (5-21 days based on plan type)
 10. Address specific triggers mentioned in description
-11. Return only valid JSON array, no extra text`;
+11. If plan type is 'cold turkey', create only one phase with 0 cigarettes per day, starting from the start date.
+12. Return only valid JSON array, no extra text`;
 
       const prompt = `${systemPrompt}\n\nCreate a ${planType} quit smoking plan for someone with these smoking habits: ${smokingHabits.cigarettes_per_day} cigarettes/day for ${smokingHabits.smoking_years} years, triggers: ${smokingHabits.triggers.join(', ')}, health issues: ${smokingHabits.health_issues}`;
 
@@ -153,6 +155,10 @@ Rules:
       case 'slow':
         reductionRates = [0.8, 0.6, 0.4, 0.2, 0.1, 0]; // Gentler reduction
         phaseDurations = [10, 10, 14, 14, 14, 21];
+        break;
+      case 'cold_turkey':
+        reductionRates = [0];
+        phaseDurations = [21];
         break;
       default: // standard
         reductionRates = [0.7, 0.4, 0.2, 0]; // Balanced approach

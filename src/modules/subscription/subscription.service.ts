@@ -54,23 +54,7 @@ export class SubscriptionService {
         },
       });
       if (pendingSubscription) {
-        
-        const plan = await this.prisma.membership_plans.findUnique({
-          where: { id: pendingSubscription.plan_id },
-        });
-        if (!plan) {
-          throw new NotFoundException('Membership plan not found for pending subscription');
-        }
-        const paymentData = {
-          orderCode: Number(pendingSubscription.order_code),
-          amount: Math.round(Number(plan.price) * 100),
-          description: `${plan.name}`,
-          returnUrl: `${process.env.FRONTEND_URL}/payment/success`,
-          cancelUrl: `${process.env.FRONTEND_URL}/payment/cancel`,
-          callbackUrl: `${process.env.BACKEND_URL}/subscriptions/payment/callback`,
-        };
-        const paymentLink = await this.payOsService.createPaymentLink(paymentData);
-        return paymentLink;
+        throw new BadRequestException('You have a pending payment transaction. Please wait 5 minutes to try again.');
       }
 
       const existingSubscription = await this.subscriptionRepository.findActiveByUserId(userId);

@@ -41,14 +41,17 @@ export class NotificationSchedulesService {
     const currentTime = new Date();
     const currentHour = currentTime.getHours();
     const currentMinute = currentTime.getMinutes();
+
     const scheduleReminders =
       await this.notificationScheduleRepository.getNotificationBySchedule();
+
     for (const schedule of scheduleReminders) {
-      if (!schedule.preferred_time) {
-        continue;
-      }
+      if (!schedule.preferred_time) continue;
+
       const hour = schedule.preferred_time.getUTCHours();
       const minute = schedule.preferred_time.getUTCMinutes();
+
+      if (hour !== currentHour || minute !== currentMinute) continue;
 
       const user = await this.usersService.getUser({ id: schedule.user_id });
       const records = await this.quitPlanRecordRepository.getRecordsByUserId(
@@ -66,41 +69,38 @@ export class NotificationSchedulesService {
       for (const record of sortedRecords) {
         const currentDate = new Date(record.record_date);
 
-        if (!record.is_pass) {
-          break;
-        }
+        if (!record.is_pass) break;
+
         const ONE_DAY_MS = 24 * 60 * 60 * 1000;
 
         if (previousDate) {
           const diff = previousDate.getTime() - currentDate.getTime();
-          if (diff !== ONE_DAY_MS) {
-            break;
-          }
+          if (diff !== ONE_DAY_MS) break;
         }
 
         streak++;
         previousDate = currentDate;
-        if (hour === currentHour && minute === currentMinute) {
-          const msg = `Great job! You've maintained your cigarette limit streak for ${streak} days in a row. Stay strong, and don’t forget to fill in today’s record!`;
-          const body = {
-            content: msg,
-            title: 'Quick check-in: Have you recorded today’s cigarettes?',
-            type: notification_type.REMINDER,
-          };
-          await this.notificationsService.createNotification(
-            body,
-            schedule.user_id,
-            'system',
-          );
-          await this.redisService.publish(
-            `notifications:${schedule.user_id}`,
-            JSON.stringify({ title: body.title, content: msg }),
-          );
-          return msg;
-        }
       }
+
+      const msg = `Great job! You've maintained your cigarette limit streak for ${streak} days in a row. Stay strong, and don’t forget to fill in today’s record!`;
+      const body = {
+        content: msg,
+        title: 'Quick check-in: Have you recorded today’s cigarettes?',
+        type: notification_type.REMINDER,
+      };
+
+      await this.notificationsService.createNotification(
+        body,
+        schedule.user_id,
+        'system',
+      );
+      await this.redisService.publish(
+        `notifications:${schedule.user_id}`,
+        JSON.stringify({ title: body.title, content: msg }),
+      );
     }
   }
+
   async getOwnNotificationSchedule(user_id: string) {
     const noti =
       await this.notificationScheduleRepository.getOwnNotificationSchedule(

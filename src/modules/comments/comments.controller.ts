@@ -20,7 +20,7 @@ export class CommentsController {
 
   @Post()
   @UseGuards(AccessTokenGuard)
-  @ApiOperation({ summary: 'Add Comment' })
+  @ApiOperation({ summary: 'Add/Reply Comment' })
   @ApiResponse({
     status: 201,
     description: 'Comment added successfully',
@@ -77,6 +77,17 @@ export class CommentsController {
       timestamp: '2025-07-08T08:51:53.981Z',
       path: '/api/v1/comments',
       message: 'Post not found.',
+      errors: [],
+    },
+  })
+  @ApiResponse({
+    status: HttpStatus.BAD_REQUEST,
+    description: 'Parent comment id does not belong to Post',
+    example: {
+      statusCode: 400,
+      timestamp: '2025-07-23T13:28:36.731Z',
+      path: '/api/v1/comments',
+      message: 'Parent comment id is invalid.',
       errors: [],
     },
   })

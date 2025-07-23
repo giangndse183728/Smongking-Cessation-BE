@@ -78,18 +78,19 @@ model coaches {
 }
 
 model comments {
-  id         String    @id @default(uuid()) @db.Uuid
-  post_id    String    @db.Uuid
-  user_id    String    @db.Uuid
-  content    String
-  created_at DateTime? @default(now()) @db.Timestamp(6)
-  created_by String?   @db.Uuid
-  updated_at DateTime? @updatedAt @db.Timestamp(6)
-  updated_by String?   @db.Uuid
-  deleted_at DateTime? @db.Timestamp(6)
-  deleted_by String?   @db.Uuid
-  posts      posts     @relation(fields: [post_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  users      users     @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  id                String    @id @default(uuid()) @db.Uuid
+  post_id           String    @db.Uuid
+  parent_comment_id String?   @db.Uuid
+  user_id           String    @db.Uuid
+  content           String
+  created_at        DateTime? @default(now()) @db.Timestamp(6)
+  created_by        String?   @db.Uuid
+  updated_at        DateTime? @updatedAt @db.Timestamp(6)
+  updated_by        String?   @db.Uuid
+  deleted_at        DateTime? @db.Timestamp(6)
+  deleted_by        String?   @db.Uuid
+  posts             posts     @relation(fields: [post_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  users             users     @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
 
 model feedbacks {

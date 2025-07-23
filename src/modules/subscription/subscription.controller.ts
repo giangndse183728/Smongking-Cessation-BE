@@ -21,63 +21,45 @@ import { PaymentCallbackDto } from '@libs/payment/payment.types';
 export class SubscriptionController {
   constructor(private readonly subscriptionService: SubscriptionService) {}
 
-
-  @Get()
-  @ApiOperation({ 
-    summary: 'Get current user subscription',
-    description: 'Retrieves the subscription details for the currently authenticated user'
+  @Get('all')
+  @ApiOperation({
+    summary: 'Get all subscriptions for the current user',
+    description: 'Returns the most recent PAID subscription as current, and the rest as queries.'
   })
-  @ApiResponse({ 
-    status: 200, 
-    description: 'Returns the current user subscription',
-    type: SubscriptionResponseDto,
-    examples: {
-      example1: {
-        value: {
-          id: '123e4567-e89b-12d3-a456-426614174000',
-          user_id: '123e4567-e89b-12d3-a456-426614174001',
-          plan_id: '123e4567-e89b-12d3-a456-426614174000',
+  @ApiResponse({
+    status: 200,
+    description: 'All subscriptions for the current user',
+    schema: {
+      example: {
+        current: {
+          id: 'sub-id',
+          user_id: 'user-id',
+          plan_id: 'plan-id',
           start_date: '2024-03-20T00:00:00Z',
           end_date: '2024-04-20T00:00:00Z',
           is_active: true,
           payment_status: 'PAID',
           created_at: '2024-03-20T10:00:00Z',
-          updated_at: '2024-03-20T10:00:00Z'
+          updated_at: '2024-03-20T10:00:00Z',
         },
-        summary: 'Current user subscription details'
+        queries: [
+          {
+            id: 'sub-id-2',
+            user_id: 'user-id',
+            plan_id: 'plan-id',
+            start_date: '2024-02-20T00:00:00Z',
+            end_date: '2024-03-20T00:00:00Z',
+            is_active: false,
+            payment_status: 'PENDING',
+            created_at: '2024-02-20T10:00:00Z',
+            updated_at: '2024-02-20T10:00:00Z',
+          }
+        ]
       }
     }
   })
-  @ApiResponse({ 
-    status: 404, 
-    description: 'No subscription found for the current user',
-    examples: {
-      example1: {
-        value: {
-          statusCode: 404,
-          message: 'User subscription not found',
-          error: 'Not Found'
-        },
-        summary: 'No subscription found'
-      }
-    }
-  })
-  @ApiResponse({ 
-    status: 401, 
-    description: 'Unauthorized - Invalid or missing access token',
-    examples: {
-      example1: {
-        value: {
-          statusCode: 401,
-          message: 'Unauthorized',
-          error: 'Unauthorized'
-        },
-        summary: 'Unauthorized access'
-      }
-    }
-  })
-  findCurrentUser(@Request() req) {
-    return this.subscriptionService.findByUserId(req.user.id);
+  getAllSubscriptions(@Request() req) {
+    return this.subscriptionService.getAllSubscriptionsByUser(req.user.id);
   }
 
   @Get(':id')

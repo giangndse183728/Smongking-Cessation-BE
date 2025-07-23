@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ForbiddenException,
   forwardRef,
   Inject,
   Injectable,
@@ -7,8 +8,10 @@ import {
 } from '@nestjs/common';
 import { CommentsRepository } from './comments.repository';
 import { PostsService } from '@modules/posts/posts.service';
-import { COMMENTS_MESSAGES } from '@common/constants/messages';
+import { COMMENTS_MESSAGES, POSTS_MESSAGES } from '@common/constants/messages';
 import { addCommentDto } from './dto/add-comment.dto';
+import { users } from '@prisma/client';
+import { UserRole } from '@common/constants/enum';
 
 @Injectable()
 export class CommentsService {
@@ -40,5 +43,19 @@ export class CommentsService {
   }
   async getPostComments(post_id: string) {
     return await this.commentsRepository.getPostComments(post_id);
+  }
+  async deleteComment(user: users, commentId: string) {
+    const existingComment =
+      await this.commentsRepository.findComment(commentId);
+    if (!existingComment) {
+      throw new NotFoundException(COMMENTS_MESSAGES.COMMENT_NOT_FOUND);
+    }
+    if (
+      user.role === UserRole.USER.toString() &&
+      existingComment.user_id !== user.id
+    ) {
+      throw new ForbiddenException(POSTS_MESSAGES.USER_NOT_ALLOWED);
+    }
+    return await this.commentsRepository.deleteComment(user, commentId);
   }
 }

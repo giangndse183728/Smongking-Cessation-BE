@@ -34,4 +34,9 @@ export class CommentsRepository {
       },
     });
   }
+  async findComment(id: string) {
+    return await this.prisma.comments.findUnique({
+      where: { id, deleted_at: null, deleted_by: null },
+    });
+  }
 }

@@ -212,6 +212,9 @@ export const COMMENTS_MESSAGES = {
   PARENT_COMMENT_ID_IS_REQUIRED: 'Parent comment id is required.',
   PARENT_COMENT_ID_IS_INVALID: 'Parent comment id is invalid.',
   PARENT_COMMENT_NOT_FOUND: 'Parent comment not found.',
+  COMMENT_ID_IS_REQUIRED: 'Comment id is required.',
+  COMMENT_ID_IS_INVALID: 'Comment id is invalid.',
+  COMMENT_NOT_FOUND: 'Comment not found.',
 } as const;
 
 export const FEEDBACK_MESSAGES = {

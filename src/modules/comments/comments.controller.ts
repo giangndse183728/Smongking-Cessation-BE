@@ -1,6 +1,11 @@
 import { Body, Controller, HttpStatus, Post, UseGuards } from '@nestjs/common';
 import { CommentsService } from './comments.service';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { AccessTokenGuard } from '@modules/auth/guards/access-token.guard';
 import { ZodValidationPipe } from '@common/pipe/zod-validation.pipe';
 import { addCommentSchema } from './schema/add-comment.schema';
@@ -8,6 +13,7 @@ import { GetCurrentUser } from '@common/decorators/user.decorator';
 import { addCommentDto } from './dto/add-comment.dto';
 
 @ApiTags('Comments')
+@ApiBearerAuth('access-token')
 @Controller('comments')
 export class CommentsController {
   constructor(private readonly commentsService: CommentsService) {}

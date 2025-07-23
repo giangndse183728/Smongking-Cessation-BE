@@ -5,6 +5,8 @@ import { plainToInstance } from 'class-transformer';
 import { PayOsService } from '@libs/payment/payos.service';
 import { PrismaService } from '@libs/prisma/prisma.service';
 import { PaymentLinkResponse } from '@libs/payment/payment.types';
+import { Cron, CronExpression } from '@nestjs/schedule';
+import { UsersService } from '@modules/users/users.service';
 
 @Injectable()
 export class SubscriptionService {
@@ -12,6 +14,7 @@ export class SubscriptionService {
     private subscriptionRepository: SubscriptionRepository,
     private payOsService: PayOsService,
     private prisma: PrismaService,
+    private usersService: UsersService, // Inject UsersService
   ) {}
 
 
@@ -129,6 +132,23 @@ export class SubscriptionService {
     } catch (error) {
       console.error('Payment callback error:', error);
       throw error;
+    }
+  }
+
+  @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
+  async deactivateExpiredSubscriptions() {
+    const now = new Date();
+
+    const expiredSubscriptions = await this.prisma.user_subscriptions.findMany({
+      where: {
+        end_date: { lt: now },
+        is_active: true,
+        deleted_at: null,
+      },
+    });
+    for (const sub of expiredSubscriptions) {
+      await this.subscriptionRepository.update(sub.id, { is_active: false });
+      await this.usersService.update(sub.user_id, { isMember: false });
     }
   }
 } 

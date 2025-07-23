@@ -4,6 +4,7 @@ import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { MotivationResponseDto } from './dto/motivation-response.dto';
 import { SendMessageDto, ChatResponseDto } from './dto/chat-message.dto';
 import { MemberGuard } from '@common/guards/member.guard';
+import { AccessTokenGuard } from '@modules/auth/guards/access-token.guard';
 
 @ApiTags('Motivation')
 @Controller('motivation')
@@ -21,7 +22,7 @@ export class MotivationController {
     return this.motivationService.getCurrentMotivationalMessage();
   }
 
-  @UseGuards(MemberGuard)
+  @UseGuards(AccessTokenGuard,MemberGuard)
   @Post('chat')
   @ApiOperation({ summary: 'Send a message to the AI coach' })
   @ApiResponse({

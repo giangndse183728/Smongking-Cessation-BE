@@ -7,7 +7,13 @@ import {
   Post,
   UseGuards,
 } from '@nestjs/common';
-import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiParam,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { ReactionsService } from './reactions.service';
 import { AccessTokenGuard } from '@modules/auth/guards/access-token.guard';
 import { GetCurrentUser } from '@common/decorators/user.decorator';
@@ -19,6 +25,7 @@ import { getReactionSchema } from './schema/get-reaction.schema';
 
 @Controller('reactions')
 @ApiTags('Reactions')
+@ApiBearerAuth('access-token')
 export class ReactionsController {
   constructor(private readonly reactionsService: ReactionsService) {}
   @Post()

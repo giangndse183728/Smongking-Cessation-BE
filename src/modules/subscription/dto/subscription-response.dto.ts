@@ -1,4 +1,5 @@
 import { Expose, Transform } from 'class-transformer';
+import { MembershipPlan } from '@modules/membership-plan/entities/membership-plan.entity';
 
 export class SubscriptionResponseDto {
   @Expose()
@@ -8,7 +9,7 @@ export class SubscriptionResponseDto {
   user_id: string;
 
   @Expose()
-  plan_id: string;
+  membership_plan: MembershipPlan;
 
   @Expose()
   @Transform(({ value }) => value.toISOString())

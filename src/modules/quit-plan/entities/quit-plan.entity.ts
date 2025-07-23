@@ -25,6 +25,9 @@ export class QuitPlan implements quit_plans {
 
   calculateProgress(phases: QuitPlanPhase[], records: QuitPlanRecord[]) {
     const totalPhases = phases.length;
+    const passPhases = phases.filter(
+      (phase) => phase.status === 'COMPLETED' || phase.status === 'FAILED',
+    ).length;
     const completedPhases = phases.filter(
       (phase) => phase.status === 'COMPLETED',
     ).length;
@@ -34,6 +37,7 @@ export class QuitPlan implements quit_plans {
     return {
       totalPhases,
       completedPhases,
+      passPhases,
       totalRecords,
       progressPercentage:
         totalPhases > 0 ? Math.round((completedPhases / totalPhases) * 100) : 0,

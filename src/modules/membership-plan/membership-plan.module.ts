@@ -15,6 +15,6 @@ import { AccessTokenStrategy } from '@modules/auth/strategies/access-token.strat
     MembershipPlanRepository,
     AccessTokenStrategy,
   ],
-  exports: [MembershipPlanService],
+  exports: [MembershipPlanService, MembershipPlanRepository],
 })
 export class MembershipPlanModule {} 

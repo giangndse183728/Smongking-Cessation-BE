@@ -34,6 +34,7 @@ import { QuitPlanRecordResponseDto } from '../plan-record/dto/quit-plan-record-r
 import { QUIT_PLAN_MESSAGES } from '@common/constants/messages';
 import { Roles } from '@common/decorators/roles.decorator';
 import { UserRole } from '@common/constants/enum';
+import { users } from '@prisma/client';
 
 @ApiTags('Quit Plans')
 @Controller('quit-plans')
@@ -207,10 +208,10 @@ export class QuitPlanController {
     description: 'Quit plan not found',
   })
   async getQuitPlanById(
-    @GetCurrentUser('id') userId: string,
+    @GetCurrentUser() user: users,
     @Param('id') planId: string,
   ) {
-    const result = await this.quitPlanService.getQuitPlanById(userId, planId);
+    const result = await this.quitPlanService.getQuitPlanById(user.id, planId);
     if (!result) {
       throw new HttpException(
         {

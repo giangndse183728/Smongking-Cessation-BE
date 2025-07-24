@@ -20,4 +20,13 @@ export class NotificationsRepository {
     });
     return notification;
   }
+  async getNotifications(user_id: string) {
+    return await this.prisma.notifications.findMany({
+      where: {
+        user_id,
+        deleted_at: null,
+        deleted_by: null,
+      },
+    });
+  }
 }

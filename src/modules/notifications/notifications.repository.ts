@@ -27,6 +27,9 @@ export class NotificationsRepository {
         deleted_at: null,
         deleted_by: null,
       },
+      orderBy: {
+        created_at: 'desc',
+      },
     });
   }
 }

@@ -33,4 +33,12 @@ export class StatisticsController {
   async getOverview() {
     return this.statisticsService.getOverview();
   }
+
+  @Roles(UserRole.ADMIN)
+  @Get('subscription-transactions')
+  @ApiOperation({ summary: 'Get all subscription transactions (admin only)' })
+  @ApiResponse({ status: 200, description: 'List of all subscription transactions from the local database' })
+  async getAllSubscriptionTransactions() {
+    return this.statisticsService.getAllSubscriptionTransactions();
+  }
 } 

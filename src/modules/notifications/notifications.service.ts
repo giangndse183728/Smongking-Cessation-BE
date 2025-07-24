@@ -16,4 +16,7 @@ export class NotificationsService {
       created_by,
     );
   }
+  async getNotifications(userId: string) {
+    return this.notificationsRepository.getNotifications(userId);
+  }
 }

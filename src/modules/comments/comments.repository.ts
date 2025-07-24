@@ -1,6 +1,7 @@
 import { PrismaService } from '@libs/prisma/prisma.service';
 import { Injectable } from '@nestjs/common';
 import { addCommentDto } from './dto/add-comment.dto';
+import { users } from '@prisma/client';
 
 @Injectable()
 export class CommentsRepository {
@@ -31,6 +32,25 @@ export class CommentsRepository {
             avatar: true,
           },
         },
+      },
+    });
+  }
+  async findComment(id: string) {
+    return await this.prisma.comments.findUnique({
+      where: { id, deleted_at: null, deleted_by: null },
+    });
+  }
+  async deleteComment(user: users, commentId: string) {
+    return await this.prisma.comments.update({
+      where: {
+        id: commentId,
+        deleted_at: null,
+        deleted_by: null,
+      },
+      data: {
+        deleted_at: new Date(),
+        deleted_by: user.id,
+        updated_by: user.id,
       },
     });
   }

@@ -257,4 +257,17 @@ export class ChatService {
   async getJoinCallToken( username: string, chatRoomId: string) {
     return this.livekitService.createToken(chatRoomId, username);
   }
+
+  async getChatLineCountBetweenUserAndCoach(userId: string, coachId: string): Promise<number> {
+    const chatRoom = await this.chatRepository.findChatRoomByUserAndCoach(userId, coachId);
+    if (!chatRoom) return 0;
+
+    const count = await this.prisma.chat_lines.count({
+      where: {
+        chat_room_id: chatRoom.id,
+        deleted_at: null,
+      },
+    });
+    return count;
+  }
 }

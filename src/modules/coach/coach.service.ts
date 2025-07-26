@@ -122,13 +122,11 @@ export class CoachService {
         const { averageStars, averageRating } = this.calcAverageStars(feedbacks);
         return {
           ...coach,
-          feedbacks: this.transformFeedbacks(feedbacks),
           averageStars,
           averageRating,
         };
       });
       const transformed = plainToInstance(CoachResponseDto, result, { excludeExtraneousValues: true });
-      console.log('DEBUG transformed coaches:', JSON.stringify(transformed, null, 2));
       return transformed;
     } catch (error) {
       console.error('Error in getAllCoaches:', error);

@@ -319,4 +319,58 @@ Rules:
       throw error;
     }
   }
+
+  async generateChatResponseWithContext(
+    userMessage: string,
+    userId: string,
+    smokingHabits: any,
+    activeQuitPlan: any
+  ): Promise<string> {
+    try {
+      // Build context from user data
+      let context = "You are a supportive AI coach helping someone quit smoking. ";
+      
+      if (smokingHabits) {
+        context += `\n\nUser's Smoking Profile:\n- Cigarettes per day: ${smokingHabits.cigarettes_per_day}\n- Years of smoking: ${smokingHabits.smoking_years}\n- Cigarettes per pack: ${smokingHabits.cigarettes_per_pack}\n- Price per pack: $${smokingHabits.price_per_pack}\n- Triggers: ${smokingHabits.triggers.join(', ')}\n- Health issues: ${smokingHabits.health_issues}\n- AI feedback: ${smokingHabits.ai_feedback || 'None'}`;
+      }
+
+      if (activeQuitPlan) {
+        context += `\n\nCurrent Quit Plan:\n- Plan type: ${activeQuitPlan.plan_type}\n- Start date: ${activeQuitPlan.start_date}\n- Expected end date: ${activeQuitPlan.expected_end_date}\n- Status: ${activeQuitPlan.status}\n- Reason for quitting: ${activeQuitPlan.reason}`;
+      }
+
+      context += `\n\nUser message: ${userMessage}`;
+      context += `\n\nProvide a supportive, personalized response based on the user's smoking profile and quit plan. Be encouraging and offer specific advice.`;
+
+      // Gemini API call with context
+      const response = await axios.post(
+        `${this.geminiApiUrl}/v1beta/models/${this.geminiModel}:generateContent`,
+        {
+          contents: [
+            {
+              role: 'user',
+              parts: [
+                { text: context }
+              ]
+            }
+          ],
+          generationConfig: {
+            maxOutputTokens: 200,
+            temperature: 0.7,
+          },
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'x-goog-api-key': this.geminiApiKey,
+          },
+        },
+      );
+
+      const aiResponse = response.data.candidates[0].content.parts[0].text.trim();
+      return aiResponse;
+    } catch (error) {
+      this.logger.error('Failed to generate chat response with context', error.message);
+      throw error;
+    }
+  }
 }

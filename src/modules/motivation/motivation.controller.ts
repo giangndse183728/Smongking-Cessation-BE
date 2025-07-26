@@ -5,6 +5,7 @@ import { MotivationResponseDto } from './dto/motivation-response.dto';
 import { SendMessageDto, ChatResponseDto } from './dto/chat-message.dto';
 import { MemberGuard } from '@common/guards/member.guard';
 import { AccessTokenGuard } from '@modules/auth/guards/access-token.guard';
+import { GetCurrentUser } from '@common/decorators/user.decorator';
 
 @ApiTags('Motivation')
 @Controller('motivation')
@@ -32,7 +33,8 @@ export class MotivationController {
   })
   async chatWithAI(
     @Body() sendMessageDto: SendMessageDto,
+    @GetCurrentUser('id') userId: string,
   ): Promise<ChatResponseDto> {
-    return this.motivationService.chatWithAI(sendMessageDto.message);
+    return this.motivationService.chatWithAI(sendMessageDto.message, userId);
   }
 }

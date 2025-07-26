@@ -1,6 +1,16 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Expose } from 'class-transformer';
 
+export class UserInfoDto {
+  @ApiProperty({ example: 'john_doe' })
+  @Expose()
+  username: string;
+
+  @ApiProperty({ example: 'https://example.com/avatar.jpg' })
+  @Expose()
+  avatar: string;
+}
+
 export class FeedbackResponseDto {
   @ApiProperty({ example: 4 })
   @Expose()
@@ -28,4 +38,8 @@ export class FeedbackResponseDto {
   @ApiProperty({ example: '457d2421-d281-4e7b-9ffd-c83e299a53cb' })
   @Expose()
   updated_by: string;
+
+  @ApiProperty({ type: UserInfoDto })
+  @Expose()
+  users: UserInfoDto;
 } 

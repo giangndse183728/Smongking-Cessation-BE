@@ -41,7 +41,14 @@ export class FeedbackRepository {
         deleted_at: null,
         deleted_by: null,
       },
-    
+      include: {
+        users: {
+          select: {
+            username: true,
+            avatar: true,
+          },
+        },
+      },
     });
   }
 
@@ -52,6 +59,14 @@ export class FeedbackRepository {
         ref_id: { in: coachIds },
         deleted_at: null,
         deleted_by: null,
+      },
+      include: {
+        users: {
+          select: {
+            username: true,
+            avatar: true,
+          },
+        },
       },
     });
     

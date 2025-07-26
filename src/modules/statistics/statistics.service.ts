@@ -174,4 +174,11 @@ export class StatisticsService {
       revenueFromMembershipsByMonth,
     };
   }
+
+  async getAllSubscriptionTransactions() {
+    return this.prisma.user_subscriptions.findMany({
+      include: { membership_plans: true },
+      orderBy: { created_at: 'desc' },
+    });
+  }
 } 

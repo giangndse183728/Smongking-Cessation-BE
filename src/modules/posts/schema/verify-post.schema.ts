@@ -16,8 +16,6 @@ export const verifyPostSchema = z
       .string({
         invalid_type_error: POSTS_MESSAGES.TITLE_MUST_BE_STRING,
       })
-      .min(5, POSTS_MESSAGES.TITLE_MUST_BE_BETWEEN_5_50_CHARACTERS)
-      .max(50, POSTS_MESSAGES.TITLE_MUST_BE_BETWEEN_5_50_CHARACTERS)
       .optional(),
   })
   .superRefine((data, ctx) => {

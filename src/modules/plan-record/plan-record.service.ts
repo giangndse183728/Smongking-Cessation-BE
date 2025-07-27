@@ -11,6 +11,7 @@ import { PrismaService } from '@libs/prisma/prisma.service';
 import { Prisma } from '@prisma/client';
 import { QuitPlanRepository } from '../quit-plan/quit-plan.repository';
 import { SmokingHabitsService } from '../smoking-habits/smoking-habits.service';
+import { DateTime } from 'luxon';
 
 @Injectable()
 export class PlanRecordService {
@@ -47,31 +48,47 @@ export class PlanRecordService {
         throw new NotFoundException('Smoking habits profile not found');
       }
 
-      const recordDate = new Date(data.record_date);
-      recordDate.setDate(recordDate.getDate() + 1);
-      recordDate.setHours(0, 0, 0, 0);
+      // Use Luxon for proper Vietnam timezone handling
+      const vietnamNow = DateTime.now().setZone('Asia/Ho_Chi_Minh');
+      const vietnamToday = vietnamNow.startOf('day');
+      
+      // Get record date in Vietnam timezone
+      let recordDate: DateTime;
+      if (typeof data.record_date === 'string') {
+        recordDate = DateTime.fromISO(data.record_date).setZone('Asia/Ho_Chi_Minh');
+      } else {
+        recordDate = DateTime.fromJSDate(data.record_date).setZone('Asia/Ho_Chi_Minh');
+      }
+      
+      const recordDateStartOfDay = recordDate.startOf('day');
 
-      const currentDate = new Date();
-      currentDate.setDate(currentDate.getDate() + 1);
-      currentDate.setHours(0, 0, 0, 0);
+      console.log('Record date (Vietnam):', recordDateStartOfDay.toISO());
+      console.log('Current date (Vietnam):', vietnamToday.toISO());
+      console.log('Record date string:', recordDateStartOfDay.toFormat('yyyy-MM-dd'));
+      console.log('Current date string:', vietnamToday.toFormat('yyyy-MM-dd'));
 
-      if (recordDate > currentDate) {
+      // Compare dates using Luxon
+      if (recordDateStartOfDay > vietnamToday) {
         throw new BadRequestException('Cannot record data for future dates');
       }
-      if (recordDate < currentDate) {
+      if (recordDateStartOfDay < vietnamToday) {
         throw new BadRequestException('Cannot record data for past dates');
       }
 
       // Check if there's already a record for the specific date
-      const nextDay = new Date(recordDate);
-      nextDay.setDate(nextDay.getDate() + 1);
+      // Create date range using UTC dates that represent Vietnam dates
+      const queryDateString = recordDateStartOfDay.toFormat('yyyy-MM-dd');
+      const [queryYear, queryMonth, queryDay] = queryDateString.split('-').map(Number);
+      const startOfDay = new Date(Date.UTC(queryYear, queryMonth - 1, queryDay));
+      const endOfDay = new Date(Date.UTC(queryYear, queryMonth - 1, queryDay, 23, 59, 59, 999));
+      
       const existingDateRecord =
         await this.quitPlanRecordRepository.findTodayRecord(
           userId,
           activePlan.id,
           activePhase.id,
-          recordDate,
-          nextDay,
+          startOfDay,
+          endOfDay,
         );
       const cigarettesSmoked = Math.max(0, data.cigarette_smoke || 0);
       const originalCigarettes = smokingHabits.cigarettes_per_day || 0;
@@ -94,9 +111,14 @@ export class PlanRecordService {
         activePhase.limit_cigarettes_per_day,
       );
 
+      // Create a date that represents the Vietnam date in UTC
+      const vietnamDateString = recordDateStartOfDay.toFormat('yyyy-MM-dd');
+      const [year, month, day] = vietnamDateString.split('-').map(Number);
+      const utcDate = new Date(Date.UTC(year, month - 1, day));
+
       const recordData = {
         ...data,
-        record_date: new Date(data.record_date),
+        record_date: utcDate, // Use UTC date that represents Vietnam date
         user_id: userId,
         plan_id: activePlan.id,
         phase_id: activePhase.id,

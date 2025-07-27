@@ -1,6 +1,6 @@
 import { quit_plan_records } from '@prisma/client';
 import { Decimal } from '@prisma/client/runtime/library';
-import { getCurrentDateInVietnam } from '@common/utils/timezone.utils';
+import { DateTime } from 'luxon';
 
 export class QuitPlanRecord implements quit_plan_records {
   id: string;
@@ -55,23 +55,21 @@ export class QuitPlanRecord implements quit_plan_records {
   }
 
   isToday(): boolean {
-    const today = getCurrentDateInVietnam();
-    today.setHours(0, 0, 0, 0);
+    const vietnamToday = DateTime.now().setZone('Asia/Ho_Chi_Minh').startOf('day');
+    
+    // Convert UTC date back to Vietnam timezone for comparison
+    const recordDate = DateTime.fromJSDate(this.record_date).setZone('Asia/Ho_Chi_Minh').startOf('day');
 
-    const recordDate = new Date(this.record_date);
-    recordDate.setHours(0, 0, 0, 0);
-
-    return recordDate.getTime() === today.getTime();
+    return recordDate.equals(vietnamToday);
   }
 
   isFutureDate(): boolean {
-    const currentDate = getCurrentDateInVietnam();
-    currentDate.setHours(0, 0, 0, 0);
+    const vietnamNow = DateTime.now().setZone('Asia/Ho_Chi_Minh').startOf('day');
+    
+    // Convert UTC date back to Vietnam timezone for comparison
+    const recordDate = DateTime.fromJSDate(this.record_date).setZone('Asia/Ho_Chi_Minh').startOf('day');
 
-    const recordDate = new Date(this.record_date);
-    recordDate.setHours(0, 0, 0, 0);
-
-    return recordDate > currentDate;
+    return recordDate > vietnamNow;
   }
 
   getCravingLevelText(): string {

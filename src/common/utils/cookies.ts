@@ -6,8 +6,8 @@ const COOKIE_MAX_AGE =
 export function setAuthCookies(res: Response, refreshToken: string) {
   res.cookie('refreshToken', refreshToken, {
     httpOnly: true,
-    secure: false,
-    sameSite: 'strict',
+    secure: true,
+    sameSite: 'none',
     maxAge: COOKIE_MAX_AGE,
   });
 }

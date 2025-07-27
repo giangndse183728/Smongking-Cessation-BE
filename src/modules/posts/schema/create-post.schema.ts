@@ -17,13 +17,10 @@ export const createPostSchema = z
           message: POSTS_MESSAGES.TYPE_IS_INVALID,
         },
       ),
-    title: z
-      .string({
-        required_error: POSTS_MESSAGES.TITLE_IS_REQUIRED,
-        invalid_type_error: POSTS_MESSAGES.TITLE_MUST_BE_STRING,
-      })
-      .min(5, POSTS_MESSAGES.TITLE_MUST_BE_BETWEEN_5_50_CHARACTERS)
-      .max(50, POSTS_MESSAGES.TITLE_MUST_BE_BETWEEN_5_50_CHARACTERS),
+    title: z.string({
+      required_error: POSTS_MESSAGES.TITLE_IS_REQUIRED,
+      invalid_type_error: POSTS_MESSAGES.TITLE_MUST_BE_STRING,
+    }),
     content: z.string({
       required_error: POSTS_MESSAGES.CONTENT_IS_REQUIRED,
       invalid_type_error: POSTS_MESSAGES.CONTENT_MUST_BE_STRING,

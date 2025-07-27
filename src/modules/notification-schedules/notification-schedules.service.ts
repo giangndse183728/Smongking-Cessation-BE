@@ -36,7 +36,7 @@ export class NotificationSchedulesService {
   }
 
   // gửi noti reminder
-  @Cron('* * * * *')
+  // @Cron('* * * * *')
   async handleScheduledNotifications() {
     const currentTime = new Date();
     const currentHour = currentTime.getHours();

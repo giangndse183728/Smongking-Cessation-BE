@@ -1,5 +1,7 @@
+import { DateTime } from 'luxon';
+
 /**
- * Timezone utility functions
+ * Timezone utility functions using Luxon
  */
 
 /**
@@ -7,10 +9,8 @@
  * @returns Date object representing current date/time in Vietnam
  */
 export function getCurrentDateInVietnam(): Date {
-  const now = new Date();
-  const vietnamOffset = 7 * 60; // UTC+7 in minutes
-  const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
-  return new Date(utc + (vietnamOffset * 60000));
+  const now = DateTime.now().setZone('Asia/Ho_Chi_Minh');
+  return now.toJSDate();
 }
 
 /**
@@ -19,7 +19,25 @@ export function getCurrentDateInVietnam(): Date {
  * @returns Date object in Vietnam timezone
  */
 export function toVietnamTimezone(date: Date): Date {
-  const vietnamOffset = 7 * 60; // UTC+7 in minutes
-  const utc = date.getTime() + (date.getTimezoneOffset() * 60000);
-  return new Date(utc + (vietnamOffset * 60000));
+  const vietnamDate = DateTime.fromJSDate(date).setZone('Asia/Ho_Chi_Minh');
+  return vietnamDate.toJSDate();
+}
+
+/**
+ * Get start of day in Vietnam timezone
+ * @param date - The date to get start of day for
+ * @returns Date object representing start of day in Vietnam timezone
+ */
+export function getStartOfDayInVietnam(date: Date): Date {
+  const vietnamDate = DateTime.fromJSDate(date).setZone('Asia/Ho_Chi_Minh');
+  return vietnamDate.startOf('day').toJSDate();
+}
+
+/**
+ * Get current date string in Vietnam timezone
+ * @returns String in format YYYY-MM-DD
+ */
+export function getCurrentDateStringInVietnam(): string {
+  const now = DateTime.now().setZone('Asia/Ho_Chi_Minh');
+  return now.toFormat('yyyy-MM-dd');
 } 

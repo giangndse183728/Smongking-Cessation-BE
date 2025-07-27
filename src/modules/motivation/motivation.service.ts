@@ -5,6 +5,9 @@ import { RedisService } from '@libs/redis/redis.service';
 import { AIService } from '../../libs/ai/ai.service';
 import { ChatResponseDto } from './dto/chat-message.dto';
 import { MOTIVATION_MESSAGES } from '@common/constants/messages';
+import { SmokingHabitsRepository } from '@modules/smoking-habits/smoking-habits.repository';
+import { QuitPlanRepository } from '@modules/quit-plan/quit-plan.repository';
+import { QuitPlanRecordRepository } from '@modules/plan-record/plan-record.repository';
 
 @Injectable()
 export class MotivationService {
@@ -14,6 +17,8 @@ export class MotivationService {
   constructor(
     private readonly redisService: RedisService,
     private readonly aiService: AIService,
+    private readonly smokingHabitsRepository: SmokingHabitsRepository,
+    private readonly quitPlanRepository: QuitPlanRepository,
   ) {}
 
   @Cron('0 */4 * * *')
@@ -47,9 +52,19 @@ export class MotivationService {
     }
   }
 
-  async chatWithAI(userMessage: string): Promise<ChatResponseDto> {
+  async chatWithAI(userMessage: string, userId: string): Promise<ChatResponseDto> {
     try {
-      const response = await this.aiService.generateChatResponse(userMessage);
+      const smokingHabits = await this.smokingHabitsRepository.findByUserId(userId);
+      
+      // Get user's active quit plan
+      const activeQuitPlan = await this.quitPlanRepository.findActiveQuitPlanByUserId(userId);
+      
+      const response = await this.aiService.generateChatResponseWithContext(
+        userMessage, 
+        userId, 
+        smokingHabits, 
+        activeQuitPlan
+      );
       return { message: response };
     } catch (error) {
       this.logger.error('Failed to generate chat response', error.message);

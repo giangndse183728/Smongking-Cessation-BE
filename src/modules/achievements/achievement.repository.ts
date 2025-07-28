@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { PrismaService } from '@libs/prisma/prisma.service';
 import { CreateAchievementDto } from './dto/create-achievement.dto';
 import { UpdateAchievementDto } from './dto/update-achievement.dto';
@@ -40,17 +40,28 @@ export class AchievementRepository {
   }
 
   async deleteAchievement(achievement_id: string, user_id: string) {
+    const inUseAchievement = await this.prisma.user_achievements.findMany({
+      where: {
+        achievement_id,
+        deleted_at: null,
+        deleted_by: null,
+      },
+    });
+
+    if (inUseAchievement.length > 0) {
+      throw new BadRequestException('Achievement is in use.');
+    }
+
     const achievement = await this.prisma.achievements.update({
       where: {
         id: achievement_id,
-        deleted_at: null,
-        deleted_by: null,
       },
       data: {
         deleted_at: new Date(),
         deleted_by: user_id,
       },
     });
+
     return achievement;
   }
 

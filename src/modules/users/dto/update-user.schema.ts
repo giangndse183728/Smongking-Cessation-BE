@@ -15,16 +15,12 @@ export const updateMeSchema = z.object({
     .string({
       invalid_type_error: USERS_MESSAGES.FIRST_NAME_MUST_BE_STRING,
     })
-    .min(3, USERS_MESSAGES.FIRST_NAME_MUST_BE_BETWEEN_3_AND_50_CHARACTERS)
-    .max(50, USERS_MESSAGES.FIRST_NAME_MUST_BE_BETWEEN_3_AND_50_CHARACTERS)
     .optional(),
 
   last_name: z
     .string({
       invalid_type_error: USERS_MESSAGES.LAST_NAME_MUST_BE_STRING,
     })
-    .min(3, USERS_MESSAGES.LAST_NAME_MUST_BE_BETWEEN_3_AND_50_CHARACTERS)
-    .max(50, USERS_MESSAGES.LAST_NAME_MUST_BE_BETWEEN_3_AND_50_CHARACTERS)
     .optional(),
 
   dob: z
